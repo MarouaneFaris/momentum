@@ -1,7 +1,7 @@
 # ADR-001: Permissions model decisions
 
 **Date:** 2026-04-30
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 
