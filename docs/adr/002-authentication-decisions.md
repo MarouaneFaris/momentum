@@ -1,7 +1,7 @@
 # ADR-002: Authentication decisions
 
 **Date:** 2026-05-01  
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 
