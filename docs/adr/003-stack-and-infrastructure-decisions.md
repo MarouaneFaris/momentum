@@ -1,7 +1,7 @@
 # ADR-003: Stack and infrastructure decisions
 
 **Date:** 2026-05-02  
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 
@@ -42,7 +42,7 @@ The project will be hosted using Railway.
 
 ## Rationale
 
-The choice of the Symfony framework over Laravel, the other major PHP framework, resides in it's large eco system and an easier experience as a developer.
+The choice of the Symfony framework over Laravel, the other major PHP framework, resides in it's component-based architecture, which would allow us to move towards hexagonal structures later on.
 Concerning MariaDB, the choice was made to have a completly open-source database, and the fact that Postgresql seems overkill for our project's needs.
 This stack is robust and well-known which will facilitate the arrival of new dev on the project.
 This will also permit us to scale without too much worry.
