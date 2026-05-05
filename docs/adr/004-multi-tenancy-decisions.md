@@ -1,7 +1,7 @@
 # ADR-004: Multi-tenancy decisions
 
 **Date:** 2026-05-05  
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 
