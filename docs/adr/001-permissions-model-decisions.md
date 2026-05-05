@@ -1,7 +1,7 @@
 # ADR-001: Permissions model decisions
 
 **Date:** 2026-04-30  
-**Status:** Accepted
+**Status:** Superseded by [ADR-005](./005-role-scope-decisions.md)
 
 ---
 
