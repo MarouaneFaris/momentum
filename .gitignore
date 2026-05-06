@@ -1,5 +1,1 @@
-###> docker ###
-docker/.devcontainer/
-docker/.github/
-docker/docs/
-###< docker ###
+
