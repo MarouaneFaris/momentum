@@ -3,6 +3,7 @@ services:
   php:
     build:
       context: ..
+      dockerfile: docker/Dockerfile
       target: frankenphp_dev
     restart: unless-stopped
     environment:
