@@ -1,6 +1,6 @@
 {
     "symfony/console": {
-        "version": "7.4",
+        "version": "8.0",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -25,7 +25,7 @@
         ]
     },
     "symfony/framework-bundle": {
-        "version": "7.4",
+        "version": "8.0",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
@@ -45,7 +45,7 @@
         ]
     },
     "symfony/routing": {
-        "version": "7.4",
+        "version": "8.0",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
