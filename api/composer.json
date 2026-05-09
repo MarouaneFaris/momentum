@@ -17,6 +17,7 @@
         "symfony/framework-bundle": "8.0.*",
         "symfony/maker-bundle": "^1.67",
         "symfony/runtime": "8.0.*",
+        "symfony/security-bundle": "^8.0",
         "symfony/twig-bundle": "^8.0.8",
         "symfony/web-profiler-bundle": "^8.0.9",
         "symfony/yaml": "8.0.*"
