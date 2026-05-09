@@ -33,8 +33,6 @@ services:
         target: 443
         published: ${HTTP3_PORT:-443}
         protocol: udp
-    networks:
-      - momentum_network
     depends_on:
       database:
         condition: service_healthy
@@ -56,8 +54,6 @@ services:
       - database_data:/var/lib/mysql:rw
     ports:
       - 3306
-    networks:
-      - momentum_network
 
 # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
 ###> symfony/mercure-bundle ###
@@ -69,7 +65,3 @@ volumes:
   database_data:
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
-
-networks:
-  momentum_network:
-    driver: bridge
