@@ -27,3 +27,7 @@ services:
     tty: true
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
+
+  database:
+    ports:
+      - 3306:3306

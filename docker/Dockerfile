@@ -31,6 +31,8 @@ RUN <<-EOF
 	rm -rf /var/lib/apt/lists/*
 EOF
 
+RUN install-php-extensions pdo_mysql
+
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
