@@ -19,6 +19,9 @@ help: ## Outputs this help screen
 
 ## —— Docker 🐳 ————————————————————————————————————————————————————————————————
 build: ## Builds the Docker images
+	@$(DOCKER_COMP) build
+
+rebuild: ## Rebuilds the Docker images without cache
 	@$(DOCKER_COMP) build --pull --no-cache
 
 up: ## Start the docker hub in detached mode (no logs)
