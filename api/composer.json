@@ -22,6 +22,7 @@
         "symfony/yaml": "8.0.*"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
         "symfony/maker-bundle": "^1.67",
         "symfony/stopwatch": "8.0.*"
     },
@@ -64,7 +65,10 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "cs-check": "php-cs-fixer check --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "check": "composer cs-check"
     },
     "conflict": {
         "symfony/symfony": "*"

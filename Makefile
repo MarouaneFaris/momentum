@@ -66,6 +66,13 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 cc: c=c:c ## Clear the cache
 cc: sf
 
+## —— Backend 🐘 ———————————————————————————————————————————————————————————————
+back-cs-fix: ## Fix PHP code style
+	@$(COMPOSER) cs-fix
+
+back-check: ## Run all backend quality checks (phpstan + cs)
+	@$(COMPOSER) check
+
 ## —— Frontend 🌐 ——————————————————————————————————————————————————————————————
 front-install: ## Install frontend dependencies
 	@cd $(FRONTEND_DIR) && npm install
@@ -83,4 +90,4 @@ front-check: ## Run all frontend quality checks (type-check + lint + format)
 	@cd $(FRONTEND_DIR) && npm run check
 
 ## —— Quality ✅ ———————————————————————————————————————————————————————————————
-check: front-check ## Run all quality checks (add back-check here later)
+check: front-check back-check ## Run all quality checks
