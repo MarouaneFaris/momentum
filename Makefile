@@ -9,6 +9,9 @@ PHP      = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY  = $(PHP) bin/console
 
+# Frontend
+FRONTEND_DIR = frontend
+
 # Misc
 .DEFAULT_GOAL = help
 .PHONY        : help build up start down logs sh composer vendor sf cc test
@@ -62,3 +65,22 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 
 cc: c=c:c ## Clear the cache
 cc: sf
+
+## —— Frontend 🌐 ——————————————————————————————————————————————————————————————
+front-install: ## Install frontend dependencies
+	@cd $(FRONTEND_DIR) && npm install
+
+front-lint: ## Lint frontend code
+	@cd $(FRONTEND_DIR) && npm run lint
+
+front-lint-fix: ## Lint and auto-fix frontend code
+	@cd $(FRONTEND_DIR) && npm run lint:fix
+
+front-format: ## Format frontend code with Prettier
+	@cd $(FRONTEND_DIR) && npm run format
+
+front-check: ## Run all frontend quality checks (type-check + lint + format)
+	@cd $(FRONTEND_DIR) && npm run check
+
+## —— Quality ✅ ———————————————————————————————————————————————————————————————
+check: front-check ## Run all quality checks (add back-check here later)
