@@ -12,17 +12,7 @@
         "format": "prettier --write ./src eslint.config.js prettier.config.js",
         "format:check": "prettier --check ./src eslint.config.js prettier.config.js",
         "type-check": "tsc -b --noEmit",
-        "check": "npm run type-check && npm run lint && npm run format:check",
-        "prepare": "cd .. && husky frontend/.husky"
-    },
-    "lint-staged": {
-        "*.{ts,tsx}": [
-            "eslint --fix",
-            "prettier --write"
-        ],
-        "*.{json,css,md}": [
-            "prettier --write"
-        ]
+        "check": "npm run type-check && npm run lint && npm run format:check"
     },
     "dependencies": {
         "react": "^19.2.5",
@@ -39,8 +29,6 @@
         "eslint-plugin-react-hooks": "^7.1.1",
         "eslint-plugin-react-refresh": "^0.5.2",
         "globals": "^17.5.0",
-        "husky": "^9.1.7",
-        "lint-staged": "^17.0.4",
         "prettier": "3.8.3",
         "typescript": "~6.0.2",
         "typescript-eslint": "^8.58.2",

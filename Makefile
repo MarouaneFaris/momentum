@@ -17,7 +17,7 @@ FRONTEND_DIR = frontend
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
-.PHONY : help build up start down logs sh composer vendor sf cc test
+.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -110,4 +110,9 @@ front-check: ## Run all frontend quality checks (type-check + lint + format)
 check: front-check back-check ## Run all quality checks
 
 ## —— Global 🌍 ———————————————————————————————————————————————————————————————
-install: rebuild up ## Install the whole project for the first time
+install-hooks: ## Configure git to use scripts/hooks as the hooks directory
+	@git config core.hooksPath scripts/hooks
+	@chmod +x scripts/hooks/pre-commit scripts/hooks/pre-push
+	@echo "Git hooks installed."
+
+install: rebuild up install-hooks ## Install the whole project for the first time
