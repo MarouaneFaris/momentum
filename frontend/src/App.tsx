@@ -24,7 +24,7 @@ function App() {
                 <button
                     type="button"
                     className="counter"
-                    onClick={() => setCount((count) => count + 1)}
+                    onClick={() =>{}}
                 >
                     Count is {count}
                 </button>
