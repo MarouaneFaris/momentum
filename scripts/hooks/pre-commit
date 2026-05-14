@@ -3,17 +3,23 @@ set -e
 
 DOCKER_COMP="docker compose -f docker/compose.yaml -f docker/compose.override.yaml"
 
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
 STAGED_TS=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^frontend/.*\.(ts|tsx)$' || true)
 STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.php$' || true)
 
 if [ -n "$STAGED_TS" ]; then
-    echo "pre-commit: ESLint..."
+    printf "${CYAN}pre-commit: ESLint...${NC}\n"
     $DOCKER_COMP exec -T frontend npm run lint:fix
     for f in $STAGED_TS; do git add "$f"; done
+    printf "${GREEN}pre-commit: ESLint passed.${NC}\n"
 fi
 
 if [ -n "$STAGED_PHP" ]; then
-    echo "pre-commit: php-cs-fixer..."
+    printf "${CYAN}pre-commit: php-cs-fixer...${NC}\n"
     $DOCKER_COMP exec -T php composer cs-fix
     for f in $STAGED_PHP; do git add "$f"; done
+    printf "${GREEN}pre-commit: php-cs-fixer passed.${NC}\n"
 fi
