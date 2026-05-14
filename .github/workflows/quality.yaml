@@ -11,8 +11,11 @@ on:
 
 jobs:
   frontend:
-    name: Frontend (type-check + lint + format)
+    name: Frontend
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
       - name: Checkout code
@@ -26,7 +29,40 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: cd frontend && npm ci
+        run: npm ci
 
       - name: Run quality checks
-        run: cd frontend && npm run check
+        run: npm run check
+
+  api:
+    name: Api
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+
+      - name: Setup PHP
+        id: setup-php
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc #v2.37.1
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      # - name: Cache Composer packages
+      #   id: composer-cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: vendor
+      #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --optimize-autoloader
+
+      - name: Run quality checks
+        run: composer check
