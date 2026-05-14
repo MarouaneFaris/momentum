@@ -35,12 +35,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Security audit
+        run: npm audit --audit-level=high
+
       - name: Run quality checks
         run: npm run check
 
   api:
     name: Api
     runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
     defaults:
       run:
         working-directory: ./api
@@ -71,5 +76,17 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-scripts
 
+      - name: Security audit
+        run: composer audit
+
       - name: Run quality checks
         run: composer check
+
+      - name: Validate Symfony container
+        run: php bin/console lint:container --no-debug
+
+      - name: Validate Twig templates
+        run: php bin/console lint:twig --no-debug
+
+      - name: Validate Doctrine mapping
+        run: php bin/console doctrine:schema:validate --skip-sync
