@@ -5,3 +5,6 @@ DOCKER_COMP="docker compose -f docker/compose.yaml -f docker/compose.override.ya
 
 echo "pre-push: PHPStan..."
 $DOCKER_COMP exec -T php composer phpstan
+
+echo "pre-push: Doctrine schema validation..."
+$DOCKER_COMP exec -T php bin/console doctrine:schema:validate
