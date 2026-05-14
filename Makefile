@@ -110,4 +110,4 @@ front-check: ## Run all frontend quality checks (type-check + lint + format)
 check: front-check back-check ## Run all quality checks
 
 ## —— Global 🌍 ———————————————————————————————————————————————————————————————
-install: rebuild up vendor front-install reset-db ## Install the whole project for the first time (containers + vendor + node_modules + database)
+install: rebuild up reset-db ## Install the whole project for the first time
