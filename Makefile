@@ -36,6 +36,9 @@ up: down ## Start the docker hub in detached mode (no logs)
 down: ## Stop the docker hub
 	@$(DOCKER_COMP) down --remove-orphans
 
+nuke: ## Stop the docker hub and remove volumes
+	@$(DOCKER_COMP) down --remove-orphans -v
+
 logs: ## Show live logs
 	@$(DOCKER_COMP) logs --tail=0 --follow
 
@@ -48,7 +51,6 @@ bash: ## Connect to the FrankenPHP container via bash so up and down arrows go t
 # test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
 # 	@$(eval c ?=)
 # 	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
-
 
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 composer: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'
@@ -67,13 +69,13 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 cc: c=c:c ## Clear the cache
 cc: sf
 
-create-db: c=doctrine:database:create
+create-db: c=doctrine:database:create --if-not-exists ## Create the database if it doesn't exists
 create-db: sf
 
-drop-db: c=doctrine:database:drop --force --if-exists
+drop-db: c=doctrine:database:drop --force --if-exists ## Drop the database if it exists
 drop-db: sf
 
-migrate-db: c=doctrine:migrations:migrate --no-interaction
+migrate-db: c=doctrine:migrations:migrate --no-interaction ## Update the database up to the last migration
 migrate-db: sf
 
 reset-db: ## Drop database, then re-create it, then run migrations
@@ -108,4 +110,4 @@ front-check: ## Run all frontend quality checks (type-check + lint + format)
 check: front-check back-check ## Run all quality checks
 
 ## —— Global 🌍 ———————————————————————————————————————————————————————————————
-install: rebuild up vendor front-install check ## Install the whole project for the first time (containers + vendor + node_modules + checks)
+install: rebuild up vendor front-install reset-db ## Install the whole project for the first time (containers + vendor + node_modules + database)
