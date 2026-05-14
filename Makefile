@@ -3,18 +3,20 @@ DOCKER_COMP = docker compose -f docker/compose.yaml -f docker/compose.override.y
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
+NODE_CONT = $(DOCKER_COMP) exec frontend
 
 # Executables
-PHP      = $(PHP_CONT) php
+PHP = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
-SYMFONY  = $(PHP) bin/console
+SYMFONY = $(PHP) bin/console
+NPM = $(NODE_CONT) npm
 
 # Frontend
 FRONTEND_DIR = frontend
 
 # Misc
 .DEFAULT_GOAL = help
-.PHONY        : help build up start down logs sh composer vendor sf cc test
+.PHONY : help build up start down logs sh composer vendor sf cc test
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -27,7 +29,7 @@ build: ## Builds the Docker images
 rebuild: ## Rebuilds the Docker images without cache
 	@$(DOCKER_COMP) build --pull --no-cache
 
-up: ## Start the docker hub in detached mode (no logs)
+up: down ## Start the docker hub in detached mode (no logs)
 	@$(DOCKER_COMP) up --detach
 
 start: build up ## Build and start the containers
@@ -75,19 +77,19 @@ back-check: ## Run all backend quality checks (phpstan + cs)
 
 ## —— Frontend 🌐 ——————————————————————————————————————————————————————————————
 front-install: ## Install frontend dependencies
-	@cd $(FRONTEND_DIR) && npm install
+	@$(NPM) install
 
 front-lint: ## Lint frontend code
-	@cd $(FRONTEND_DIR) && npm run lint
+	@$(NPM) run lint
 
 front-lint-fix: ## Lint and auto-fix frontend code
-	@cd $(FRONTEND_DIR) && npm run lint:fix
+	@$(NPM) run lint:fix
 
 front-format: ## Format frontend code with Prettier
-	@cd $(FRONTEND_DIR) && npm run format
+	@$(NPM) run format
 
 front-check: ## Run all frontend quality checks (type-check + lint + format)
-	@cd $(FRONTEND_DIR) && npm run check
+	@$(NPM) run check
 
 ## —— Quality ✅ ———————————————————————————————————————————————————————————————
 check: front-check back-check ## Run all quality checks
