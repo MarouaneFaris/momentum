@@ -29,4 +29,4 @@ jobs:
         run: cd frontend && npm ci
 
       - name: Run quality checks
-        run: make front-check
+        run: cd frontend && npm check
