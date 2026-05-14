@@ -33,6 +33,9 @@
         "symfony/stopwatch": "8.0.*"
     },
     "config": {
+        "platform": {
+            "php": "8.5"
+        },
         "allow-plugins": {
             "php-http/discovery": true,
             "phpstan/extension-installer": true,
