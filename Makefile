@@ -15,6 +15,7 @@ NPM = $(NODE_CONT) npm
 FRONTEND_DIR = frontend
 
 # Misc
+MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
 .PHONY : help build up start down logs sh composer vendor sf cc test
 
@@ -32,8 +33,6 @@ rebuild: ## Rebuilds the Docker images without cache
 up: down ## Start the docker hub in detached mode (no logs)
 	@$(DOCKER_COMP) up --detach
 
-start: build up ## Build and start the containers
-
 down: ## Stop the docker hub
 	@$(DOCKER_COMP) down --remove-orphans
 
@@ -46,9 +45,9 @@ sh: ## Connect to the FrankenPHP container
 bash: ## Connect to the FrankenPHP container via bash so up and down arrows go to previous commands
 	@$(PHP_CONT) bash
 
-test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
-	@$(eval c ?=)
-	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
+# test: ## Start tests with phpunit, pass the parameter "c=" to add options to phpunit, example: make test c="--group e2e --stop-on-failure"
+# 	@$(eval c ?=)
+# 	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
 
 
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
@@ -57,7 +56,7 @@ composer: ## Run composer, pass the parameter "c=" to run a given command, examp
 	@$(COMPOSER) $(c)
 
 vendor: ## Install vendors according to the current composer.lock file
-vendor: c=install --prefer-dist --no-dev --no-progress --no-scripts --no-interaction
+vendor: c=install --prefer-dist --no-progress --no-scripts --no-interaction
 vendor: composer
 
 ## —— Symfony 🎵 ———————————————————————————————————————————————————————————————
@@ -67,6 +66,20 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 
 cc: c=c:c ## Clear the cache
 cc: sf
+
+create-db: c=doctrine:database:create
+create-db: sf
+
+drop-db: c=doctrine:database:drop --force --if-exists
+drop-db: sf
+
+migrate-db: c=doctrine:migrations:migrate --no-interaction
+migrate-db: sf
+
+reset-db: ## Drop database, then re-create it, then run migrations
+	@$(MAKE) drop-db
+	@$(MAKE) create-db
+	@$(MAKE) migrate-db
 
 ## —— Backend 🐘 ———————————————————————————————————————————————————————————————
 back-cs-fix: ## Fix PHP code style
@@ -93,3 +106,6 @@ front-check: ## Run all frontend quality checks (type-check + lint + format)
 
 ## —— Quality ✅ ———————————————————————————————————————————————————————————————
 check: front-check back-check ## Run all quality checks
+
+## —— Global 🌍 ———————————————————————————————————————————————————————————————
+install: rebuild up vendor front-install check ## Install the whole project for the first time (containers + vendor + node_modules + checks)
