@@ -3,6 +3,10 @@ name: Quality checks
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
@@ -65,7 +69,7 @@ jobs:
         run: composer validate --strict
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --optimize-autoloader
+        run: composer install --prefer-dist --no-progress --no-scripts
 
       - name: Run quality checks
         run: composer check
