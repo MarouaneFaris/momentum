@@ -33,3 +33,11 @@ api/.env.local
 api/.env.local.php
 api/.env.test
 frontend/node_modules
+.vscode/
+.github/
+.claude/
+scripts/
+CLAUDE.md
+LICENSE
+Makefile
+README.md
