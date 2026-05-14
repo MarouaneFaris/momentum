@@ -36,6 +36,11 @@ services:
     image: node:lts-alpine
     restart: unless-stopped
     working_dir: /app
+    env_file:
+      - path: ../.env
+        required: true
+      - path: ../.env.local
+        required: false
     volumes:
       - ../frontend:/app
     command: "sh -c 'npm ci && npm run dev'"
