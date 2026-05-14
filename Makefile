@@ -110,4 +110,4 @@ front-check: ## Run all frontend quality checks (type-check + lint + format)
 check: front-check back-check ## Run all quality checks
 
 ## —— Global 🌍 ———————————————————————————————————————————————————————————————
-install: rebuild up reset-db ## Install the whole project for the first time
+install: rebuild up ## Install the whole project for the first time
