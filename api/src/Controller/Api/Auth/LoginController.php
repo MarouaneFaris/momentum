@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller\Api\Auth;
 
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +25,13 @@ final class LoginController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->json('welcome back!');
+        // @todo: Use DTO
+        return $this->json([
+            'user' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
+            ],
+        ]);
     }
 }
