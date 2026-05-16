@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api\Auth;
 
+use App\DTO\Response\LoginResponse;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,13 +28,8 @@ final class LoginController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        // @todo: Use DTO
-        return $this->json([
-            'user' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'roles' => $user->getRoles(),
-            ],
-        ]);
+        return $this->json(
+            LoginResponse::fromEntity($user),
+        );
     }
 }
