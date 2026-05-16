@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Controller\Api;
+declare(strict_types=1);
 
+namespace App\Controller\Api\Auth;
+
+use App\DTO\Response\LoginResponse;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -17,14 +19,10 @@ final class LoginController extends AbstractController
         name: 'api_login',
         methods: Request::METHOD_POST,
     )]
-    public function index(#[CurrentUser] ?User $user): JsonResponse
+    public function index(#[CurrentUser] User $user): JsonResponse
     {
-        if ($user === null) {
-            return $this->json([
-                'message' => 'bad credentials',
-            ], Response::HTTP_UNAUTHORIZED);
-        }
-
-        return $this->json('welcome back!');
+        return $this->json(
+            LoginResponse::fromEntity($user),
+        );
     }
 }
