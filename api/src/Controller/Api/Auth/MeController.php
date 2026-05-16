@@ -12,12 +12,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
-final class LoginController extends AbstractController
+final class MeController extends AbstractController
 {
     #[Route(
-        path: '/api/login',
-        name: 'api_login',
-        methods: Request::METHOD_POST,
+        path: '/api/me',
+        name: 'api_me',
+        methods: Request::METHOD_GET,
     )]
     public function index(#[CurrentUser] User $user): JsonResponse
     {
