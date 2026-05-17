@@ -17,7 +17,7 @@ FRONTEND_DIR = frontend
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
-.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks
+.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -118,4 +118,11 @@ install-hooks: ## Configure git to use scripts/hooks as the hooks directory
 	@chmod +x scripts/hooks/pre-commit scripts/hooks/pre-push
 	@echo "Git hooks installed."
 
-install: rebuild up install-hooks ## Install the whole project for the first time
+dev-certs: ## Generate trusted local HTTPS certs with mkcert (run once, requires mkcert)
+	@which mkcert > /dev/null 2>&1 || (echo "mkcert not found. Install: sudo apt install mkcert  (or brew install mkcert)" && exit 1)
+	@mkdir -p docker/certs
+	mkcert -install
+	mkcert -cert-file docker/certs/tls.pem -key-file docker/certs/tls.key localhost 127.0.0.1 ::1
+	@echo "Done. Run: make up"
+
+install: dev-certs rebuild up install-hooks ## Install the whole project for the first time
