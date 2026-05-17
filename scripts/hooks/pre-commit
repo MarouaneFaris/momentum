@@ -15,6 +15,11 @@ if [ -n "$STAGED_TS" ]; then
     $DOCKER_COMP exec -T frontend npm run lint:fix
     for f in $STAGED_TS; do git add "$f"; done
     printf "${GREEN}pre-commit: ESLint passed.${NC}\n"
+
+    printf "${CYAN}pre-commit: Prettier...${NC}\n"
+    $DOCKER_COMP exec -T frontend npm run format
+    for f in $STAGED_TS; do git add "$f"; done
+    printf "${GREEN}pre-commit: Prettier passed.${NC}\n"
 fi
 
 if [ -n "$STAGED_PHP" ]; then
