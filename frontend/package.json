@@ -15,11 +15,14 @@
         "check": "npm run type-check && npm run lint && npm run format:check"
     },
     "dependencies": {
+        "@tanstack/react-query": "^5.100.10",
         "react": "^19.2.5",
-        "react-dom": "^19.2.5"
+        "react-dom": "^19.2.5",
+        "react-router": "^7.15.1"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@tanstack/eslint-plugin-query": "^5.100.10",
         "@types/node": "^24.12.2",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
