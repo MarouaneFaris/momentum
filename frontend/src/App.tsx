@@ -1,6 +1,7 @@
+import { Button } from '@/components/ui/button'
+import apiFetch from '@/lib/api'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import apiFetch from './lib/api'
 
 function App() {
     const [auth, setAuth] = useState(false)
@@ -36,7 +37,7 @@ function App() {
     if (!auth) {
         return (
             <>
-                <button
+                <Button
                     type="button"
                     onClick={() =>
                         mutation.mutate({
@@ -46,7 +47,7 @@ function App() {
                     }
                 >
                     Login
-                </button>
+                </Button>
             </>
         )
     }
@@ -58,9 +59,9 @@ function App() {
     return (
         <>
             <h1>{data}</h1>
-            <button type="button" onClick={() => mutationLogout.mutate()}>
+            <Button type="button" variant="secondary" onClick={() => mutationLogout.mutate()}>
                 Logout
-            </button>
+            </Button>
         </>
     )
 }

@@ -5,6 +5,9 @@
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "explicit"
   },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -17,5 +20,8 @@
   "php-cs-fixer.executablePath": "${workspaceFolder}/scripts/php-cs-fixer.sh",
   "php-cs-fixer.config": "${workspaceFolder}/api/.php-cs-fixer.dist.php",
   "php-cs-fixer.rules": "",
-  "php-cs-fixer.onsave": true
+  "php-cs-fixer.onsave": true,
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }
