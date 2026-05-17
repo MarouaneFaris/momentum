@@ -1,10 +1,14 @@
+type JsonResponse = {
+    [key: string]: string | number | string[] | number[]
+}
+
 const baseUrl = import.meta.env.VITE_API_URL as string
 
 const apiFetch = async (
     url: string,
     method: string | null = null,
     body: Record<string, unknown> | null = null,
-) => {
+): Promise<JsonResponse | null> => {
     const response = await fetch(
         `${baseUrl}${url}`,
         Object.assign(body ? { body: JSON.stringify(body) } : {}, {
@@ -16,16 +20,17 @@ const apiFetch = async (
         }) as RequestInit,
     )
 
+    const json = (await response.json()) as JsonResponse
+
     if (!response.ok) {
-        console.log(response)
-        throw new Error('Network response was not ok')
+        throw new Error((json?.error as string) ?? 'Network response was not ok')
     }
 
     if (response.status === 204 || response.headers.get('Content-Length') === '0') {
         return null
     }
 
-    return response.json() as Promise<unknown>
+    return json
 }
 
 export default apiFetch
