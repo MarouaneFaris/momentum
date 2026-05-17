@@ -1,69 +1,26 @@
-import { Button } from '@/components/ui/button'
-import apiFetch from '@/lib/api'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { Toaster } from '@/components/ui/sonner'
+import '@/index.css'
+import AuthLayout from '@/layouts/AuthLayout'
+import queryClient from '@/lib/queryClient'
+import LoginPage from '@/pages/LoginPage'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { StrictMode } from 'react'
+import { BrowserRouter, Route, Routes } from 'react-router'
 
-function App() {
-    const [auth, setAuth] = useState(false)
-
-    const login = (credentials: { email: string; password: string }) => {
-        return apiFetch('/login', 'POST', credentials)
-    }
-
-    const logout = () => {
-        return apiFetch('/logout', 'POST')
-    }
-
-    const hello = () => {
-        return apiFetch('/hello') as Promise<string>
-    }
-
-    const { data, isPending } = useQuery({
-        queryKey: ['hello'],
-        queryFn: hello,
-        enabled: auth,
-    })
-
-    const mutation = useMutation({
-        mutationFn: login,
-        onSuccess: () => setAuth(true),
-    })
-
-    const mutationLogout = useMutation({
-        mutationFn: logout,
-        onSuccess: () => setAuth(false),
-    })
-
-    if (!auth) {
-        return (
-            <>
-                <Button
-                    type="button"
-                    onClick={() =>
-                        mutation.mutate({
-                            email: 'marouanefaris@gmail.com',
-                            password: 'mfaris',
-                        })
-                    }
-                >
-                    Login
-                </Button>
-            </>
-        )
-    }
-
-    if (isPending) {
-        return <p>Loading...</p>
-    }
-
+export default function App() {
     return (
-        <>
-            <h1>{data}</h1>
-            <Button type="button" variant="secondary" onClick={() => mutationLogout.mutate()}>
-                Logout
-            </Button>
-        </>
+        <StrictMode>
+            <QueryClientProvider client={queryClient}>
+                <BrowserRouter>
+                    <Routes>
+                        <Route element={<AuthLayout />}>
+                            <Route path="/" element={<LoginPage />} />
+                            <Route path="/login" element={<LoginPage />} />
+                        </Route>
+                    </Routes>
+                </BrowserRouter>
+                <Toaster />
+            </QueryClientProvider>
+        </StrictMode>
     )
 }
-
-export default App
