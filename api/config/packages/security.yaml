@@ -32,10 +32,7 @@ security:
             # switch_user: true
 
             logout:
-                clear_site_data:
-                    - cookies
-                    - storage
-                path: /api/logout
+                path: api_logout
 
     # Note: Only the *first* matching rule is applied
     access_control:
