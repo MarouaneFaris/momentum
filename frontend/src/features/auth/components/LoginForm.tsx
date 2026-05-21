@@ -10,38 +10,10 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import apiFetch from '@/lib/api'
-import { ROUTES } from '@/lib/routes'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import { z } from 'zod'
+import { useLoginForm } from '../hooks/useLoginForm'
 
 export default function LoginForm() {
-    const schema = z.object({
-        email: z.email(),
-        password: z.string(),
-    })
-
-    const { handleSubmit, register } = useForm({
-        resolver: zodResolver(schema),
-    })
-
-    const login = (credentials: z.input<typeof schema>) => {
-        return apiFetch.post<{ id: number; email: string }>(ROUTES.login, credentials)
-    }
-
-    const mutation = useMutation({
-        mutationFn: login,
-        onSuccess: () => toast('Welcome back!', { position: 'top-center' }),
-        onError: (error) => toast.error(error.message, { position: 'top-center' }),
-    })
-
-    const handleOnSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        void handleSubmit((data) => mutation.mutate(data))(e)
-    }
+    const { register, handleOnSubmit } = useLoginForm()
 
     return (
         <Card className="w-full max-w-sm">

@@ -1,6 +1,17 @@
-import { QueryClient } from '@tanstack/query-core'
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/query-core'
+import { toast } from 'sonner'
+import ApiError from './ApiError'
 
-const queryClient = new QueryClient()
+const onError = (error: Error) => {
+    if (!(error instanceof ApiError)) {
+        toast.error('Network error, please try again.')
+    }
+}
+
+const queryClient = new QueryClient({
+    queryCache: new QueryCache({ onError }),
+    mutationCache: new MutationCache({ onError }),
+})
 
 declare global {
     interface Window {
