@@ -5,13 +5,13 @@ import { toast } from 'sonner'
 import z from 'zod'
 import { useLogin } from '../queries'
 
+const schema = z.object({
+    email: z.email(),
+    password: z.string(),
+})
+
 export const useLoginForm = () => {
     const { mutate } = useLogin()
-
-    const schema = z.object({
-        email: z.email(),
-        password: z.string(),
-    })
 
     const { handleSubmit, register } = useForm({
         resolver: zodResolver(schema),
