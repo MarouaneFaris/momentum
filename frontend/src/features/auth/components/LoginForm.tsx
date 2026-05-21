@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import apiFetch from '@/lib/api'
+import { ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -28,7 +29,7 @@ export default function LoginForm() {
     })
 
     const login = (credentials: z.input<typeof schema>) => {
-        return apiFetch('/login', 'POST', credentials)
+        return apiFetch.post<{ id: number; email: string }>(ROUTES.login, credentials)
     }
 
     const mutation = useMutation({
