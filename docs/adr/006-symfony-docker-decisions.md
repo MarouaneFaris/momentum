@@ -1,7 +1,7 @@
 # ADR-006: Symfony docker decisions
 
 **Date:** 2026-05-21  
-**Status:** Proposed
+**Status:** Accepted
 
 ---
 
@@ -21,9 +21,9 @@ The main structure is as follow:
 3. frontend: this is the folder where the front is build, using ReactJS.
 
 To be able to add more containers, that could easily access the api and frontend folders, the docker context has been changed to the root of the project.  
-Unnecessary files are not included inside the context thanks to the [docker/.dockerinore](../../docker/.dockerignore) file.
+Unnecessary files are not included inside the context thanks to the [docker/.dockerignore](../../docker/.dockerignore) file.
 
 ## Rationale
 
-This decision was made to have more flexibility about the project's folders' structures.  
+Momentum is a monorepo with two distinct services, symfony-docker's default single-app assumption doesn't fit that shape.  
 This also ensure a better separation of concern between our services: api and frontend.
