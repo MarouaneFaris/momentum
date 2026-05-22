@@ -1,14 +1,18 @@
 #!/bin/sh
 set -e
 
+export UID=$(id -u)
+export GID=$(id -g)
+DOCKER_COMP="docker compose -f docker/compose.yaml -f docker/compose.override.yaml"
+
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
 printf "${CYAN}pre-push: PHPStan...${NC}\n"
-make phpstan
+$DOCKER_COMP exec -T php composer phpstan
 printf "${GREEN}pre-push: PHPStan passed.${NC}\n"
 
 printf "${CYAN}pre-push: Doctrine schema validation...${NC}\n"
-make sf c="doctrine:schema:validate"
+$DOCKER_COMP exec -T php bin/console doctrine:schema:validate
 printf "${GREEN}pre-push: Schema valid.${NC}\n"
