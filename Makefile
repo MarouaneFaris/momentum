@@ -1,5 +1,6 @@
 # Executables (local)
-DOCKER_COMP = docker compose -f docker/compose.yaml -f docker/compose.override.yaml
+COMPOSE = UID=$(shell id -u) GID=$(shell id -g) docker compose
+DOCKER_COMP = $(COMPOSE) -f docker/compose.yaml -f docker/compose.override.yaml
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
