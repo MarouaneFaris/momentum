@@ -1,22 +1,10 @@
-import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthContext } from '@/contexts/auth/AuthContext'
-import { Moon, Sun } from 'lucide-react'
-import { useContext, useEffect, useState } from 'react'
+import { useContext } from 'react'
 import { Navigate, Outlet } from 'react-router'
 
 export default function AuthLayout() {
     const auth = useContext(AuthContext)
-    const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('isDarkMode') === 'enabled')
-
-    useEffect(() => {
-        if (isDarkMode) {
-            document.querySelector('body')?.classList.add('dark')
-        } else {
-            document.querySelector('body')?.classList.remove('dark')
-        }
-
-        localStorage.setItem('isDarkMode', isDarkMode ? 'enabled' : 'disabled')
-    }, [isDarkMode])
 
     if (auth.isLoading) {
         return 'Loading...'
@@ -28,14 +16,7 @@ export default function AuthLayout() {
 
     return (
         <>
-            <Button
-                type="button"
-                size="icon"
-                variant="outline"
-                onClick={() => setIsDarkMode(!isDarkMode)}
-            >
-                {isDarkMode ? <Sun /> : <Moon />}
-            </Button>
+            <ThemeToggle />
             <main className="flex justify-center mt-32">
                 <Outlet />
             </main>
