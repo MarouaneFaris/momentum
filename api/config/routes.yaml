@@ -9,6 +9,8 @@
 
 controllers:
     resource: routing.controllers
+    defaults:
+        _format: json
 
 api_logout:
     path: /api/logout
