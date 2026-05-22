@@ -1,12 +1,14 @@
 import { Button } from '@/components/ui/button'
 import { AuthContext } from '@/contexts/auth/AuthContext'
+import { useLogoutAction } from '@/features/auth/hooks/useLogoutAction'
 import { Moon, Sun } from 'lucide-react'
 import { useContext, useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router'
 
-export default function AuthLayout() {
+export default function AppLayout() {
     const auth = useContext(AuthContext)
     const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('isDarkMode') === 'enabled')
+    const { handleOnLogout } = useLogoutAction()
 
     useEffect(() => {
         if (isDarkMode) {
@@ -22,8 +24,8 @@ export default function AuthLayout() {
         return 'Loading...'
     }
 
-    if (auth.isAuthenticated) {
-        return <Navigate to="/" />
+    if (!auth.isAuthenticated) {
+        return <Navigate to="/login" />
     }
 
     return (
@@ -35,6 +37,9 @@ export default function AuthLayout() {
                 onClick={() => setIsDarkMode(!isDarkMode)}
             >
                 {isDarkMode ? <Sun /> : <Moon />}
+            </Button>
+            <Button type="button" onClick={handleOnLogout}>
+                Logout
             </Button>
             <main className="flex justify-center mt-32">
                 <Outlet />

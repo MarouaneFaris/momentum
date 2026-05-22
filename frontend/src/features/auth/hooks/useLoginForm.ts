@@ -1,4 +1,5 @@
 import ApiError from '@/lib/ApiError'
+import queryClient from '@/lib/queryClient'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -18,10 +19,12 @@ export const useLoginForm = () => {
     })
 
     const handleOnSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault()
         void handleSubmit((data) =>
             mutate(data, {
-                onSuccess: () => toast('Welcome back!', { position: 'top-center' }),
+                onSuccess: () => {
+                    void queryClient.invalidateQueries({ queryKey: ['me'] })
+                    toast('Welcome back!', { position: 'top-center' })
+                },
                 onError: (error) => {
                     if (error instanceof ApiError) {
                         toast.error(error.message, { position: 'top-center' })
