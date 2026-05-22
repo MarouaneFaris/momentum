@@ -15,6 +15,9 @@ NPM = $(NODE_CONT) npm
 # Frontend
 FRONTEND_DIR = frontend
 
+# Functions
+with-files = $(if $(f),$(1),$(2))
+
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
@@ -88,8 +91,11 @@ reset-db: ## Drop database, then re-create it, then run migrations
 	@$(MAKE) migrate-db
 
 ## —— Backend 🐘 ———————————————————————————————————————————————————————————————
-back-cs-fix: ## Fix PHP code style
-	@$(COMPOSER) cs-fix
+back-cs-fix: ## Fix PHP code style (pass f="file1 file2" to target specific files)
+	@$(call with-files,$(PHP_CONT) vendor/bin/php-cs-fixer fix $(f),$(COMPOSER) cs-fix)
+
+phpstan: ## Run PHPStan static analysis
+	@$(COMPOSER) phpstan
 
 back-check: ## Run all backend quality checks (phpstan + cs)
 	@$(COMPOSER) check
@@ -101,11 +107,11 @@ front-install: ## Install frontend dependencies
 front-lint: ## Lint frontend code
 	@$(NPM) run lint
 
-front-lint-fix: ## Lint and auto-fix frontend code
-	@$(NPM) run lint:fix
+front-lint-fix: ## Lint and auto-fix frontend code (pass f="file1 file2" to target specific files)
+	@$(call with-files,$(NODE_CONT) npx eslint --fix $(f),$(NPM) run lint:fix)
 
-front-format: ## Format frontend code with Prettier
-	@$(NPM) run format
+front-format: ## Format frontend code with Prettier (pass f="file1 file2" to target specific files)
+	@$(call with-files,$(NODE_CONT) npx prettier --write $(f),$(NPM) run format)
 
 front-check: ## Run all frontend quality checks (type-check + lint + format)
 	@$(NPM) run check
