@@ -7,3 +7,5 @@ export type LoginResponse = {
     id: number
     email: string
 }
+
+export type AuthResponse = LoginResponse
