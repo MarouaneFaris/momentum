@@ -21,6 +21,7 @@
         "symfony/security-bundle": "^8.0.12",
         "symfony/serializer": "^8.0.10",
         "symfony/twig-bundle": "^8.0.8",
+        "symfony/validator": "^8.0",
         "symfony/web-profiler-bundle": "^8.0.12",
         "symfony/yaml": "8.0.*"
     },
