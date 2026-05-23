@@ -11,12 +11,12 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-final class RateLimitSubscriber implements EventSubscriberInterface
+final readonly class RateLimitSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly RateLimiterFactory $registerLimiter,
-        private readonly RateLimiterFactory $apiLimiter,
-        private readonly TokenStorageInterface $tokenStorage,
+        private RateLimiterFactory $registerLimiter,
+        private RateLimiterFactory $apiLimiter,
+        private TokenStorageInterface $tokenStorage,
     ) {}
 
     public static function getSubscribedEvents(): array
