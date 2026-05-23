@@ -5,6 +5,7 @@ namespace App\Security;
 use App\Repository\AuthTokenRepository;
 use App\Service\TokenAuthenticatorService;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +33,10 @@ class TokenAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): ?bool
     {
+        if ($request->attributes->get('_route') === 'api_login') {
+            return false;
+        }
+
         return $request->cookies->has(TokenAuthenticatorService::COOKIE_NAME);
     }
 
@@ -60,10 +65,12 @@ class TokenAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-        ];
+        $response = new JsonResponse(
+            ['message' => strtr($exception->getMessageKey(), $exception->getMessageData())],
+            Response::HTTP_UNAUTHORIZED,
+        );
+        $response->headers->clearCookie(TokenAuthenticatorService::COOKIE_NAME, secure: true, httpOnly: true, sameSite: Cookie::SAMESITE_STRICT);
 
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return $response;
     }
 }
