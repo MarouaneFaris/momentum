@@ -35,6 +35,9 @@ security:
             logout:
                 path: api_logout
 
+            custom_authenticators:
+                - App\Security\TokenAuthenticator
+
     # Note: Only the *first* matching rule is applied
     access_control:
         - { path: ^/api/(login|register), roles: PUBLIC_ACCESS }
