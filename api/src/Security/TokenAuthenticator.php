@@ -3,9 +3,8 @@
 namespace App\Security;
 
 use App\Repository\AuthTokenRepository;
-use App\Service\TokenAuthenticatorService;
+use App\Service\AuthTokenManager;
 use Symfony\Component\Clock\ClockInterface;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,13 +36,13 @@ class TokenAuthenticator extends AbstractAuthenticator
             return false;
         }
 
-        return $request->cookies->has(TokenAuthenticatorService::COOKIE_NAME);
+        return $request->cookies->has(AuthTokenManager::COOKIE_NAME);
     }
 
     public function authenticate(Request $request): Passport
     {
-        $authToken = $request->cookies->get(TokenAuthenticatorService::COOKIE_NAME);
-        $hashedToken = TokenAuthenticatorService::hashToken($authToken);
+        $authToken = $request->cookies->get(AuthTokenManager::COOKIE_NAME);
+        $hashedToken = AuthTokenManager::hashToken($authToken);
 
         return new SelfValidatingPassport(
             new UserBadge($hashedToken, function (string $token) {
@@ -69,7 +68,7 @@ class TokenAuthenticator extends AbstractAuthenticator
             ['message' => strtr($exception->getMessageKey(), $exception->getMessageData())],
             Response::HTTP_UNAUTHORIZED,
         );
-        $response->headers->clearCookie(TokenAuthenticatorService::COOKIE_NAME, secure: true, httpOnly: true, sameSite: Cookie::SAMESITE_STRICT);
+        $response->headers->setCookie(AuthTokenManager::createClearCookie());
 
         return $response;
     }

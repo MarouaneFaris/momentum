@@ -8,8 +8,9 @@ use App\Entity\AuthToken;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 
-final readonly class TokenAuthenticatorService
+final readonly class AuthTokenManager
 {
     public const string COOKIE_NAME = 'auth_token';
 
@@ -21,6 +22,16 @@ final readonly class TokenAuthenticatorService
     public static function hashToken(string $rawToken): string
     {
         return hash('sha256', $rawToken);
+    }
+
+    public static function createClearCookie(): Cookie
+    {
+        return Cookie::create(
+            name: self::COOKIE_NAME,
+            secure: true,
+            httpOnly: true,
+            sameSite: Cookie::SAMESITE_STRICT,
+        );
     }
 
     /**
