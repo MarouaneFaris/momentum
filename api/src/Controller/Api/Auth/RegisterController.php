@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api\Auth;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\DTO\RegisterDTO;
+use App\Service\RegisterService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class RegisterController extends AbstractController
@@ -19,22 +21,13 @@ final class RegisterController extends AbstractController
         methods: Request::METHOD_POST,
     )]
     public function index(
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager,
+        #[MapRequestPayload] RegisterDTO $dto,
+        RegisterService $registerService,
     ): JsonResponse {
-        $data = $request->toArray();
+        $registerService->register($dto);
 
-        if (empty($data['email']) || empty($data['password'])) {
-            throw new BadRequestHttpException('You must provide a email and a password');
-        }
-
-        $user = new User();
-        $user->setEmail($data['email']);
-        $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        return $this->json($user, 201);
+        return $this->json([
+            'message' => 'Registration successful. Please check your email to verify your account.',
+        ], Response::HTTP_CREATED);
     }
 }
