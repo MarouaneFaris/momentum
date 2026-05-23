@@ -30,7 +30,7 @@ if [ -n "$STAGED_PHP" ]; then
     STAGED_PHP_CONT=$(echo "$STAGED_PHP" | sed 's|^api/||' | tr '\n' ' ')
 
     printf "${CYAN}pre-commit: php-cs-fixer...${NC}\n"
-    $DOCKER_COMP exec -T php vendor/bin/php-cs-fixer fix $STAGED_PHP_CONT
+    $DOCKER_COMP exec -T php vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php $STAGED_PHP_CONT
     for f in $STAGED_PHP; do git add "$f"; done
     printf "${GREEN}pre-commit: php-cs-fixer passed.${NC}\n"
 fi
