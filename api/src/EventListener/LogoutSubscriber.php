@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use App\Repository\AuthTokenRepository;
+use App\Service\TokenAuthenticatorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -28,10 +29,12 @@ final readonly class LogoutSubscriber implements EventSubscriberInterface
     public function onLogout(LogoutEvent $event): void
     {
         $request = $event->getRequest();
-        $token = $request->cookies->get('auth_token');
+        $rawToken = $request->cookies->get(TokenAuthenticatorService::COOKIE_NAME);
 
-        if ($token) {
-            $authToken = $this->repository->findOneBy(['token' => $token]);
+        if ($rawToken) {
+            $authToken = $this->repository->findOneBy([
+                'token' => TokenAuthenticatorService::hashToken($rawToken),
+            ]);
 
             if ($authToken) {
                 $this->entityManager->remove($authToken);
@@ -40,7 +43,12 @@ final readonly class LogoutSubscriber implements EventSubscriberInterface
         }
 
         $response = new JsonResponse(status: Response::HTTP_NO_CONTENT);
-        $response->headers->clearCookie('auth_token', secure: true, httpOnly: true, sameSite: Cookie::SAMESITE_STRICT);
+        $response->headers->clearCookie(
+            name: TokenAuthenticatorService::COOKIE_NAME,
+            secure: true,
+            httpOnly: true,
+            sameSite: Cookie::SAMESITE_STRICT,
+        );
         $event->setResponse($response);
     }
 }

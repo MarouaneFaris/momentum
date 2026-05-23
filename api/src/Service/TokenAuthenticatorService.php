@@ -11,10 +11,17 @@ use Symfony\Component\Clock\ClockInterface;
 
 final readonly class TokenAuthenticatorService
 {
+    public const string COOKIE_NAME = 'auth_token';
+
     public function __construct(
         private ClockInterface $clock,
         private EntityManagerInterface $entityManager,
     ) {}
+
+    public static function hashToken(string $rawToken): string
+    {
+        return hash('sha256', $rawToken);
+    }
 
     /**
      * @return array{token: string, expiresAt: \DateTimeImmutable}
@@ -25,7 +32,7 @@ final readonly class TokenAuthenticatorService
         $token = bin2hex(random_bytes(32));
 
         $authToken = new AuthToken()
-            ->setToken(hash('sha256', $token))
+            ->setToken(self::hashToken($token))
             ->setUser($user)
             ->setCreatedAt($now)
             ->setExpiresAt($now->modify('+30 days'));

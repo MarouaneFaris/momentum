@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Repository\AuthTokenRepository;
+use App\Service\TokenAuthenticatorService;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,13 +32,13 @@ class TokenAuthenticator extends AbstractAuthenticator
      */
     public function supports(Request $request): ?bool
     {
-        return $request->cookies->has('auth_token');
+        return $request->cookies->has(TokenAuthenticatorService::COOKIE_NAME);
     }
 
     public function authenticate(Request $request): Passport
     {
-        $authToken = $request->cookies->get('auth_token');
-        $hashedToken = hash('sha256', $authToken);
+        $authToken = $request->cookies->get(TokenAuthenticatorService::COOKIE_NAME);
+        $hashedToken = TokenAuthenticatorService::hashToken($authToken);
 
         return new SelfValidatingPassport(
             new UserBadge($hashedToken, function (string $token) {

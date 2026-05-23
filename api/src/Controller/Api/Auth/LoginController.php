@@ -29,7 +29,7 @@ final class LoginController extends AbstractController
         $response = $this->json(LoginResponse::fromEntity($user));
         $response->headers->setCookie(
             Cookie::create(
-                name: 'auth_token',
+                name: TokenAuthenticatorService::COOKIE_NAME,
                 value: $result['token'],
                 expire: $result['expiresAt'],
                 secure: true,
