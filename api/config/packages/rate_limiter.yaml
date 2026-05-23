@@ -1,0 +1,11 @@
+framework:
+    rate_limiter:
+        register:
+            policy: fixed_window
+            limit: 10
+            interval: "1 hour"
+
+        api:
+            policy: token_bucket
+            limit: 60
+            rate: { amount: 60, interval: "1 minute" }

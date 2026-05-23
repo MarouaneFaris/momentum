@@ -76,6 +76,9 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 cc: c=c:c ## Clear the cache
 cc: sf
 
+flush-redis: c=cache:pool:clear cache.rate_limiter ## Clear rate limiter data in Redis
+flush-redis: sf
+
 create-db: c=doctrine:database:create --if-not-exists ## Create the database if it doesn't exists
 create-db: sf
 
