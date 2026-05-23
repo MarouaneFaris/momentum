@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -31,12 +33,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private string $password;
 
+    /**
+     * @var Collection<int, AuthToken>
+     */
+    #[ORM\OneToMany(targetEntity: AuthToken::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $authTokens;
+
+    public function __construct()
+    {
+        $this->authTokens = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
         return $this->email;
     }
@@ -96,13 +109,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
+     * @return Collection<int, AuthToken>
      */
-    public function __serialize(): array
+    public function getAuthTokens(): Collection
     {
-        $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
+        return $this->authTokens;
+    }
 
-        return $data;
+    public function addAuthToken(AuthToken $authToken): static
+    {
+        if (!$this->authTokens->contains($authToken)) {
+            $this->authTokens->add($authToken);
+            $authToken->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAuthToken(AuthToken $authToken): static
+    {
+        $this->authTokens->removeElement($authToken);
+
+        return $this;
     }
 }

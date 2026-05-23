@@ -6,7 +6,9 @@ namespace App\Controller\Api\Auth;
 
 use App\DTO\Response\LoginResponse;
 use App\Entity\User;
+use App\Service\AuthTokenManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,10 +21,23 @@ final class LoginController extends AbstractController
         name: 'api_login',
         methods: Request::METHOD_POST,
     )]
-    public function index(#[CurrentUser] User $user): JsonResponse
-    {
-        return $this->json(
-            LoginResponse::fromEntity($user),
+    public function index(
+        #[CurrentUser] User $user,
+        AuthTokenManager $service,
+    ): JsonResponse {
+        $result = $service->createToken($user);
+        $response = $this->json(LoginResponse::fromEntity($user));
+        $response->headers->setCookie(
+            Cookie::create(
+                name: AuthTokenManager::COOKIE_NAME,
+                value: $result['token'],
+                expire: $result['expiresAt'],
+                secure: true,
+                httpOnly: true,
+                sameSite: Cookie::SAMESITE_STRICT,
+            ),
         );
+
+        return $response;
     }
 }
