@@ -78,7 +78,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "phpstan": "phpstan analyse",
+        "phpstan": "phpstan analyse --memory-limit=4G",
         "cs-check": "php-cs-fixer check --diff",
         "cs-fix": "php-cs-fixer fix",
         "check": "composer phpstan && composer cs-check"
