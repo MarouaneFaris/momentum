@@ -10,12 +10,12 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-final class RegisterService
+final readonly class RegisterService
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly UserPasswordHasherInterface $passwordHasher,
-        private readonly UserRepository $userRepository,
+        private EntityManagerInterface $entityManager,
+        private UserPasswordHasherInterface $passwordHasher,
+        private UserRepository $userRepository,
     ) {}
 
     public function register(RegisterDTO $dto): void
