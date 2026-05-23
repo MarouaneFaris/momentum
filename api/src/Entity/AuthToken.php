@@ -14,7 +14,7 @@ class AuthToken
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 64)]
+    #[ORM\Column(length: 64, options: ['fixed' => true])]
     private string $token;
 
     #[ORM\ManyToOne(inversedBy: 'authTokens')]
