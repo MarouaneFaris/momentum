@@ -23,11 +23,11 @@ export const useLoginForm = () => {
             mutate(data, {
                 onSuccess: () => {
                     void queryClient.invalidateQueries({ queryKey: ['me'] })
-                    toast('Welcome back!', { position: 'top-center' })
+                    toast('Welcome back!')
                 },
                 onError: (error) => {
                     if (error instanceof ApiError) {
-                        toast.error(error.message, { position: 'top-center' })
+                        toast.error(error.message)
                     }
                 },
             }),

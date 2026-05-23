@@ -10,11 +10,11 @@ export const useLogoutAction = () => {
         mutate(undefined, {
             onSuccess: () => {
                 void queryClient.invalidateQueries({ queryKey: ['me'] })
-                toast('Bye!', { position: 'top-center' })
+                toast('Bye!')
             },
             onError: (error) => {
                 if (error instanceof ApiError) {
-                    toast.error(error.message, { position: 'top-center' })
+                    toast.error(error.message)
                 }
             },
         })

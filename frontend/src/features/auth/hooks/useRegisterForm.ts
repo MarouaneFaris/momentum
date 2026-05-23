@@ -36,14 +36,14 @@ export const useRegisterForm = () => {
                 {
                     onSuccess: (data) => {
                         if (data) {
-                            toast(data.message, { position: 'top-center' })
+                            toast(data.message)
                         }
 
                         void navigate('/login')
                     },
                     onError: (error) => {
                         if (error instanceof ApiError) {
-                            toast.error(error.message, { position: 'top-center' })
+                            toast.error(error.message)
                         }
                     },
                 },
