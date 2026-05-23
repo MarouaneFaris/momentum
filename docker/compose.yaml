@@ -16,7 +16,7 @@ services:
       MARIADB_DATABASE: ${MARIADB_DATABASE:-app}
       MARIADB_VERSION: ${MARIADB_VERSION:-11.8.6}
       MARIADB_CHARSET: ${MARIADB_CHARSET:-utf8mb4}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD:-!ChangeMe!}@redis:6379}
       # Run "composer require symfony/mercure-bundle" to install and configure the Mercure integration
       MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
       MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}/.well-known/mercure}
@@ -64,13 +64,12 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
+    command: redis-server --save "" --requirepass ${REDIS_PASSWORD:-!ChangeMe!}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-!ChangeMe!}", "--no-auth-warning", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
-    volumes:
-      - redis_data:/data
 
 # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
 ###> symfony/mercure-bundle ###
@@ -80,6 +79,5 @@ volumes:
   caddy_data:
   caddy_config:
   database_data:
-  redis_data:
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
