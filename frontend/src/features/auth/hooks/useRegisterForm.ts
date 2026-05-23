@@ -9,7 +9,7 @@ import { useRegister } from '../queries'
 const schema = z
     .object({
         email: z.email(),
-        password: z.string().min(12),
+        password: z.string().min(12, 'Password must be at least 12 characters'),
         confirm: z.string(),
     })
     .refine((data) => data.password === data.confirm, {
@@ -21,7 +21,11 @@ export const useRegisterForm = () => {
     const { mutate } = useRegister()
     const navigate = useNavigate()
 
-    const { handleSubmit, register } = useForm({
+    const {
+        handleSubmit,
+        register,
+        formState: { errors },
+    } = useForm({
         resolver: zodResolver(schema),
     })
 
@@ -47,5 +51,5 @@ export const useRegisterForm = () => {
         )(e)
     }
 
-    return { register, handleOnSubmit }
+    return { register, handleOnSubmit, errors }
 }
