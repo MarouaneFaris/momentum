@@ -2,9 +2,7 @@
 
 namespace App\Security;
 
-use App\Repository\AuthTokenRepository;
 use App\Service\AuthTokenManager;
-use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,8 +19,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 class TokenAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
-        private readonly AuthTokenRepository $repository,
-        private readonly ClockInterface $clock,
+        private readonly AuthTokenManager $authTokenManager,
     ) {}
 
     /**
@@ -41,14 +38,14 @@ class TokenAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $authToken = $request->cookies->get(AuthTokenManager::COOKIE_NAME);
-        $hashedToken = AuthTokenManager::hashToken($authToken);
+        $rawToken = $request->cookies->get(AuthTokenManager::COOKIE_NAME);
+        $hashedToken = AuthTokenManager::hashToken($rawToken);
 
         return new SelfValidatingPassport(
-            new UserBadge($hashedToken, function (string $token) {
-                $authToken = $this->repository->findOneBy(['token' => $token]);
+            new UserBadge($hashedToken, function () use ($rawToken) {
+                $authToken = $this->authTokenManager->findValidToken($rawToken);
 
-                if (!$authToken || $authToken->getExpiresAt() < $this->clock->now()) {
+                if (!$authToken) {
                     throw new AuthenticationException('Invalid or expired token.');
                 }
 

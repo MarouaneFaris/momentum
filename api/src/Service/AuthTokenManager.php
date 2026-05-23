@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\AuthToken;
 use App\Entity\User;
+use App\Repository\AuthTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -17,7 +18,19 @@ final readonly class AuthTokenManager
     public function __construct(
         private ClockInterface $clock,
         private EntityManagerInterface $entityManager,
+        private AuthTokenRepository $repository,
     ) {}
+
+    public function findValidToken(string $rawToken): ?AuthToken
+    {
+        $authToken = $this->repository->findOneBy(['token' => self::hashToken($rawToken)]);
+
+        if (!$authToken || $authToken->getExpiresAt() < $this->clock->now()) {
+            return null;
+        }
+
+        return $authToken;
+    }
 
     public static function hashToken(string $rawToken): string
     {
