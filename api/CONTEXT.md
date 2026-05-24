@@ -36,6 +36,22 @@ Workspace context is always a URL path parameter. Resource routes are nested und
 
 All entities use UUID v7 (`Symfony\Component\Uid\UuidV7`) as primary key. Stored as `BINARY(16)` via Doctrine's `UuidType`. UUID v7 is time-ordered — sequential inserts avoid InnoDB B-tree fragmentation. Generated in PHP via `UuidV7Generator`, not at DB level. Inspect raw values in MariaDB with `HEX(id)`.
 
+### Workspace Permissions Matrix
+
+| Operation | Owner | Member | Guest |
+|---|---|---|---|
+| View workspace | ✅ | ✅ | ✅ |
+| Rename workspace | ✅ | ❌ | ❌ |
+| Delete workspace | ✅ | ❌ | ❌ |
+| Invite members | ✅ | ❌ | ❌ |
+| Remove members | ✅ | ❌ | ❌ |
+| Change member role | ✅ | ❌ | ❌ |
+| Leave workspace | ❌* | ✅ | ✅ |
+| Create projects | ✅ | ✅ | ❌ |
+| View projects | ✅ | ✅ | ✅ |
+
+*Owner cannot leave — must transfer ownership or delete workspace first.
+
 ### Rate Limiting
 
 Two policies via `RateLimitSubscriber`: IP-based fixed window for `/api/register` (10/hr), user-based token bucket for authenticated `/api/*` routes (60/min). `/api/login` and `/api/logout` are excluded — login uses Symfony's built-in `login_throttling` (5 attempts / 15 min). See `docs/adr/007-rate-limiting-strategy.md`.
