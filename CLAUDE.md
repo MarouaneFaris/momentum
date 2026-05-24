@@ -29,6 +29,18 @@ make node-sh             # shell into frontend container
 
 CI runs `make check` (frontend + backend) via GitHub Actions (`.github/workflows/quality.yaml`).
 
+## Git workflow
+
+`main` is protected — direct push blocked, CI must pass before merge.
+
+Always:
+1. Create a feature branch: `git checkout -b type/short-description`
+2. Commit using `type(scope): description` convention
+3. Push branch and open a PR: `gh pr create`
+4. Stop there — the human reviews and merges the PR
+
+Never push directly to `main`. Never merge a PR without explicit human instruction.
+
 ## API
 
 All routes under `/api/`. Public: `/api/login`, `/api/register`. Everything else requires `ROLE_USER`.
