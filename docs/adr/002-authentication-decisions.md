@@ -36,3 +36,7 @@ We will need to use the cookie storage on the application's frontend with the co
 We should expect some latency as this system uses the database to check the validity of the token. We will probably implement some caching strategies with redis for example in a future version to improve performance.  
 We have to keep in mind the multiple auth evolutions: third-party, 2FA, social login.  
 We should also handle and test the revoke system.
+
+## See also
+
+[ADR-008: Token security design](008-token-security-design.md) — implementation details: token generation, SHA256 hashing rationale, TTL policy, cookie flags.
