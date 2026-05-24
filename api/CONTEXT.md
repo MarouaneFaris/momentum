@@ -98,3 +98,32 @@ In-app only via Mercure (no email). Triggers:
 Two policies via `RateLimitSubscriber`: IP-based fixed window for `/api/register` (10/hr), user-based token bucket for authenticated `/api/*` routes (60/min). `/api/login` and `/api/logout` are excluded — login uses Symfony's built-in `login_throttling` (5 attempts / 15 min). See `docs/adr/007-rate-limiting-strategy.md`.
 
 See `docs/adr/` for full decision records.
+
+## Testing
+
+See [ADR-009](../docs/adr/009-testing-strategy.md) for strategy decisions. Implementation conventions:
+
+### Directory layout
+
+```
+api/tests/
+├── Unit/           # plain PHPUnit TestCase — no Symfony, no DB
+├── Integration/    # KernelTestCase — DB/Doctrine, no HTTP
+└── Functional/     # WebTestCase — full HTTP stack
+```
+
+### Base class selection
+
+| Use | Base class |
+|---|---|
+| Pure PHP functions (no I/O) | `TestCase` |
+| Service + DB, no HTTP | `KernelTestCase` |
+| Controllers, cookies, headers | `WebTestCase` |
+
+### Mocking policy
+
+Mock at boundaries you do not control; hit real infrastructure you provision in CI.
+
+- **Never mock:** MariaDB, Redis
+- **Always mock:** external mailer, external OAuth providers
+- **Use `ClockInterface`** (already injected in `AuthTokenManager`) to freeze time and test TTL expiry
