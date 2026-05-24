@@ -64,6 +64,35 @@ All entities use UUID v7 (`Symfony\Component\Uid\UuidV7`) as primary key. Stored
 
 *Owner cannot leave — must transfer ownership or delete workspace first.
 
+### Task Status Transitions
+
+Valid transitions (enforced by backend domain logic, not frontend only):
+
+- `todo` → `in_progress`
+- `in_progress` → `done` | `todo`
+- `done` → `in_progress`
+
+Invalid transitions are rejected by the API. The frontend may mirror this logic for UX but the backend is authoritative.
+
+### Invitation Flow
+
+1. Owner invites by email + role selection → invitation created with status `pending`, unique token, 7-day expiry
+2. In-app notification sent to invitee (if user already exists in the system)
+3. Invitee accepts: authenticated `POST /api/invitations/{invitationId}/accept` → joined with assigned role
+4. Invitee declines: `POST /api/invitations/{invitationId}/decline` → owner can reinvite
+5. Expired after 7 days → owner can reissue
+
+Non-existing user invites are v2 (requires email delivery infrastructure). In v1, invitees must already have an account.
+
+### Notification Triggers (v1)
+
+In-app only via Mercure (no email). Triggers:
+
+- Task assigned to you
+- Task status changed (if you are the assignee)
+- Invitation received
+- Invitation accepted (notifies the owner)
+
 ### Rate Limiting
 
 Two policies via `RateLimitSubscriber`: IP-based fixed window for `/api/register` (10/hr), user-based token bucket for authenticated `/api/*` routes (60/min). `/api/login` and `/api/logout` are excluded — login uses Symfony's built-in `login_throttling` (5 attempts / 15 min). See `docs/adr/007-rate-limiting-strategy.md`.
