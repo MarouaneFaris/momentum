@@ -42,6 +42,7 @@ Stateless middleware (nginx/Caddy): rejected for now — business-logic exclusio
 
 ## Consequences
 
+- Rate limiter state is stored in Redis (`cache.rate_limiter` pool, `cache.adapter.redis`) — Redis is a hard runtime dependency for all rate limiting.
 - Unauthenticated requests to non-register, non-login routes are not rate-limited (subscriber returns early if no token).
 - Login brute-force protection is decoupled from API rate limiting — each can be tuned independently.
 - Future workspace-aware rate limiting (e.g., per-workspace quotas) would require adding a third policy in `RateLimitSubscriber` and a new limiter in `rate_limiter.yaml`.
