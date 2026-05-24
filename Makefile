@@ -125,7 +125,7 @@ check: front-check back-check ## Run all quality checks
 ## —— Global 🌍 ———————————————————————————————————————————————————————————————
 install-hooks: ## Configure git to use scripts/hooks as the hooks directory
 	@git config core.hooksPath scripts/hooks
-	@chmod +x scripts/hooks/pre-commit scripts/hooks/pre-push
+	@chmod +x scripts/hooks/pre-commit scripts/hooks/pre-push scripts/hooks/commit-msg
 	@echo "Git hooks installed."
 
 dev-certs: ## Generate trusted local HTTPS certs with mkcert (run once, requires mkcert)

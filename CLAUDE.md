@@ -52,6 +52,7 @@ Controllers live in `src/Controller/Api/`. Entities in `src/Entity/`, repositori
 Git hooks live in `scripts/hooks/` (no Husky):
 - **pre-commit**: ESLint + Prettier on staged `.ts/.tsx`; php-cs-fixer on staged `.php`
 - **pre-push**: PHPStan + Doctrine schema validation (runs inside Docker containers)
+- **commit-msg**: Conventional Commits format enforced — `type(scope): description` (scope required)
 
 Stack: React 19, React Router 7, TanStack Query 5, shadcn/ui, Tailwind 4, react-hook-form + zod, next-themes, sonner.
 
@@ -86,3 +87,21 @@ src/
 - No cross-feature imports. Shared code gets hoisted to `lib/` or `types/`.
 - Context rule: if two+ unrelated features import a context, it belongs in `contexts/`, not in a feature.
 - `pages/` components are thin — compose features and layouts only, no business logic.
+
+## Agent skills
+
+### Issue tracker
+
+Issues tracked in GitHub Issues (MarouaneFaris/momentum). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Multi-context: `CONTEXT-MAP.md` at root points to `frontend/CONTEXT.md` and `api/CONTEXT.md`; shared ADRs in `docs/adr/`. See `docs/agents/domain.md`.
+
+### Commit convention
+
+Conventional Commits with required scope: `type(scope): description`. Enforced by `scripts/hooks/commit-msg`. See `docs/agents/commit-convention.md`.

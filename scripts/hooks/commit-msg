@@ -1,0 +1,27 @@
+#!/bin/sh
+set -e
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# Skip merge commits, revert commits, and fixup/squash commits
+case "$COMMIT_MSG" in
+  Merge*|Revert*|fixup\!*|squash\!*) exit 0 ;;
+esac
+
+PATTERN='^(feat|fix|chore|docs|refactor|test|ci|perf)\([^)]+\)!?: .+'
+
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  printf "${RED}commit-msg: invalid format.${NC}\n"
+  printf "Expected: type(scope): description\n"
+  printf "Types: feat, fix, chore, docs, refactor, test, ci, perf\n"
+  printf "Example: feat(auth): add token refresh endpoint\n"
+  printf "\nGot: %s\n" "$COMMIT_MSG"
+  exit 1
+fi
+
+printf "${GREEN}commit-msg: format valid.${NC}\n"
