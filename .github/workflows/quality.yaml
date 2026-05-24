@@ -107,7 +107,7 @@ jobs:
       database:
         image: mariadb:lts
         env:
-          MARIADB_RANDOM_ROOT_PASSWORD: 1
+          MARIADB_ROOT_PASSWORD: root
           MARIADB_DATABASE: app
           MARIADB_PASSWORD: "!ChangeMe!"
           MARIADB_USER: app
@@ -153,8 +153,10 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-scripts
 
-      - name: Create test database
-        run: php bin/console doctrine:database:create --if-not-exists
+      - name: Create test database and grant privileges
+        run: |
+          mysql -h 127.0.0.1 -u root -proot \
+            -e "CREATE DATABASE IF NOT EXISTS app_test; GRANT ALL PRIVILEGES ON app_test.* TO 'app'@'%';"
 
       - name: Run migrations
         run: php bin/console doctrine:migrations:migrate --no-interaction
