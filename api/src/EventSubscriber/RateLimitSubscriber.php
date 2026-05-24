@@ -13,6 +13,8 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 final readonly class RateLimitSubscriber implements EventSubscriberInterface
 {
+    private const array API_LIMITER_EXCLUDED_PATHS = ['/api/login', '/api/logout'];
+
     public function __construct(
         private RateLimiterFactory $registerLimiter,
         private RateLimiterFactory $apiLimiter,
@@ -28,7 +30,7 @@ final readonly class RateLimitSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        if (!$event->isMainRequest()) {
+        if (!$event->isMainRequest() || $event->hasResponse()) {
             return;
         }
 
@@ -46,7 +48,7 @@ final readonly class RateLimitSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (str_starts_with($path, '/api/')) {
+        if (str_starts_with($path, '/api/') && !in_array($path, self::API_LIMITER_EXCLUDED_PATHS, true)) {
             $token = $this->tokenStorage->getToken();
             if ($token === null) {
                 return;
