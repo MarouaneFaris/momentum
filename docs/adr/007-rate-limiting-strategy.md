@@ -18,7 +18,7 @@ Two independent rate limiting policies implemented in `RateLimitSubscriber`:
 | Route pattern | Policy type | Key | Limit | Window |
 |---|---|---|---|---|
 | `POST /api/register` | Fixed window | Client IP | 10 requests | 1 hour |
-| `GET|POST /api/*` (authenticated) | Token bucket | User identifier | 60 requests | 1 minute |
+| `GET\|POST /api/*` (authenticated) | Token bucket | User identifier | 60 requests | 1 minute |
 
 Excluded routes: `/api/login`, `/api/logout`.
 
