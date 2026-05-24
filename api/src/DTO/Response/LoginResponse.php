@@ -9,14 +9,14 @@ use App\Entity\User;
 final readonly class LoginResponse
 {
     public function __construct(
-        public int $id,
+        public string $id,
         public string $email,
     ) {}
 
     public static function fromEntity(User $user): self
     {
         return new self(
-            id: $user->getId(),
+            id: (string) $user->getId(),
             email: $user->getEmail(),
         );
     }
