@@ -127,7 +127,3 @@ Mock at boundaries you do not control; hit real infrastructure you provision in 
 - **Never mock:** MariaDB, Redis
 - **Always mock:** external mailer, external OAuth providers
 - **Use `ClockInterface`** (already injected in `AuthTokenManager`) to freeze time and test TTL expiry
-
-### Known implementation note
-
-`AuthTokenManager::createClearCookie()` originally used `expire: 0` (session cookie). Fixed to `expire: 1` (past timestamp) so logout actually clears the cookie from the browser. Tests for this method assert `getExpiresTime() <= time()`.
