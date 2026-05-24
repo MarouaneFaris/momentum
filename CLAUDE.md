@@ -49,56 +49,18 @@ Auth is **stateful token-based**, delivered via cookies with HttpOnly + SameSite
 
 Controllers live in `src/Controller/Api/`. Entities in `src/Entity/`, repositories in `src/Repository/`.
 
-## Domain Decisions (from ADRs)
-
-**Multi-tenancy**: SaaS — anyone can register, create workspaces, become owner. Data isolation between tenants is critical and must be enforced at the data model level, not just runtime checks. Every new feature must be reviewed for data isolation.
-
-**RBAC**: Roles are **workspace-scoped** (not per-user). Three roles: `owner`, `member`, `guest`. Permissions are additive (no negation). A user can hold different roles across different workspaces.
-
-**Authentication**: Stateful tokens preferred over JWT because tokens must be revocable (JWT can't be revoked without infrastructure). Cookie storage preferred over localStorage (XSS resistance).
+See `api/CONTEXT.md` for auth decisions, RBAC, and multi-tenancy rules.
 
 ## Frontend
 
 `@` alias resolves to `frontend/src/`. HTTPS in dev via custom certs — `FRONTEND_SSL_CERT` / `FRONTEND_SSL_KEY` env vars read by `vite.config.ts`.
 
-Git hooks live in `scripts/hooks/` (no Husky):
+Git hooks live in `scripts/hooks/`:
 - **pre-commit**: ESLint + Prettier on staged `.ts/.tsx`; php-cs-fixer on staged `.php`
 - **pre-push**: PHPStan + Doctrine schema validation (runs inside Docker containers)
 - **commit-msg**: Conventional Commits format enforced — `type(scope): description` (scope required)
 
-Stack: React 19, React Router 7, TanStack Query 5, shadcn/ui, Tailwind 4, react-hook-form + zod, next-themes, sonner.
-
-### Folder structure (`frontend/src/`)
-
-```
-src/
-├── main.tsx                   # entry point only — createRoot + render
-├── App.tsx                    # providers + router + routes
-├── index.css
-├── assets/
-├── components/
-│   └── ui/                    # shadcn primitives only
-├── features/                  # one folder per domain, self-contained
-│   └── <feature>/
-│       ├── components/
-│       ├── hooks/
-│       ├── queries.ts         # TanStack Query defs
-│       └── types.ts
-├── layouts/                   # route shells (AuthLayout, AppLayout, etc.)
-├── pages/                     # thin route components — compose features, no logic
-├── contexts/                  # app-wide React contexts (AuthContext, etc.)
-├── lib/
-│   ├── api.ts                 # fetch client
-│   ├── queryClient.ts         # TanStack QueryClient instance
-│   └── utils.ts               # cn() and misc helpers
-└── types/                     # shared global types
-```
-
-**Rules:**
-- New domain = new `features/<name>/` folder. Co-locate components, hooks, queries, types inside it.
-- No cross-feature imports. Shared code gets hoisted to `lib/` or `types/`.
-- Context rule: if two+ unrelated features import a context, it belongs in `contexts/`, not in a feature.
-- `pages/` components are thin — compose features and layouts only, no business logic.
+See `frontend/CONTEXT.md` for stack, folder structure, and architectural rules.
 
 ## Agent skills
 
