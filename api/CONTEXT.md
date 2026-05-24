@@ -36,6 +36,18 @@ Workspace context is always a URL path parameter. Resource routes are nested und
 
 All entities use UUID v7 (`Symfony\Component\Uid\UuidV7`) as primary key. Stored as `BINARY(16)` via Doctrine's `UuidType`. UUID v7 is time-ordered — sequential inserts avoid InnoDB B-tree fragmentation. Generated in PHP via `UuidV7Generator`, not at DB level. Inspect raw values in MariaDB with `HEX(id)`.
 
+### Workspace Domain Rules
+
+- No uniqueness constraint on workspace name — two users can have "My Workspace"
+- No direct `ownerId` FK on `Workspace` — current owner resolved via `UserWorkspace WHERE role = 'owner'`
+- `creatorId` on `Workspace` is immutable audit only — not used for permission checks
+- Users can belong to multiple workspaces; registration auto-creates one default workspace
+- Workspace deletion is hard delete — DB-level cascade removes all nested resources (projects, tasks, memberships, invitations)
+- Ownership transfer is v2 — in v1, owner's only exit is deleting the workspace
+- When a member leaves or is removed, their assigned tasks are unassigned (`assignee_id = null`)
+- `GET /api/workspaces` returns all workspaces the authenticated user belongs to (any role), with role included per item
+- Invitation acceptance: authenticated `POST /api/invitations/{invitationId}/accept` — invitee must be logged in; backend verifies authenticated user matches invitation target email
+
 ### Workspace Permissions Matrix
 
 | Operation | Owner | Member | Guest |
