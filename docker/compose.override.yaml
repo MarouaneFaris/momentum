@@ -47,9 +47,9 @@ services:
     restart: unless-stopped
     working_dir: /app
     env_file:
-      - path: ../.env
+      - path: .env
         required: true
-      - path: ../.env.local
+      - path: .env.local
         required: false
     volumes:
       - ../frontend:/app
