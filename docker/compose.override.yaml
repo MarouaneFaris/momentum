@@ -37,6 +37,19 @@ services:
     ports:
       - 3306:3306
 
+  database-test:
+    image: mariadb:lts
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: app_test
+      MARIADB_PASSWORD: "!ChangeMe!"
+      MARIADB_USER: app
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   redis:
     ports:
       - 6379:6379
