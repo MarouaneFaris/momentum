@@ -41,6 +41,7 @@ final readonly class AuthTokenManager
     {
         return Cookie::create(
             name: self::COOKIE_NAME,
+            expire: 1,
             secure: true,
             httpOnly: true,
             sameSite: Cookie::SAMESITE_STRICT,
