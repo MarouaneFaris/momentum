@@ -7,19 +7,19 @@ services:
       target: frankenphp_dev
     restart: unless-stopped
     environment:
-      SERVER_NAME: ${SERVER_NAME:-localhost}, php:80
-      DEFAULT_URI: https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}
+      SERVER_NAME: ${SERVER_NAME}, php:80
+      DEFAULT_URI: https://${SERVER_NAME}:${HTTPS_PORT}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
-      MARIADB_USER: ${MARIADB_USER:-app}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-!ChangeMe!}
-      MARIADB_DATABASE: ${MARIADB_DATABASE:-app}
-      MARIADB_VERSION: ${MARIADB_VERSION:-11.8.6}
-      MARIADB_CHARSET: ${MARIADB_CHARSET:-utf8mb4}
-      REDIS_URL: ${REDIS_URL:-redis://:${REDIS_PASSWORD:-!ChangeMe!}@redis:6379}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_VERSION: ${MARIADB_VERSION}
+      MARIADB_CHARSET: ${MARIADB_CHARSET}
+      REDIS_URL: ${REDIS_URL}
       # Run "composer require symfony/mercure-bundle" to install and configure the Mercure integration
       MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
-      MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}/.well-known/mercure}
+      MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME}:${HTTPS_PORT}/.well-known/mercure}
       MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
     volumes:
       - caddy_data:/data
@@ -27,15 +27,15 @@ services:
     ports:
       - name: http
         target: 80
-        published: ${HTTP_PORT:-80}
+        published: ${HTTP_PORT}
         protocol: tcp
       - name: https
         target: 443
-        published: ${HTTPS_PORT:-443}
+        published: ${HTTPS_PORT}
         protocol: tcp
       - name: http3
         target: 443
-        published: ${HTTP3_PORT:-443}
+        published: ${HTTP3_PORT}
         protocol: udp
     depends_on:
       database:
@@ -48,9 +48,9 @@ services:
     restart: unless-stopped
     environment:
       MARIADB_RANDOM_ROOT_PASSWORD: 1
-      MARIADB_DATABASE: ${MARIADB_DATABASE:-app}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-!ChangeMe!}
-      MARIADB_USER: ${MARIADB_USER:-app}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_USER: ${MARIADB_USER}
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 5s
@@ -64,9 +64,9 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
-    command: redis-server --save "" --requirepass ${REDIS_PASSWORD:-!ChangeMe!}
+    command: redis-server --save "" --requirepass ${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-!ChangeMe!}", "--no-auth-warning", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "--no-auth-warning", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
