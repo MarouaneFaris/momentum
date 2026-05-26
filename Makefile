@@ -47,6 +47,9 @@ nuke: ## Stop the docker hub and remove volumes
 logs: ## Show live logs
 	@$(DOCKER_COMP) logs --tail=0 --follow
 
+config: ## Dump docker compose config
+	@$(DOCKER_COMP) config
+
 sh: ## Connect to the FrankenPHP container
 	@$(PHP_CONT) sh
 
