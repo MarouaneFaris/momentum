@@ -39,6 +39,11 @@ class TokenAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): Passport
     {
         $rawToken = $request->cookies->get(AuthTokenManager::COOKIE_NAME);
+
+        if ($rawToken === null) {
+            throw new AuthenticationException('Missing token.');
+        }
+
         $hashedToken = AuthTokenManager::hashToken($rawToken);
 
         return new SelfValidatingPassport(
