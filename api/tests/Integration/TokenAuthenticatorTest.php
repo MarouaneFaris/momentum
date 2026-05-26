@@ -54,7 +54,7 @@ final class TokenAuthenticatorTest extends WebTestCase
             '/api/me',
             [],
             [],
-            ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME . '=invalid-garbage-token'],
+            ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME.'=invalid-garbage-token'],
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
@@ -77,7 +77,7 @@ final class TokenAuthenticatorTest extends WebTestCase
             '/api/me',
             [],
             [],
-            ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME . '=' . $rawToken],
+            ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME.'='.$rawToken],
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
