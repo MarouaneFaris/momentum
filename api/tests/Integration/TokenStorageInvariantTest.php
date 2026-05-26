@@ -37,6 +37,7 @@ final class TokenStorageInvariantTest extends WebTestCase
         );
 
         $repo = static::getContainer()->get(AuthTokenRepository::class);
+        assert($repo instanceof AuthTokenRepository);
         self::assertCount(1, $repo->findAll());
     }
 
@@ -58,6 +59,7 @@ final class TokenStorageInvariantTest extends WebTestCase
         self::assertNotNull($rawToken, 'auth_token cookie missing from login response');
 
         $repo = static::getContainer()->get(AuthTokenRepository::class);
+        assert($repo instanceof AuthTokenRepository);
         $stored = $repo->findAll();
         self::assertCount(1, $stored);
 
