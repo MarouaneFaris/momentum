@@ -23,7 +23,16 @@ with-files = $(if $(f),$(1),$(2))
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
-.PHONY : help build up start down logs sh composer vendor sf cc test test-unit test-integration test-functional install-hooks dev-certs reset-dbs stan
+.PHONY : help \
+	build rebuild up down nuke logs config sh bash node-sh \
+	test test-unit test-integration test-functional \
+	composer vendor \
+	sf cc flush-redis create-db drop-db migrate-db reset-db \
+	create-db-test drop-db-test migrate-db-test reset-db-test reset-dbs \
+	back-cs-fix stan back-check \
+	front-install front-lint front-lint-fix front-format front-check \
+	check \
+	install-hooks dev-certs install
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
