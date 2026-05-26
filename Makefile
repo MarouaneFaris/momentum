@@ -11,6 +11,7 @@ NODE_CONT = $(DOCKER_COMP) exec frontend
 PHP = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY = $(PHP) bin/console
+SYMFONY_TEST = $(DOCKER_COMP) exec -e APP_ENV=test php php bin/console
 NPM = $(NODE_CONT) npm
 
 # Frontend
@@ -22,7 +23,7 @@ with-files = $(if $(f),$(1),$(2))
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
-.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs
+.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs create-db-test drop-db-test migrate-db-test reset-db-test
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -96,6 +97,20 @@ reset-db: ## Drop database, then re-create it, then run migrations
 	@$(MAKE) drop-db
 	@$(MAKE) create-db
 	@$(MAKE) migrate-db
+
+create-db-test: ## Create the test database if it doesn't exist
+	@$(SYMFONY_TEST) doctrine:database:create --if-not-exists
+
+drop-db-test: ## Drop the test database if it exists
+	@$(SYMFONY_TEST) doctrine:database:drop --force --if-exists
+
+migrate-db-test: ## Run migrations on the test database
+	@$(SYMFONY_TEST) doctrine:migrations:migrate --no-interaction
+
+reset-db-test: ## Drop test database, re-create it, then run migrations
+	@$(MAKE) drop-db-test
+	@$(MAKE) create-db-test
+	@$(MAKE) migrate-db-test
 
 ## —— Backend 🐘 ———————————————————————————————————————————————————————————————
 back-cs-fix: ## Fix PHP code style (pass f="file1 file2" to target specific files)
