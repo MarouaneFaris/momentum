@@ -23,7 +23,7 @@ with-files = $(if $(f),$(1),$(2))
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
-.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs sf-test create-db-test drop-db-test migrate-db-test reset-db-test
+.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs create-db-test drop-db-test migrate-db-test reset-db-test
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -98,18 +98,14 @@ reset-db: ## Drop database, then re-create it, then run migrations
 	@$(MAKE) create-db
 	@$(MAKE) migrate-db
 
-sf-test: ## List all Symfony commands or pass c= to run a given command in test env, example: make sf-test c=about
-	@$(eval c ?=)
-	@$(SYMFONY_TEST) $(c)
+create-db-test: ## Create the test database if it doesn't exist
+	@$(SYMFONY_TEST) doctrine:database:create --if-not-exists
 
-create-db-test: c=doctrine:database:create --if-not-exists ## Create the test database if it doesn't exist
-create-db-test: sf-test
+drop-db-test: ## Drop the test database if it exists
+	@$(SYMFONY_TEST) doctrine:database:drop --force --if-exists
 
-drop-db-test: c=doctrine:database:drop --force --if-exists ## Drop the test database if it exists
-drop-db-test: sf-test
-
-migrate-db-test: c=doctrine:migrations:migrate --no-interaction ## Run migrations on the test database
-migrate-db-test: sf-test
+migrate-db-test: ## Run migrations on the test database
+	@$(SYMFONY_TEST) doctrine:migrations:migrate --no-interaction
 
 reset-db-test: ## Drop test database, re-create it, then run migrations
 	@$(MAKE) drop-db-test
