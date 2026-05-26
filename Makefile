@@ -23,7 +23,7 @@ with-files = $(if $(f),$(1),$(2))
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
-.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs create-db-test drop-db-test migrate-db-test reset-db-test
+.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs reset-dbs
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -112,6 +112,8 @@ reset-db-test: ## Drop test database, re-create it, then run migrations
 	@$(MAKE) create-db-test
 	@$(MAKE) migrate-db-test
 
+reset-dbs: reset-db reset-db-test flush-redis
+
 ## —— Backend 🐘 ———————————————————————————————————————————————————————————————
 back-cs-fix: ## Fix PHP code style (pass f="file1 file2" to target specific files)
 	@$(call with-files,$(PHP_CONT) vendor/bin/php-cs-fixer fix $(f),$(COMPOSER) cs-fix)
@@ -154,4 +156,4 @@ dev-certs: ## Generate trusted local HTTPS certs with mkcert (run once, requires
 	mkcert -cert-file docker/certs/tls.pem -key-file docker/certs/tls.key localhost 127.0.0.1 ::1
 	@echo "Done. Run: make up"
 
-install: dev-certs rebuild up install-hooks ## Install the whole project for the first time
+install: dev-certs rebuild up reset-dbs install-hooks ## Install the whole project for the first time
