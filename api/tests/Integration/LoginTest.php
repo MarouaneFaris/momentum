@@ -23,7 +23,7 @@ final class LoginTest extends WebTestCase
 
     public function testValidCredentialsReturn200(): void
     {
-        $client = $this->loginAs(self::EMAIL, self::PASSWORD);
+        $this->loginAs(self::EMAIL, self::PASSWORD);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
     }
@@ -41,21 +41,27 @@ final class LoginTest extends WebTestCase
     {
         $client = $this->loginAs(self::EMAIL, self::PASSWORD);
 
-        self::assertTrue($this->findAuthCookie($client)?->isHttpOnly());
+        $cookie = $this->findAuthCookie($client);
+        self::assertNotNull($cookie, sprintf('Expected "%s" cookie in response.', AuthTokenManager::COOKIE_NAME));
+        self::assertTrue($cookie->isHttpOnly());
     }
 
     public function testAuthCookieIsSecure(): void
     {
         $client = $this->loginAs(self::EMAIL, self::PASSWORD);
 
-        self::assertTrue($this->findAuthCookie($client)?->isSecure());
+        $cookie = $this->findAuthCookie($client);
+        self::assertNotNull($cookie, sprintf('Expected "%s" cookie in response.', AuthTokenManager::COOKIE_NAME));
+        self::assertTrue($cookie->isSecure());
     }
 
     public function testAuthCookieSameSiteIsStrict(): void
     {
         $client = $this->loginAs(self::EMAIL, self::PASSWORD);
 
-        self::assertSame(Cookie::SAMESITE_STRICT, $this->findAuthCookie($client)?->getSameSite());
+        $cookie = $this->findAuthCookie($client);
+        self::assertNotNull($cookie, sprintf('Expected "%s" cookie in response.', AuthTokenManager::COOKIE_NAME));
+        self::assertSame(Cookie::SAMESITE_STRICT, $cookie->getSameSite());
     }
 
     public function testWrongPasswordReturns401(): void
@@ -69,7 +75,7 @@ final class LoginTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => 'wrong-password']),
+            json_encode(['email' => self::EMAIL, 'password' => 'wrong-password'], JSON_THROW_ON_ERROR),
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
@@ -85,7 +91,7 @@ final class LoginTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => 'nobody@example.com', 'password' => 'any-password']),
+            json_encode(['email' => 'nobody@example.com', 'password' => 'any-password'], JSON_THROW_ON_ERROR),
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
@@ -102,7 +108,7 @@ final class LoginTest extends WebTestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => $email, 'password' => $password]),
+            json_encode(['email' => $email, 'password' => $password], JSON_THROW_ON_ERROR),
         );
 
         return $client;
