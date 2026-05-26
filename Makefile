@@ -23,7 +23,7 @@ with-files = $(if $(f),$(1),$(2))
 # Misc
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
-.PHONY : help build up start down logs sh composer vendor sf cc test install-hooks dev-certs reset-dbs
+.PHONY : help build up start down logs sh composer vendor sf cc test test-unit test-integration test-functional install-hooks dev-certs reset-dbs stan
 
 ## —— 🎵 🐳 The Symfony Docker Makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -63,6 +63,15 @@ node-sh: ## Connect to the Nodejs container
 test: ## Run PHPUnit inside the PHP container, pass c= for extra options, example: make test c="--testsuite Unit"
 	@$(eval c ?=)
 	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit $(c)
+
+test-unit: ## Run only the Unit test suite
+	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit --testsuite Unit
+
+test-integration: ## Run only the Integration test suite
+	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit --testsuite Integration
+
+test-functional: ## Run only the Functional test suite
+	@$(DOCKER_COMP) exec -e APP_ENV=test php bin/phpunit --testsuite Functional
 
 ## —— Composer 🧙 ——————————————————————————————————————————————————————————————
 composer: ## Run composer, pass the parameter "c=" to run a given command, example: make composer c='req symfony/orm-pack'
@@ -118,7 +127,7 @@ reset-dbs: reset-db reset-db-test flush-redis
 back-cs-fix: ## Fix PHP code style (pass f="file1 file2" to target specific files)
 	@$(call with-files,$(PHP_CONT) vendor/bin/php-cs-fixer fix $(f),$(COMPOSER) cs-fix)
 
-phpstan: ## Run PHPStan static analysis
+stan: ## Run PHPStan static analysis
 	@$(COMPOSER) phpstan
 
 back-check: ## Run all backend quality checks (phpstan + cs)
