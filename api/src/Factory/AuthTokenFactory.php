@@ -6,12 +6,12 @@ namespace App\Factory;
 
 use App\Entity\AuthToken;
 use App\Service\AuthTokenManager;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<AuthToken>
+ * @extends PersistentObjectFactory<AuthToken>
  */
-final class AuthTokenFactory extends PersistentProxyObjectFactory
+final class AuthTokenFactory extends PersistentObjectFactory
 {
     #[\Override]
     public static function class(): string
