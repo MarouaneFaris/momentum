@@ -3,16 +3,29 @@
 namespace App\Repository;
 
 use App\Entity\AuthToken;
+use App\Entity\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 
 /**
  * @extends ServiceEntityRepository<AuthToken>
  */
-class AuthTokenRepository extends ServiceEntityRepository
+class AuthTokenRepository extends ServiceEntityRepository implements WorkspaceScopedRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AuthToken::class);
+    }
+
+    public function findByWorkspace(Workspace $workspace): array
+    {
+        return $this->getEntityManager()
+            ->createQuery(
+                'SELECT at FROM App\Entity\AuthToken at, App\Entity\UserWorkspace uw
+                 WHERE IDENTITY(uw.user) = IDENTITY(at.user) AND IDENTITY(uw.workspace) = :workspaceId'
+            )
+            ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
+            ->getResult();
     }
 }
