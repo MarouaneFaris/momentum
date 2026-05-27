@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Enum\ErrorCode;
+use App\Factory\ApiErrorResponseFactory;
 use App\Service\AuthTokenManager;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -16,7 +17,10 @@ final readonly class PreventAuthenticatedAccessListener
 {
     private const array GUEST_ONLY_ROUTES = ['api_login', 'api_register'];
 
-    public function __construct(private AuthTokenManager $authTokenManager) {}
+    public function __construct(
+        private AuthTokenManager $authTokenManager,
+        private ApiErrorResponseFactory $errorFactory,
+    ) {}
 
     public function __invoke(RequestEvent $event): void
     {
@@ -32,8 +36,9 @@ final readonly class PreventAuthenticatedAccessListener
             return;
         }
 
-        $event->setResponse(new JsonResponse(
-            ['message' => 'Already authenticated.'],
+        $event->setResponse($this->errorFactory->create(
+            ErrorCode::AUTH_ALREADY_AUTHENTICATED,
+            'Already authenticated.',
             Response::HTTP_CONFLICT,
         ));
     }

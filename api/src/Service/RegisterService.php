@@ -18,7 +18,7 @@ final readonly class RegisterService
         private UserRepository $userRepository,
     ) {}
 
-    public function register(RegisterDTO $dto): void
+    public function register(RegisterDTO $dto): bool
     {
         $email = mb_strtolower($dto->email);
         $hash = $this->passwordHasher->hashPassword(new User(), $dto->password);
@@ -26,7 +26,7 @@ final readonly class RegisterService
 
         if ($existingUser) {
             // @todo: send email
-            return;
+            return false;
         }
 
         $user = new User();
@@ -36,5 +36,6 @@ final readonly class RegisterService
         $this->entityManager->flush();
 
         // @todo: send email
+        return true;
     }
 }

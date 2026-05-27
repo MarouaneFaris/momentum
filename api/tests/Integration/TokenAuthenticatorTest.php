@@ -8,6 +8,7 @@ use App\Factory\AuthTokenFactory;
 use App\Factory\UserFactory;
 use App\Service\AuthTokenManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\BrowserKit\Cookie as BrowserKitCookie;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -58,6 +59,23 @@ final class TokenAuthenticatorTest extends WebTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testAuthFailureResponseHasTypedShape(): void
+    {
+        $client = static::createClient();
+
+        // HTTP_COOKIE server var does not populate $request->cookies — use cookie jar directly
+        $client->getCookieJar()->set(
+            new BrowserKitCookie(AuthTokenManager::COOKIE_NAME, 'invalid-garbage-token'),
+        );
+        $client->request('GET', '/api/me');
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        self::assertSame('AUTH_INVALID_CREDENTIALS', $body['code']);
+        self::assertArrayHasKey('message', $body);
+        self::assertIsArray($body['context']);
     }
 
     public function testExpiredTokenReturns401(): void

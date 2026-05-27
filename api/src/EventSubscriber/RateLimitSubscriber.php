@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
+use App\Enum\ErrorCode;
+use App\Factory\ApiErrorResponseFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -19,6 +20,7 @@ final readonly class RateLimitSubscriber implements EventSubscriberInterface
         private RateLimiterFactory $registerLimiter,
         private RateLimiterFactory $apiLimiter,
         private TokenStorageInterface $tokenStorage,
+        private ApiErrorResponseFactory $errorFactory,
     ) {}
 
     public static function getSubscribedEvents(): array
@@ -63,14 +65,17 @@ final readonly class RateLimitSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function tooManyRequestsResponse(\DateTimeImmutable $retryAfter): JsonResponse
+    private function tooManyRequestsResponse(\DateTimeImmutable $retryAfter): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $retryAfterSeconds = max(0, $retryAfter->getTimestamp() - time());
-
-        return new JsonResponse(
-            ['error' => 'Too many requests', 'retry_after' => $retryAfterSeconds],
+        $response = $this->errorFactory->create(
+            ErrorCode::RATE_LIMIT_EXCEEDED,
+            'Too many requests.',
             429,
-            ['Retry-After' => $retryAfterSeconds],
+            ['retry_after' => $retryAfterSeconds],
         );
+        $response->headers->set('Retry-After', (string) $retryAfterSeconds);
+
+        return $response;
     }
 }

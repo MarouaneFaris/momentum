@@ -81,44 +81,84 @@ final class RegistrationTest extends WebTestCase
         self::assertMatchesRegularExpression('/^\$2[aby]|\$argon/', (string) $user->getPassword());
     }
 
-    public function testDuplicateEmailReturns201(): void
+    public function testDuplicateEmailReturnsRegistrationFailed(): void
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL]);
         $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('REGISTRATION_FAILED', $body['code']);
+        self::assertIsArray($body['context']);
     }
 
-    public function testMissingEmailReturns422(): void
+    public function testMissingEmailReturnsValidationFailed(): void
     {
         $client = static::createClient();
         $this->post($client, $this->nextIp(), ['password' => self::PASSWORD]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
+        self::assertNotEmpty($body['context']['violations']);
     }
 
-    public function testMissingPasswordReturns422(): void
+    public function testMissingPasswordReturnsValidationFailed(): void
     {
         $client = static::createClient();
         $this->post($client, $this->nextIp(), ['email' => self::EMAIL]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
+        self::assertNotEmpty($body['context']['violations']);
     }
 
-    public function testInvalidEmailReturns422(): void
+    public function testInvalidEmailReturnsValidationFailed(): void
     {
         $client = static::createClient();
         $this->post($client, $this->nextIp(), ['email' => 'not-an-email', 'password' => self::PASSWORD]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
+        $fields = array_column($body['context']['violations'], 'field');
+        self::assertContains('email', $fields);
     }
 
-    public function testShortPasswordReturns422(): void
+    public function testShortPasswordReturnsValidationFailed(): void
     {
         $client = static::createClient();
         $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => 'short']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
+        $fields = array_column($body['context']['violations'], 'field');
+        self::assertContains('password', $fields);
+    }
+
+    public function testValidationFailedResponseHasTypedShape(): void
+    {
+        $client = static::createClient();
+        $this->post($client, $this->nextIp(), ['email' => 'bad', 'password' => 'x']);
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertArrayHasKey('code', $body);
+        self::assertArrayHasKey('message', $body);
+        self::assertArrayHasKey('context', $body);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
+        self::assertNotEmpty($body['context']['violations']);
+
+        foreach ($body['context']['violations'] as $v) {
+            self::assertArrayHasKey('field', $v);
+            self::assertArrayHasKey('message', $v);
+        }
     }
 }

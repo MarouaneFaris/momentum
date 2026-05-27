@@ -46,6 +46,32 @@ final class RateLimitingTest extends WebTestCase
         self::assertResponseStatusCodeSame(429);
     }
 
+    public function testRateLimitResponseHasTypedShape(): void
+    {
+        $client = static::createClient();
+
+        $registerLimiter = static::getContainer()->get('limiter.register');
+        assert($registerLimiter instanceof RateLimiterFactory);
+        $limiter = $registerLimiter->create('5.5.5.5');
+        $limiter->reset();
+        $limiter->consume(3);
+
+        $client->request(
+            'POST',
+            '/api/register',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'REMOTE_ADDR' => '5.5.5.5'],
+            json_encode(['email' => 'shape@example.com', 'password' => 'Password1!StrongPass'], JSON_THROW_ON_ERROR),
+        );
+
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('RATE_LIMIT_EXCEEDED', $body['code']);
+        self::assertArrayHasKey('message', $body);
+        self::assertArrayHasKey('retry_after', $body['context']);
+        self::assertIsInt($body['context']['retry_after']);
+    }
+
     public function testRegisterRateLimitIsIpScoped(): void
     {
         $client = static::createClient();
