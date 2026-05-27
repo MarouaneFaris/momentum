@@ -7,6 +7,7 @@ namespace App\Tests\Integration;
 use App\Factory\UserFactory;
 use App\Repository\AuthTokenRepository;
 use App\Service\AuthTokenManager;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Test\Factories;
@@ -75,13 +76,13 @@ final class LogoutTest extends WebTestCase
             '/api/me',
             [],
             [],
-            ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME.'='.$rawToken],
+            ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME . '=' . $rawToken],
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    private function loginUser(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client): void
+    private function loginUser(KernelBrowser $client): void
     {
         UserFactory::createOne(['email' => 'user@example.com', 'password' => 'secret123']);
 
