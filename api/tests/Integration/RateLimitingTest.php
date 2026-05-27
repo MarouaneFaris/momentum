@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Integration;
 
 use App\Factory\UserFactory;
-use App\Service\AuthTokenManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -128,7 +127,6 @@ final class RateLimitingTest extends WebTestCase
     {
         $client = static::createClient();
         $this->loginUser($client, 'logout-no-limit@example.com', 'secret123');
-        $rawToken = $client->getCookieJar()->get(AuthTokenManager::COOKIE_NAME)?->getValue();
 
         $apiLimiter = static::getContainer()->get('limiter.api');
         assert($apiLimiter instanceof RateLimiterFactory);
@@ -136,13 +134,7 @@ final class RateLimitingTest extends WebTestCase
         $limiter->reset();
         $limiter->consume(5);
 
-        $client->request(
-            'POST',
-            '/api/logout',
-            [],
-            [],
-            ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME . '=' . $rawToken],
-        );
+        $client->request('POST', '/api/logout');
 
         self::assertNotSame(429, $client->getResponse()->getStatusCode());
     }
