@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 final class ApiErrorResponseFactory
 {
+    /** @param array<string, mixed> $context */
     public function create(ErrorCode $code, string $message, int $status, array $context = []): JsonResponse
     {
         return new JsonResponse(
