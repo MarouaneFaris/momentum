@@ -95,22 +95,15 @@ final class RateLimitingTest extends WebTestCase
         $apiLimiter->create('rate-usera@example.com')->reset();
         $apiLimiter->create('rate-userb@example.com')->reset();
 
-        // Pre-create user-b's token before logging in as user-a.
-        // Re-logging in via the endpoint returns 409 ("Already authenticated") because
-        // the stateless kernel keeps the security token in-memory across WebTestCase requests.
-        $userB = UserFactory::createOne(['email' => 'rate-userb@example.com', 'password' => 'secret123']);
-        $authManager = static::getContainer()->get(AuthTokenManager::class);
-        assert($authManager instanceof AuthTokenManager);
-        $rawTokenB = $authManager->createToken($userB)['token'];
-
         $this->loginUser($client, 'rate-usera@example.com', 'secret123');
         $apiLimiter->create('rate-usera@example.com')->consume(5);
 
         $client->request('GET', '/api/me');
         self::assertResponseStatusCodeSame(429);
 
-        $client->getCookieJar()->clear();
-        $client->request('GET', '/api/me', [], [], ['HTTP_COOKIE' => AuthTokenManager::COOKIE_NAME . '=' . $rawTokenB]);
+        $client->request('POST', '/api/logout');
+        $this->loginUser($client, 'rate-userb@example.com', 'secret123');
+        $client->request('GET', '/api/me');
         self::assertNotSame(429, $client->getResponse()->getStatusCode());
     }
 
