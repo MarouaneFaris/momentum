@@ -10,6 +10,7 @@ return new PhpCsFixer\Config()
         'trailing_comma_in_multiline' => true,
         'yoda_style' => false,
         'single_line_empty_body' => true,
+        'concat_space' => ['spacing' => 'one'],
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
