@@ -29,6 +29,7 @@ final class RegistrationTest extends WebTestCase
         return '10.0.0.' . self::$ipCounter++;
     }
 
+    /** @param array<string, string> $payload */
     private function post(KernelBrowser $client, string $ip, array $payload): void
     {
         $factory = static::getContainer()->get('limiter.register');
