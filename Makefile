@@ -11,7 +11,7 @@ NODE_CONT = $(DOCKER_COMP) exec frontend
 PHP = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY = $(PHP) bin/console
-SYMFONY_TEST = $(DOCKER_COMP) exec -e APP_ENV=test php php bin/console
+SYMFONY_TEST = $(SYMFONY) -e test
 NPM = $(NODE_CONT) npm
 
 # Frontend
@@ -27,7 +27,7 @@ MAKEFLAGS += --no-print-directory
 	build rebuild up down nuke logs config sh bash node-sh \
 	test test-unit test-integration test-functional \
 	composer vendor \
-	sf cc flush-redis create-db drop-db migrate-db reset-db \
+	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db \
 	create-db-test drop-db-test migrate-db-test reset-db-test reset-dbs \
 	back-cs-fix stan back-check \
 	front-install front-lint front-lint-fix front-format front-check \
@@ -98,6 +98,9 @@ sf: ## List all Symfony commands or pass the parameter "c=" to run a given comma
 
 cc: c=c:c ## Clear the cache
 cc: sf
+
+cc-test: ## Clear the cache (env=test)
+	@$(SYMFONY_TEST) c:c
 
 flush-redis: c=cache:pool:clear cache.rate_limiter ## Clear rate limiter data in Redis
 flush-redis: sf
