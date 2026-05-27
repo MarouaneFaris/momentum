@@ -22,7 +22,8 @@ const apiFetch = async <T>(url: ApiRoute, options: RequestInit = {}): Promise<T 
 
     if (!response.ok) {
         const errorResponse = json as { error?: string; code?: ErrorCode; message?: string } | null
-        const message = errorResponse?.message ?? errorResponse?.error ?? 'Network response was not ok'
+        const message =
+            errorResponse?.message ?? errorResponse?.error ?? 'Network response was not ok'
         const code = errorResponse?.code ?? null
         throw new ApiError(response.status, message, code)
     }
