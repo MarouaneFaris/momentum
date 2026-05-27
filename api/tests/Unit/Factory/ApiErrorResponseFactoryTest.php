@@ -30,7 +30,7 @@ final class ApiErrorResponseFactoryTest extends TestCase
 
         self::assertSame('AUTH_INVALID_CREDENTIALS', $data['code']);
         self::assertSame('Invalid credentials.', $data['message']);
-        self::assertSame('{}', json_encode($data['context']));
+        self::assertSame([], $data['context']);
         self::assertSame(401, $response->getStatusCode());
     }
 
@@ -39,7 +39,7 @@ final class ApiErrorResponseFactoryTest extends TestCase
         $response = $this->factory->create(ErrorCode::REGISTRATION_FAILED, 'Registration failed.', 422);
         $data = json_decode((string) $response->getContent(), true);
 
-        self::assertSame('{}', json_encode($data['context']));
+        self::assertSame([], $data['context']);
     }
 
     public function testContextPopulatedForRateLimit(): void
