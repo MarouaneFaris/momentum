@@ -8,7 +8,6 @@ use App\DTO\RegisterDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final readonly class RegisterService
@@ -26,7 +25,8 @@ final readonly class RegisterService
         $existingUser = $this->userRepository->findOneBy(['email' => $email]);
 
         if ($existingUser) {
-            throw new UnprocessableEntityHttpException('Email already registered.');
+            // @todo: send email
+            return;
         }
 
         $user = new User();

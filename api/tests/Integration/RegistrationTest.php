@@ -7,8 +7,10 @@ namespace App\Tests\Integration;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -20,17 +22,33 @@ final class RegistrationTest extends WebTestCase
     private const string EMAIL = 'newuser@example.com';
     private const string PASSWORD = 'SuperSecurePass123!';
 
-    public function testValidPayloadReturns201(): void
+    private static int $ipCounter = 10;
+
+    private function nextIp(): string
     {
-        $client = static::createClient();
+        return '10.0.0.' . self::$ipCounter++;
+    }
+
+    private function post(KernelBrowser $client, string $ip, array $payload): void
+    {
+        $factory = static::getContainer()->get('limiter.register');
+        assert($factory instanceof RateLimiterFactory);
+        $factory->create($ip)->reset();
+
         $client->request(
             'POST',
             '/api/register',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
+            ['CONTENT_TYPE' => 'application/json', 'REMOTE_ADDR' => $ip],
+            json_encode($payload, JSON_THROW_ON_ERROR),
         );
+    }
+
+    public function testValidPayloadReturns201(): void
+    {
+        $client = static::createClient();
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
@@ -38,14 +56,7 @@ final class RegistrationTest extends WebTestCase
     public function testUserRowExistsInDbAfterRegistration(): void
     {
         $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -58,14 +69,7 @@ final class RegistrationTest extends WebTestCase
     public function testStoredPasswordIsHashed(): void
     {
         $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -76,34 +80,19 @@ final class RegistrationTest extends WebTestCase
         self::assertMatchesRegularExpression('/^\$2[aby]|\$argon/', (string) $user->getPassword());
     }
 
-    public function testDuplicateEmailReturns422(): void
+    public function testDuplicateEmailReturns201(): void
     {
-        UserFactory::createOne(['email' => self::EMAIL]);
-
         $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
+        UserFactory::createOne(['email' => self::EMAIL]);
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
 
     public function testMissingEmailReturns422(): void
     {
         $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
+        $this->post($client, $this->nextIp(), ['password' => self::PASSWORD]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -111,14 +100,7 @@ final class RegistrationTest extends WebTestCase
     public function testMissingPasswordReturns422(): void
     {
         $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL], JSON_THROW_ON_ERROR),
-        );
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -126,14 +108,7 @@ final class RegistrationTest extends WebTestCase
     public function testInvalidEmailReturns422(): void
     {
         $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => 'not-an-email', 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
+        $this->post($client, $this->nextIp(), ['email' => 'not-an-email', 'password' => self::PASSWORD]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -141,14 +116,7 @@ final class RegistrationTest extends WebTestCase
     public function testShortPasswordReturns422(): void
     {
         $client = static::createClient();
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => 'short'], JSON_THROW_ON_ERROR),
-        );
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => 'short']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
