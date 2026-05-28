@@ -22,8 +22,9 @@ class AuthTokenRepository extends ServiceEntityRepository implements WorkspaceSc
     {
         return $this->getEntityManager()
             ->createQuery(
-                'SELECT at FROM App\Entity\AuthToken at, App\Entity\UserWorkspace uw
-                 WHERE IDENTITY(uw.user) = IDENTITY(at.user) AND IDENTITY(uw.workspace) = :workspaceId'
+                'SELECT at FROM App\Entity\AuthToken at
+                 JOIN App\Entity\UserWorkspace uw WITH uw.user = at.user
+                 WHERE IDENTITY(uw.workspace) = :workspaceId'
             )
             ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
             ->getResult();

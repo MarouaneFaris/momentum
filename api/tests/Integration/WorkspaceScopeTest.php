@@ -39,7 +39,7 @@ final class WorkspaceScopeTest extends KernelTestCase
         $results = $repo->findByWorkspace($workspaceA);
 
         self::assertCount(1, $results);
-        assert($results[0] instanceof User);
+        self::assertInstanceOf(User::class, $results[0]);
         self::assertSame($userInA->getEmail(), $results[0]->getEmail());
     }
 
@@ -74,7 +74,7 @@ final class WorkspaceScopeTest extends KernelTestCase
         $results = $repo->findByWorkspace($workspaceA);
 
         self::assertCount(1, $results);
-        assert($results[0] instanceof AuthToken);
+        self::assertInstanceOf(AuthToken::class, $results[0]);
         self::assertSame($tokenInA->getToken(), $results[0]->getToken());
     }
 

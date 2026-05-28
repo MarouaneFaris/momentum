@@ -25,8 +25,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         return $this->getEntityManager()
             ->createQuery(
-                'SELECT u FROM App\Entity\User u, App\Entity\UserWorkspace uw
-                 WHERE uw.user = u AND IDENTITY(uw.workspace) = :workspaceId'
+                'SELECT u FROM App\Entity\User u
+                 JOIN App\Entity\UserWorkspace uw WITH uw.user = u
+                 WHERE IDENTITY(uw.workspace) = :workspaceId'
             )
             ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
             ->getResult();
