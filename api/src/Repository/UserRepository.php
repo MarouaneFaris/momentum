@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\User;
+use App\Entity\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -12,11 +14,23 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 /**
  * @extends ServiceEntityRepository<User>
  */
-class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
+class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface, WorkspaceScopedRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
+    }
+
+    public function findByWorkspace(Workspace $workspace): array
+    {
+        return $this->getEntityManager()
+            ->createQuery(
+                'SELECT u FROM App\Entity\User u
+                 JOIN App\Entity\UserWorkspace uw WITH uw.user = u
+                 WHERE IDENTITY(uw.workspace) = :workspaceId'
+            )
+            ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
+            ->getResult();
     }
 
     /**
