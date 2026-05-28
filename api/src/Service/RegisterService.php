@@ -24,14 +24,13 @@ final readonly class RegisterService
     public function register(RegisterDTO $dto): void
     {
         $email = mb_strtolower($dto->email);
+        $hash = $this->passwordHasher->hashPassword(new User(), $dto->password);
         $existingUser = $this->userRepository->findOneBy(['email' => $email]);
 
         if ($existingUser) {
             // @todo: send email
             return;
         }
-
-        $hash = $this->passwordHasher->hashPassword(new User(), $dto->password);
 
         $this->entityManager->wrapInTransaction(function () use ($email, $hash): void {
             $user = new User();
@@ -40,7 +39,7 @@ final readonly class RegisterService
             $this->entityManager->persist($user);
 
             $workspace = new Workspace();
-            $workspace->setName(explode('@', $email)[0] . "'s workspace");
+            $workspace->setName('My workspace');
             $workspace->setCreator($user);
             $this->entityManager->persist($workspace);
 
