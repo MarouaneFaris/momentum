@@ -128,15 +128,8 @@ final class RegistrationTest extends WebTestCase
     public function testNewUserHasExactlyOneWorkspace(): void
     {
         $client = static::createClient();
-        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $userWorkspaces = $this->registerAndGetUserWorkspaces($client);
 
-        /** @var EntityManagerInterface $em */
-        $em = static::getContainer()->get(EntityManagerInterface::class);
-        $user = $em->getRepository(User::class)->findOneBy(['email' => self::EMAIL]);
-
-        self::assertNotNull($user);
-
-        $userWorkspaces = $em->getRepository(UserWorkspace::class)->findBy(['user' => $user]);
         self::assertCount(1, $userWorkspaces);
 
         $workspace = $userWorkspaces[0]->getWorkspace();
@@ -147,6 +140,15 @@ final class RegistrationTest extends WebTestCase
     public function testNewUserWorkspaceRoleIsOwner(): void
     {
         $client = static::createClient();
+        $userWorkspaces = $this->registerAndGetUserWorkspaces($client);
+
+        self::assertCount(1, $userWorkspaces);
+        self::assertSame(WorkspaceRole::Owner, $userWorkspaces[0]->getRole());
+    }
+
+    /** @return list<UserWorkspace> */
+    private function registerAndGetUserWorkspaces(KernelBrowser $client): array
+    {
         $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         /** @var EntityManagerInterface $em */
@@ -155,9 +157,7 @@ final class RegistrationTest extends WebTestCase
 
         self::assertNotNull($user);
 
-        $userWorkspaces = $em->getRepository(UserWorkspace::class)->findBy(['user' => $user]);
-        self::assertCount(1, $userWorkspaces);
-        self::assertSame(WorkspaceRole::Owner, $userWorkspaces[0]->getRole());
+        return $em->getRepository(UserWorkspace::class)->findBy(['user' => $user]);
     }
 
     public function testDuplicateEmailDoesNotCreateWorkspace(): void
