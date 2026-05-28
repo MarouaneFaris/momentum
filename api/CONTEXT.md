@@ -48,6 +48,24 @@ All entities use UUID v7 (`Symfony\Component\Uid\UuidV7`) as primary key. Stored
 - `GET /api/workspaces` returns all workspaces the authenticated user belongs to (any role), with role included per item
 - Invitation acceptance: authenticated `POST /api/invitations/{invitationId}/accept` — invitee must be logged in; backend verifies authenticated user matches invitation target email
 
+### Workspace Name Validation
+
+- Required, min 1 character, max 64 characters
+- No character restrictions — any unicode allowed
+- No uniqueness constraint (enforced at domain level, not DB)
+
+### Workspace Endpoints
+
+| Method | Route | Auth | Body | Response |
+|---|---|---|---|---|
+| `GET` | `/api/workspaces` | `ROLE_USER` | — | `200` array of workspace objects |
+| `POST` | `/api/workspaces` | `ROLE_USER` | `{ name }` | `201` workspace object |
+| `GET` | `/api/workspaces/{id}` | member | — | `200` workspace object |
+| `PATCH` | `/api/workspaces/{id}` | owner | `{ name }` | `200` workspace object |
+| `DELETE` | `/api/workspaces/{id}` | owner | — | `204` |
+
+Workspace object shape: `{ id, name, createdAt, role }` — `role` is the authenticated user's role in that workspace.
+
 ### Workspace Permissions Matrix
 
 | Operation | Owner | Member | Guest |
