@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Integration;
 
 use App\Entity\User;
+use App\Entity\UserWorkspace;
+use App\Entity\Workspace;
+use App\Enum\WorkspaceRole;
 use App\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -120,5 +123,54 @@ final class RegistrationTest extends WebTestCase
         $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => 'short']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    public function testNewUserHasExactlyOneWorkspace(): void
+    {
+        $client = static::createClient();
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $user = $em->getRepository(User::class)->findOneBy(['email' => self::EMAIL]);
+
+        self::assertNotNull($user);
+
+        $userWorkspaces = $em->getRepository(UserWorkspace::class)->findBy(['user' => $user]);
+        self::assertCount(1, $userWorkspaces);
+
+        $workspace = $userWorkspaces[0]->getWorkspace();
+        self::assertInstanceOf(Workspace::class, $workspace);
+        self::assertSame('newuser\'s workspace', $workspace->getName());
+    }
+
+    public function testNewUserWorkspaceRoleIsOwner(): void
+    {
+        $client = static::createClient();
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $user = $em->getRepository(User::class)->findOneBy(['email' => self::EMAIL]);
+
+        self::assertNotNull($user);
+
+        $userWorkspaces = $em->getRepository(UserWorkspace::class)->findBy(['user' => $user]);
+        self::assertCount(1, $userWorkspaces);
+        self::assertSame(WorkspaceRole::Owner, $userWorkspaces[0]->getRole());
+    }
+
+    public function testDuplicateEmailDoesNotCreateWorkspace(): void
+    {
+        $client = static::createClient();
+        UserFactory::createOne(['email' => self::EMAIL]);
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $user = $em->getRepository(User::class)->findOneBy(['email' => self::EMAIL]);
+
+        self::assertNotNull($user);
+        self::assertCount(0, $em->getRepository(UserWorkspace::class)->findBy(['user' => $user]));
     }
 }
