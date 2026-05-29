@@ -12,13 +12,14 @@ export const useWorkspaceApi = () => {
 
     return {
         workspaceId,
-        get: <T>(path: string, options?: RequestInit) =>
-            api.get<T>(`${prefix}${path}` as never, options),
+        get: <T>(path: string, options?: RequestInit) => api.get<T>(`${prefix}${path}`, options),
         post: <T>(path: string, body?: unknown, options?: RequestInit) =>
-            api.post<T>(`${prefix}${path}` as never, body, options),
+            api.post<T>(`${prefix}${path}`, body, options),
+        put: <T>(path: string, body?: unknown, options?: RequestInit) =>
+            api.put<T>(`${prefix}${path}`, body, options),
         patch: <T>(path: string, body?: unknown, options?: RequestInit) =>
-            api.patch<T>(`${prefix}${path}` as never, body, options),
+            api.patch<T>(`${prefix}${path}`, body, options),
         delete: <T>(path: string, options?: RequestInit) =>
-            api.delete<T>(`${prefix}${path}` as never, options),
+            api.delete<T>(`${prefix}${path}`, options),
     }
 }
