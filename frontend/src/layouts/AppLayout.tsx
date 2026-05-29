@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useLogoutAction } from '@/features/auth/hooks/useLogoutAction'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
+import { useWorkspaces } from '@/features/workspace/queries'
 import { useContext } from 'react'
 import { Navigate, Outlet } from 'react-router'
 
 export default function AppLayout() {
     const auth = useContext(AuthContext)
     const { handleOnLogout } = useLogoutAction()
+    const { data: workspaces } = useWorkspaces()
 
     if (auth.isLoading) {
         return 'Loading...'
@@ -21,7 +23,7 @@ export default function AppLayout() {
     return (
         <div className="flex h-screen">
             <aside className="flex w-60 flex-col gap-2 border-r p-4">
-                <WorkspaceSwitcher />
+                {workspaces && workspaces.length > 0 && <WorkspaceSwitcher />}
                 <div className="mt-auto flex flex-col gap-2">
                     <ThemeToggle />
                     <Button type="button" variant="outline" onClick={handleOnLogout}>

@@ -7,4 +7,5 @@ export const useWorkspaces = () =>
     useQuery({
         queryKey: ['workspaces'],
         queryFn: () => api.get<Workspace[]>(ROUTES.workspaces),
+        staleTime: 5 * 60 * 1000,
     })

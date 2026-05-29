@@ -115,7 +115,10 @@ final class WorkspaceListTest extends WebTestCase
         self::assertArrayHasKey('role', $data[0]);
         self::assertSame('My Project', $data[0]['name']);
         self::assertSame('member', $data[0]['role']);
-        self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T/', $data[0]['createdAt']);
+        self::assertMatchesRegularExpression(
+            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/',
+            $data[0]['createdAt'],
+        );
     }
 
     private function loginAs(KernelBrowser $client): void

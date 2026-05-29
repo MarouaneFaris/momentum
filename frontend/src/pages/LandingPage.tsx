@@ -1,18 +1,21 @@
 import { Button } from '@/components/ui/button'
-import { useLastVisitedWorkspace } from '@/features/workspace/hooks/useLastVisitedWorkspace'
+import { workspaceStorage } from '@/features/workspace/workspaceStorage'
 import { useWorkspaces } from '@/features/workspace/queries'
 import { Navigate } from 'react-router'
 
 export default function LandingPage() {
-    const { data: workspaces, isLoading } = useWorkspaces()
-    const { read } = useLastVisitedWorkspace()
+    const { data: workspaces, isLoading, isError } = useWorkspaces()
 
     if (isLoading) {
         return <div>Loading...</div>
     }
 
+    if (isError) {
+        return <div>Failed to load workspaces. Please refresh.</div>
+    }
+
     if (workspaces && workspaces.length > 0) {
-        const lastId = read()
+        const lastId = workspaceStorage.read()
         const target = workspaces.find((w) => w.id === lastId) ?? workspaces[0]
         return <Navigate to={`/workspaces/${target.id}/dashboard`} replace />
     }

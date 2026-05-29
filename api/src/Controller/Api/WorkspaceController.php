@@ -6,7 +6,7 @@ namespace App\Controller\Api;
 
 use App\DTO\Response\WorkspaceListItemResponse;
 use App\Entity\User;
-use App\Repository\WorkspaceRepository;
+use App\Repository\UserWorkspaceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,13 +22,13 @@ final class WorkspaceController extends AbstractController
     )]
     public function list(
         #[CurrentUser] User $user,
-        WorkspaceRepository $workspaceRepository,
+        UserWorkspaceRepository $userWorkspaceRepository,
     ): JsonResponse {
-        $memberships = $workspaceRepository->findByUser($user);
+        $memberships = $userWorkspaceRepository->findByUser($user);
 
         return $this->json(
             array_map(
-                static fn(array $m) => WorkspaceListItemResponse::fromWorkspaceAndRole($m['workspace'], $m['role']),
+                static fn (array $m) => WorkspaceListItemResponse::fromWorkspaceAndRole($m['workspace'], $m['role']),
                 $memberships,
             ),
         );

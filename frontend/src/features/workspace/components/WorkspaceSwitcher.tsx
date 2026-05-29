@@ -9,13 +9,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ChevronDown } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router'
-import { useLastVisitedWorkspace } from '../hooks/useLastVisitedWorkspace'
+import { workspaceStorage } from '../workspaceStorage'
 import { useWorkspaces } from '../queries'
 
 export function WorkspaceSwitcher() {
     const { id: currentId } = useParams<{ id: string }>()
     const { data: workspaces } = useWorkspaces()
-    const { write } = useLastVisitedWorkspace()
+    const { write } = workspaceStorage
     const navigate = useNavigate()
 
     const current = workspaces?.find((w) => w.id === currentId)
@@ -37,10 +37,7 @@ export function WorkspaceSwitcher() {
                 <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {workspaces?.map((workspace) => (
-                    <DropdownMenuItem
-                        key={workspace.id}
-                        onClick={() => handleSelect(workspace.id)}
-                    >
+                    <DropdownMenuItem key={workspace.id} onClick={() => handleSelect(workspace.id)}>
                         <span className="flex-1">{workspace.name}</span>
                         <span className="text-xs text-muted-foreground capitalize">
                             {workspace.role}
