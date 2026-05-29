@@ -30,7 +30,7 @@ MAKEFLAGS += --no-print-directory
 	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db \
 	create-db-test drop-db-test migrate-db-test reset-db-test reset-dbs \
 	back-cs-fix stan back-check \
-	front-install front-lint front-lint-fix front-format front-check \
+	npm front-install front-lint front-lint-fix front-format front-check \
 	check \
 	install-hooks dev-certs install
 
@@ -146,6 +146,10 @@ back-check: ## Run all backend quality checks (phpstan + cs)
 	@$(COMPOSER) check
 
 ## —— Frontend 🌐 ——————————————————————————————————————————————————————————————
+npm: ## Run npm, pass the parameter "c=" to run a given command, example: make npm c='install zod'
+	@$(eval c ?=)
+	@$(NPM) $(c)
+
 front-install: ## Install frontend dependencies
 	@$(NPM) install
 
