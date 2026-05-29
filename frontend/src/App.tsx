@@ -7,10 +7,11 @@ import LoginPage from '@/pages/LoginPage'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
 import { StrictMode } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from './contexts/auth/AuthProvider'
-import DashBoardPage from './pages/DashboardPage'
+import LandingPage from './pages/LandingPage'
 import RegisterPage from './pages/RegisterPage'
+import WorkspaceDashboardPage from './pages/WorkspaceDashboardPage'
 
 export default function App() {
     return (
@@ -30,7 +31,15 @@ export default function App() {
                                     <Route path="/register" element={<RegisterPage />} />
                                 </Route>
                                 <Route element={<AppLayout />}>
-                                    <Route path="/" element={<DashBoardPage />} />
+                                    <Route path="/" element={<LandingPage />} />
+                                    <Route
+                                        path="/workspaces/:id"
+                                        element={<Navigate to="dashboard" replace />}
+                                    />
+                                    <Route
+                                        path="/workspaces/:id/dashboard"
+                                        element={<WorkspaceDashboardPage />}
+                                    />
                                 </Route>
                             </Routes>
                         </BrowserRouter>
