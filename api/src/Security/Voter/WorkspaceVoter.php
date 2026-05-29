@@ -9,6 +9,7 @@ use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 final class WorkspaceVoter extends Voter
@@ -28,7 +29,7 @@ final class WorkspaceVoter extends Voter
         return \in_array($attribute, self::ATTRIBUTES, true) && $subject instanceof Workspace;
     }
 
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
         if (!$user instanceof User) {

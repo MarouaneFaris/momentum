@@ -28,7 +28,7 @@ export const useWorkspace = (workspaceId: string) =>
 
 export const useRenameWorkspace = (workspaceId: string) => {
     const queryClient = useQueryClient()
-    useMutation({
+    return useMutation({
         mutationFn: (data: { name: string }) =>
             api.patch<Workspace>(`${ROUTES.workspaces}/${workspaceId}`, data),
         onSuccess: () => {
