@@ -41,6 +41,9 @@ jobs:
       - name: Run quality checks
         run: npm run check
 
+      - name: Run tests
+        run: npm run test:run
+
   api:
     name: Api
     runs-on: ubuntu-latest

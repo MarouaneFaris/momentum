@@ -1,0 +1,20 @@
+import { render, screen } from '@testing-library/react'
+import LoginForm from '@/features/auth/components/LoginForm'
+
+vi.mock('react-router', () => ({ useNavigate: () => vi.fn() }))
+vi.mock('@/features/auth/hooks/useLoginForm', () => ({
+    useLoginForm: () => ({ register: () => ({}), handleOnSubmit: vi.fn() }),
+}))
+
+describe('LoginForm', () => {
+    it('renders email and password inputs', () => {
+        render(<LoginForm />)
+        expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+        expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
+    })
+
+    it('renders sign in button', () => {
+        render(<LoginForm />)
+        expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
+    })
+})

@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import pluginQuery from '@tanstack/eslint-plugin-query'
+import vitest from '@vitest/eslint-plugin'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
@@ -21,6 +22,19 @@ export default defineConfig([
             globals: globals.browser,
             parserOptions: {
                 project: ['./tsconfig.app.json', './tsconfig.node.json'],
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+    },
+    {
+        files: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}', 'src/test/**/*.{ts,tsx}'],
+        plugins: { vitest },
+        rules: {
+            'vitest/consistent-test-it': ['error', { fn: 'it' }],
+        },
+        languageOptions: {
+            parserOptions: {
+                project: ['./tsconfig.test.json'],
                 tsconfigRootDir: import.meta.dirname,
             },
         },
