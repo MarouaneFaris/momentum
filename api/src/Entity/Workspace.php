@@ -32,7 +32,7 @@ class Workspace
     /**
      * @var Collection<int, UserWorkspace>
      */
-    #[ORM\OneToMany(targetEntity: UserWorkspace::class, mappedBy: 'workspace', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: UserWorkspace::class, mappedBy: 'workspace', cascade: ['remove'], orphanRemoval: true)]
     private Collection $userWorkspaces;
 
     public function __construct()
