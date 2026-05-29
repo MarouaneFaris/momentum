@@ -11,6 +11,7 @@ use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
+use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -67,6 +68,45 @@ final class WorkspaceController extends AbstractController
         return $this->json(
             WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, WorkspaceRole::Owner),
             Response::HTTP_CREATED,
+        );
+    }
+
+    #[Route(
+        path: '/api/workspaces/{id}',
+        name: 'api_workspace_show',
+        methods: Request::METHOD_GET,
+    )]
+    public function show(
+        Workspace $workspace,
+        #[CurrentUser] User $user,
+        UserWorkspaceRepository $userWorkspaceRepository,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted(WorkspaceVoter::VIEW, $workspace);
+
+        $role = $userWorkspaceRepository->findRoleByUserAndWorkspace($user, $workspace);
+
+        return $this->json(
+            WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, $role),
+        );
+    }
+
+    #[Route(
+        path: '/api/workspaces/{id}',
+        name: 'api_workspace_update',
+        methods: Request::METHOD_PATCH,
+    )]
+    public function update(
+        Workspace $workspace,
+        #[MapRequestPayload] CreateWorkspaceDTO $dto,
+        EntityManagerInterface $em,
+    ): JsonResponse {
+        $this->denyAccessUnlessGranted(WorkspaceVoter::EDIT, $workspace);
+
+        $workspace->setName($dto->name);
+        $em->flush();
+
+        return $this->json(
+            WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, WorkspaceRole::Owner),
         );
     }
 }

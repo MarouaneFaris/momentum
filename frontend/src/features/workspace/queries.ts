@@ -1,5 +1,5 @@
 import api from '@/lib/api'
-import { ROUTES } from '@/lib/routes'
+import { type ApiRoute, ROUTES } from '@/lib/routes'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Workspace } from './types'
 
@@ -18,4 +18,19 @@ export const useCreateWorkspace = () => {
             void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
         },
     })
-}
+
+export const useWorkspace = (workspaceId: string) =>
+    useQuery({
+        queryKey: ['workspaces', workspaceId],
+        queryFn: () =>
+            api.get<Workspace>(`${ROUTES.workspaces}/${workspaceId}` as ApiRoute),
+    })
+
+export const useRenameWorkspace = (workspaceId: string) =>
+    useMutation({
+        mutationFn: (data: { name: string }) =>
+            api.patch<Workspace>(`${ROUTES.workspaces}/${workspaceId}` as ApiRoute, data),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+        },
+    })
