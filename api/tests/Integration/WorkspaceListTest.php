@@ -8,7 +8,6 @@ use App\Enum\WorkspaceRole;
 use App\Factory\UserFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -18,6 +17,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 final class WorkspaceListTest extends WebTestCase
 {
     use Factories;
+    use LoginAsTrait;
     use ResetDatabase;
 
     private const string EMAIL = 'user@example.com';
@@ -47,7 +47,7 @@ final class WorkspaceListTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne(['creator' => $user]);
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces');
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -60,22 +60,24 @@ final class WorkspaceListTest extends WebTestCase
         self::assertArrayHasKey('createdAt', $data[0]);
     }
 
-    public function testUserInTwoWorkspacesSeesAll(): void
+    public function testUserInTwoWorkspacesSeesAllOrderedByName(): void
     {
         $client = static::createClient();
         $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
-        $ws1 = WorkspaceFactory::createOne();
-        $ws2 = WorkspaceFactory::createOne();
+        $ws1 = WorkspaceFactory::createOne(['name' => 'Beta']);
+        $ws2 = WorkspaceFactory::createOne(['name' => 'Alpha']);
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $ws1, 'role' => WorkspaceRole::Owner]);
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $ws2, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces');
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
         /** @var list<array<string, string>> $data */
         $data = json_decode((string) $client->getResponse()->getContent(), true);
         self::assertCount(2, $data);
+        self::assertSame('Alpha', $data[0]['name']);
+        self::assertSame('Beta', $data[1]['name']);
     }
 
     public function testUserDoesNotSeeOtherUsersWorkspaces(): void
@@ -86,7 +88,7 @@ final class WorkspaceListTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $otherUser, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces');
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -99,7 +101,7 @@ final class WorkspaceListTest extends WebTestCase
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces');
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -114,7 +116,7 @@ final class WorkspaceListTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne(['creator' => $user, 'name' => 'My Project']);
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces');
 
         /** @var list<array<string, string>> $data */
@@ -128,18 +130,6 @@ final class WorkspaceListTest extends WebTestCase
         self::assertMatchesRegularExpression(
             '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/',
             $data[0]['createdAt'],
-        );
-    }
-
-    private function loginAs(KernelBrowser $client): void
-    {
-        $client->request(
-            'POST',
-            '/api/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
         );
     }
 }
