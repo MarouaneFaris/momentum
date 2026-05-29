@@ -8,6 +8,7 @@ use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 
 /**
  * @extends ServiceEntityRepository<UserWorkspace>
@@ -28,11 +29,11 @@ class UserWorkspaceRepository extends ServiceEntityRepository
         $memberships = $this->getEntityManager()
             ->createQuery(
                 sprintf(
-                    'SELECT uw, w FROM %s uw JOIN uw.workspace w WHERE uw.user = :user ORDER BY w.name ASC',
+                    'SELECT uw, w FROM %s uw JOIN uw.workspace w WHERE IDENTITY(uw.user) = :userId ORDER BY w.name ASC',
                     UserWorkspace::class,
                 ),
             )
-            ->setParameter('user', $user)
+            ->setParameter('userId', $user->getId(), UuidType::NAME)
             ->getResult();
 
         return array_map(
