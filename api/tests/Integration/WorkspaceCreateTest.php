@@ -9,19 +9,29 @@ use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 final class WorkspaceCreateTest extends WebTestCase
 {
     use Factories;
+    use LoginAsTrait;
     use ResetDatabase;
 
     private const string EMAIL = 'user@example.com';
     private const string PASSWORD = 'SuperSecurePass123!';
+
+    protected function tearDown(): void
+    {
+        $apiLimiter = static::getContainer()->get('limiter.api');
+        assert($apiLimiter instanceof RateLimiterFactory);
+        $apiLimiter->create(self::EMAIL)->reset();
+
+        parent::tearDown();
+    }
 
     public function testUnauthenticatedReturns401(): void
     {
@@ -42,7 +52,7 @@ final class WorkspaceCreateTest extends WebTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
 
         $client->request(
             'POST',
@@ -66,7 +76,7 @@ final class WorkspaceCreateTest extends WebTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
 
         $client->request(
             'POST',
@@ -91,7 +101,7 @@ final class WorkspaceCreateTest extends WebTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
 
         $client->request(
             'POST',
@@ -109,7 +119,7 @@ final class WorkspaceCreateTest extends WebTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
 
         $client->request(
             'POST',
@@ -127,7 +137,7 @@ final class WorkspaceCreateTest extends WebTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
 
         $client->request(
             'POST',
@@ -141,15 +151,21 @@ final class WorkspaceCreateTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    private function loginAs(KernelBrowser $client): void
+    public function testNameAt64CharsReturns201(): void
     {
+        $client = static::createClient();
+        UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+
         $client->request(
             'POST',
-            '/api/login',
+            '/api/workspaces',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
+            json_encode(['name' => str_repeat('a', 64)], JSON_THROW_ON_ERROR),
         );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
 }

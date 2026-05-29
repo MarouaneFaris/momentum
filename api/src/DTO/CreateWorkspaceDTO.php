@@ -10,7 +10,7 @@ final readonly class CreateWorkspaceDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[Assert\Length(min: 1, max: 64)]
+        #[Assert\Length(max: 64)]
         public string $name,
     ) {}
 }
