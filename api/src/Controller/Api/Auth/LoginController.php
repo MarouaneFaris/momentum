@@ -38,6 +38,7 @@ final class LoginController extends AbstractController
                 content: new OA\JsonContent(ref: new Model(type: LoginResponse::class))
             ),
             new OA\Response(response: 401, description: 'Invalid credentials'),
+            new OA\Response(response: 422, description: 'Validation error — missing or malformed fields'),
         ]
     )]
     #[Route(
