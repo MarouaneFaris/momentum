@@ -14,8 +14,8 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import z from 'zod'
-import { useLastVisitedWorkspace } from '../hooks/useLastVisitedWorkspace'
 import { useCreateWorkspace } from '../queries'
+import { workspaceStorage } from '../workspaceStorage'
 
 const schema = z.object({
     name: z.string().min(1, 'Name is required').max(64, 'Name must be 64 characters or fewer'),
@@ -30,7 +30,7 @@ type Props = {
 
 export function CreateWorkspaceModal({ open, onOpenChange }: Props) {
     const { mutate, isPending } = useCreateWorkspace()
-    const { write } = useLastVisitedWorkspace()
+    const { write } = workspaceStorage
     const navigate = useNavigate()
 
     const {
@@ -89,11 +89,7 @@ export function CreateWorkspaceModal({ open, onOpenChange }: Props) {
                     >
                         Cancel
                     </Button>
-                    <Button
-                        type="submit"
-                        form="create-workspace-form"
-                        disabled={isPending}
-                    >
+                    <Button type="submit" form="create-workspace-form" disabled={isPending}>
                         Create
                     </Button>
                 </DialogFooter>
