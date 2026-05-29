@@ -1,0 +1,15 @@
+when@dev:
+    nelmio_api_doc:
+        documentation:
+            info:
+                title: Momentum API
+                version: "1.0"
+            components:
+                securitySchemes:
+                    cookieAuth:
+                        type: apiKey
+                        in: cookie
+                        name: auth_token
+        areas:
+            default:
+                path_patterns: ["^/api"]
