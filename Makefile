@@ -184,4 +184,8 @@ dev-certs: ## Generate trusted local HTTPS certs with mkcert (run once, requires
 	mkcert -cert-file docker/certs/tls.pem -key-file docker/certs/tls.key localhost 127.0.0.1 ::1
 	@echo "Done. Run: make up"
 
-install: dev-certs rebuild up reset-dbs install-hooks ## Install the whole project for the first time
+install: dev-certs rebuild ## Install the whole project for the first time
+	@$(DOCKER_COMP) down --remove-orphans
+	@$(DOCKER_COMP) up --detach --wait
+	@$(MAKE) reset-dbs
+	@$(MAKE) install-hooks
