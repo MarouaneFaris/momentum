@@ -6,6 +6,7 @@ namespace App\Controller\Api\Auth;
 
 use App\DTO\Response\LoginResponse;
 use App\Entity\User;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,7 @@ final class MeController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Authenticated user details',
-                content: new OA\JsonContent(ref: '#/components/schemas/UserResponse')
+                content: new OA\JsonContent(ref: new Model(type: LoginResponse::class))
             ),
             new OA\Response(response: 401, description: 'Not authenticated'),
         ]

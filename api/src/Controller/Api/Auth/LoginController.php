@@ -7,6 +7,7 @@ namespace App\Controller\Api\Auth;
 use App\DTO\Response\LoginResponse;
 use App\Entity\User;
 use App\Service\AuthTokenManager;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -34,7 +35,7 @@ final class LoginController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Login successful — sets auth_token HttpOnly cookie',
-                content: new OA\JsonContent(ref: '#/components/schemas/UserResponse')
+                content: new OA\JsonContent(ref: new Model(type: LoginResponse::class))
             ),
             new OA\Response(response: 401, description: 'Invalid credentials'),
         ]

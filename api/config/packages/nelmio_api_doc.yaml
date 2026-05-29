@@ -3,7 +3,7 @@ when@dev:
         documentation:
             info:
                 title: Momentum API
-                version: '1.0'
+                version: "1.0"
             components:
                 securitySchemes:
                     cookieAuth:
@@ -12,4 +12,4 @@ when@dev:
                         name: auth_token
         areas:
             default:
-                path_patterns: ['^/api']
+                path_patterns: ["^/api"]

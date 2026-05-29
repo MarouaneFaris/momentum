@@ -8,7 +8,7 @@ use App\Entity\User;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
-    schema: 'UserResponse',
+    schema: 'LoginResponse',
     properties: [
         new OA\Property(property: 'id', type: 'string', format: 'uuid', example: '018f5c2e-1234-7abc-8def-abcdef012345'),
         new OA\Property(property: 'email', type: 'string', format: 'email', example: 'user@example.com'),
