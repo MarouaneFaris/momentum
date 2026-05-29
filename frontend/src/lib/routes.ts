@@ -3,6 +3,7 @@ export const ROUTES = {
     logout: '/logout',
     me: '/me',
     register: '/register',
+    workspaces: '/workspaces',
 } as const
 
 export type ApiRoute = (typeof ROUTES)[keyof typeof ROUTES] | `/workspaces/${string}`

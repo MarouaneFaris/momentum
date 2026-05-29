@@ -2,6 +2,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useLogoutAction } from '@/features/auth/hooks/useLogoutAction'
+import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useContext } from 'react'
 import { Navigate, Outlet } from 'react-router'
 
@@ -18,14 +19,19 @@ export default function AppLayout() {
     }
 
     return (
-        <>
-            <ThemeToggle />
-            <Button type="button" onClick={handleOnLogout}>
-                Logout
-            </Button>
-            <main className="flex justify-center mt-32">
+        <div className="flex h-screen">
+            <aside className="flex w-60 flex-col gap-2 border-r p-4">
+                <WorkspaceSwitcher />
+                <div className="mt-auto flex flex-col gap-2">
+                    <ThemeToggle />
+                    <Button type="button" variant="outline" onClick={handleOnLogout}>
+                        Logout
+                    </Button>
+                </div>
+            </aside>
+            <main className="flex-1 overflow-auto p-8">
                 <Outlet />
             </main>
-        </>
+        </div>
     )
 }
