@@ -61,7 +61,7 @@ final class WorkspaceScopeSubscriberTest extends TestCase
 
     public function testWorkspaceFoundEnablesFilterAndSetsContext(): void
     {
-        $uuid = Uuid::v4();
+        $uuid = Uuid::v7();
 
         $workspace = $this->createStub(Workspace::class);
         $workspace->method('getId')->willReturn($uuid);
