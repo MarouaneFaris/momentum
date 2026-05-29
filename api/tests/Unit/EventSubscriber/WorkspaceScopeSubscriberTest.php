@@ -48,7 +48,7 @@ final class WorkspaceScopeSubscriberTest extends TestCase
         $subscriber = new WorkspaceScopeSubscriber(
             $repo,
             new WorkspaceContext(),
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
         );
 
         $request = new Request([], [], ['workspaceId' => 'missing-id']);
@@ -63,7 +63,7 @@ final class WorkspaceScopeSubscriberTest extends TestCase
     {
         $uuid = Uuid::v4();
 
-        $workspace = $this->createMock(Workspace::class);
+        $workspace = $this->createStub(Workspace::class);
         $workspace->method('getId')->willReturn($uuid);
 
         $repo = $this->createMock(WorkspaceRepository::class);
@@ -72,15 +72,15 @@ final class WorkspaceScopeSubscriberTest extends TestCase
         $context = new WorkspaceContext();
 
         // SQLFilter::setParameter is final; use real WorkspaceFilter with a stub EM
-        $filterEm = $this->createMock(EntityManagerInterface::class);
-        $filterFilters = $this->createMock(FilterCollection::class);
+        $filterEm = $this->createStub(EntityManagerInterface::class);
+        $filterFilters = $this->createStub(FilterCollection::class);
         $filterEm->method('getFilters')->willReturn($filterFilters);
         $workspaceFilter = new WorkspaceFilter($filterEm);
 
         $filters = $this->createMock(FilterCollection::class);
         $filters->expects(self::once())->method('enable')->with('workspace')->willReturn($workspaceFilter);
 
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
         $em->method('getFilters')->willReturn($filters);
 
         $subscriber = new WorkspaceScopeSubscriber($repo, $context, $em);
@@ -93,7 +93,7 @@ final class WorkspaceScopeSubscriberTest extends TestCase
     private function makeEvent(Request $request): RequestEvent
     {
         return new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            $this->createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
         );

@@ -20,7 +20,7 @@ final class WorkspaceContextTest extends TestCase
     public function testSetAndGet(): void
     {
         $context = new WorkspaceContext();
-        $workspace = $this->createMock(Workspace::class);
+        $workspace = $this->createStub(Workspace::class);
 
         $context->set($workspace);
 
@@ -40,7 +40,7 @@ final class WorkspaceContextTest extends TestCase
     public function testGetOrFailReturnsWorkspaceWhenSet(): void
     {
         $context = new WorkspaceContext();
-        $workspace = $this->createMock(Workspace::class);
+        $workspace = $this->createStub(Workspace::class);
 
         $context->set($workspace);
 
@@ -50,7 +50,7 @@ final class WorkspaceContextTest extends TestCase
     public function testResetClearsWorkspace(): void
     {
         $context = new WorkspaceContext();
-        $context->set($this->createMock(Workspace::class));
+        $context->set($this->createStub(Workspace::class));
 
         $context->reset();
 
