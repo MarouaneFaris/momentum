@@ -25,4 +25,13 @@ export default defineConfig([
             },
         },
     },
+    {
+        files: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}', 'src/test/**/*.{ts,tsx}'],
+        languageOptions: {
+            parserOptions: {
+                project: ['./tsconfig.test.json'],
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+    },
 ])

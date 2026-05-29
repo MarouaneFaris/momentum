@@ -10,6 +10,6 @@ describe('cn', () => {
     })
 
     it('drops falsy values', () => {
-        expect(cn('a', false && 'b', undefined)).toBe('a')
+        expect(cn('a', false, undefined)).toBe('a')
     })
 })
