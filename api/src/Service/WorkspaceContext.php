@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Workspace;
+use Symfony\Contracts\Service\ResetInterface;
 
-final class WorkspaceContext
+final class WorkspaceContext implements ResetInterface
 {
     private ?Workspace $workspace = null;
+
+    public function reset(): void
+    {
+        $this->workspace = null;
+    }
 
     public function set(Workspace $workspace): void
     {

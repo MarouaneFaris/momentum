@@ -46,4 +46,14 @@ final class WorkspaceContextTest extends TestCase
 
         self::assertSame($workspace, $context->getOrFail());
     }
+
+    public function testResetClearsWorkspace(): void
+    {
+        $context = new WorkspaceContext();
+        $context->set($this->createMock(Workspace::class));
+
+        $context->reset();
+
+        self::assertNull($context->get());
+    }
 }

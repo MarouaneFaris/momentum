@@ -16,7 +16,12 @@ final class WorkspaceFilter extends SQLFilter
         }
 
         $mapping = $targetEntity->getAssociationMapping('workspace');
-        $column = $mapping['joinColumns'][0]['name']; // typically workspace_id
+
+        if (empty($mapping['joinColumns'])) {
+            return '';
+        }
+
+        $column = $mapping['joinColumns'][0]['name'];
 
         return sprintf('%s.%s = %s', $targetTableAlias, $column, $this->getParameter('workspaceId'));
     }

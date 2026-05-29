@@ -9,6 +9,7 @@ use App\Service\WorkspaceContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 final readonly class WorkspaceScopeSubscriber implements EventSubscriberInterface
@@ -39,7 +40,7 @@ final readonly class WorkspaceScopeSubscriber implements EventSubscriberInterfac
 
         $workspace = $this->workspaceRepository->find($workspaceId);
         if ($workspace === null) {
-            return; // 404 handled by controller/voter
+            throw new NotFoundHttpException(sprintf('Workspace "%s" not found.', $workspaceId));
         }
 
         $this->workspaceContext->set($workspace);
