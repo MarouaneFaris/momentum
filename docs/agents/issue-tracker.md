@@ -20,3 +20,34 @@ Create a GitHub issue.
 ## When a skill says "fetch the relevant ticket"
 
 Run `gh issue view <number> --comments`.
+
+## Epic branch discovery
+
+Before creating a branch for an issue, check if it belongs to an epic:
+
+```bash
+gh api graphql -f query='
+{
+  repository(owner:"MarouaneFaris", name:"momentum") {
+    issue(number: ISSUE_NUMBER) {
+      parent { number title }
+    }
+  }
+}'
+```
+
+If `parent` is non-null:
+- Epic branch = `epic/{parent.number}-{kebab(parent.title)}`
+- Base branch on it: `git checkout -b type/scope-description epic/{parent.number}-...`
+- PR targets it: `gh pr create --base epic/{parent.number}-...`
+
+If `parent` is null: base on `main`, PR targets `main`.
+
+## Linking sub-issues when creating issues from a PRD
+
+After creating each sub-issue, register it under the PRD:
+
+```bash
+gh api repos/MarouaneFaris/momentum/issues/{prd_number}/sub_issues \
+  --method POST -f sub_issue_id={new_issue_number}
+```
