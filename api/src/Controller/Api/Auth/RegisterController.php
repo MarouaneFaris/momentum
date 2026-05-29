@@ -6,6 +6,7 @@ namespace App\Controller\Api\Auth;
 
 use App\DTO\RegisterDTO;
 use App\Service\RegisterService;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,25 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class RegisterController extends AbstractController
 {
+    #[OA\Post(
+        path: '/api/register',
+        summary: 'Register a new user account',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/RegisterDTO')
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Registration successful',
+                content: new OA\JsonContent(
+                    properties: [new OA\Property(property: 'message', type: 'string')],
+                    type: 'object'
+                )
+            ),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
     #[Route(
         path: '/api/register',
         name: 'api_register',

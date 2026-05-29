@@ -6,6 +6,7 @@ namespace App\Controller\Api\Auth;
 
 use App\DTO\Response\LoginResponse;
 use App\Entity\User;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,19 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class MeController extends AbstractController
 {
+    #[OA\Get(
+        path: '/api/me',
+        summary: 'Get the currently authenticated user',
+        security: [['cookieAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Authenticated user details',
+                content: new OA\JsonContent(ref: '#/components/schemas/UserResponse')
+            ),
+            new OA\Response(response: 401, description: 'Not authenticated'),
+        ]
+    )]
     #[Route(
         path: '/api/me',
         name: 'api_me',
