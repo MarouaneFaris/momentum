@@ -5,4 +5,4 @@ export const ROUTES = {
     register: '/register',
 } as const
 
-export type ApiRoute = (typeof ROUTES)[keyof typeof ROUTES]
+export type ApiRoute = (typeof ROUTES)[keyof typeof ROUTES] | `/workspaces/${string}`

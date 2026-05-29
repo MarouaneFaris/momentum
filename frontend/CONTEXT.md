@@ -48,3 +48,24 @@ src/
 - Mock external deps (router, API calls, hooks) at module level with `vi.mock()`
 - Use `it` over `test` (enforced by ESLint)
 - Run: `make front-test` · `npm run test:run` (CI / one-shot) · `npm test` (watch mode)
+
+## Workspace-scoped API calls
+
+All workspace-scoped API calls **must** use `useWorkspaceApi()` from `src/lib/useWorkspaceApi.ts`. The hook reads `workspaceId` from the URL params and returns pre-bound API methods that prepend `/workspaces/{id}` to every path. It throws if called outside a `/workspaces/:id/` route.
+
+```typescript
+const { workspaceId, get, post, patch, delete: del } = useWorkspaceApi()
+```
+
+### Query key convention
+
+All workspace-scoped TanStack Query keys **must** include `workspaceId` as the second element to isolate cache per workspace:
+
+```typescript
+// correct
+queryKey: ['workspaces', workspaceId, 'projects']
+queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks']
+
+// wrong — shared cache across workspaces
+queryKey: ['projects']
+```
