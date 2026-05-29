@@ -31,15 +31,22 @@ CI runs `make check` (frontend + backend) via GitHub Actions (`.github/workflows
 
 ## Git workflow
 
-`main` is protected — direct push blocked, CI must pass before merge.
+`main` is protected — direct push blocked, CI must pass before merge. Epic branches (`epic/*`) are equally protected.
 
-Always:
-1. Create a feature branch: `git checkout -b type/short-description`
-2. Commit using `type(scope): description` convention
-3. Push branch and open a PR: `gh pr create`
-4. Stop there — the human reviews and merges the PR
+### Epic branches
 
-Never push directly to `main`. Never merge a PR without explicit human instruction.
+PRDs spawn an epic branch: `epic/{prd-issue-number}-{kebab-title}` (e.g. `epic/125-workspace-crud-and-switching`). Sub-issues from the PRD are implemented on feature branches based off the epic branch and merged back into it via PR. The epic branch merges to `main` when all sub-issues are done.
+
+### Always
+
+1. Check if the issue has a parent (PRD) — see `docs/agents/issue-tracker.md`
+2. If parent exists, base your branch on the epic branch: `git checkout -b type/short-description epic/NNN-name`
+3. Otherwise base on `main`: `git checkout -b type/short-description`
+4. Commit using `type(scope): description` convention
+5. Open a PR targeting the epic branch (or `main` if no epic): `gh pr create --base epic/NNN-name`
+6. Stop there — the human reviews and merges the PR
+
+Never push directly to `main` or an epic branch. Never merge a PR without explicit human instruction.
 
 ## API
 
