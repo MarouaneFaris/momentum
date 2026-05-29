@@ -3,7 +3,11 @@ set -e
 
 export UID=$(id -u)
 export GID=$(id -g)
-DOCKER_COMP="docker compose -f docker/compose.yaml -f docker/compose.override.yaml"
+if [ -f .env.local ]; then
+    DOCKER_COMP="docker compose --env-file .env --env-file .env.local -f docker/compose.yaml -f docker/compose.override.yaml"
+else
+    DOCKER_COMP="docker compose --env-file .env -f docker/compose.yaml -f docker/compose.override.yaml"
+fi
 
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
