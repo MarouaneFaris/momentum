@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useNavigate } from 'react-router'
@@ -46,12 +47,7 @@ export default function RegisterForm() {
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                required
-                                {...register('password')}
-                            />
+                            <PasswordInput id="password" required {...register('password')} />
                             {errors.password && (
                                 <p className="text-sm text-destructive">
                                     {errors.password.message}
@@ -60,7 +56,7 @@ export default function RegisterForm() {
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="confirm">Confirm password</Label>
-                            <Input id="confirm" type="password" required {...register('confirm')} />
+                            <PasswordInput id="confirm" required {...register('confirm')} />
                             {errors.confirm && (
                                 <p className="text-sm text-destructive">{errors.confirm.message}</p>
                             )}

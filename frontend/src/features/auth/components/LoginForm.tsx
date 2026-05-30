@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useNavigate } from 'react-router'
@@ -51,12 +52,7 @@ export default function LoginForm() {
                                     Forgot your password?
                                 </a>
                             </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                required
-                                {...register('password')}
-                            />
+                            <PasswordInput id="password" required {...register('password')} />
                         </div>
                     </div>
                 </form>
