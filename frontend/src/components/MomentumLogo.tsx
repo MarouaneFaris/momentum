@@ -36,7 +36,7 @@ export function MomentumLogo({ size }: Props) {
 
     return (
         <svg
-            viewBox="-68 0 420 60"
+            viewBox="-56 0 420 60"
             className="h-10 w-auto flex-shrink-0"
             role="img"
             aria-label="Momentum"
