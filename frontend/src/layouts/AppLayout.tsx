@@ -1,49 +1,81 @@
+import { MomentumLogo } from '@/components/MomentumLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Button } from '@/components/ui/button'
+import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
-import { useLogoutAction } from '@/features/auth/hooks/useLogoutAction'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
-import { Settings } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Bell, LayoutGrid, Settings } from 'lucide-react'
 import { useContext } from 'react'
-import { Link, Navigate, Outlet, useParams } from 'react-router'
+import { NavLink, Navigate, Outlet, useParams } from 'react-router'
 
 export default function AppLayout() {
     const auth = useContext(AuthContext)
-    const { handleOnLogout } = useLogoutAction()
     const { id: workspaceId } = useParams<{ id: string }>()
 
-    if (auth.isLoading) {
-        return 'Loading...'
-    }
-
-    if (!auth.isAuthenticated) {
-        return <Navigate to="/login" />
-    }
+    if (auth.isLoading) return null
+    if (!auth.isAuthenticated) return <Navigate to="/login" />
 
     return (
-        <div className="flex h-screen">
-            <aside className="flex w-60 flex-col gap-2 border-r p-4">
+        <div className="flex h-screen flex-col">
+            <header className="flex h-12 flex-shrink-0 items-center gap-3 border-b bg-sidebar px-4">
+                <MomentumLogo size="sm" />
+                <span className="text-sm font-semibold tracking-tight">
+                    <span className="text-primary">m</span>omentum
+                </span>
+                <span className="mx-1 h-5 w-px bg-border" />
                 <WorkspaceSwitcher />
-                {workspaceId && (
-                    <nav className="flex flex-col gap-1 mt-2">
-                        <Button asChild variant="ghost" className="w-full justify-start gap-2">
-                            <Link to={`/workspaces/${workspaceId}/settings`}>
-                                <Settings className="size-4" />
+                <span className="flex-1" />
+                <ThemeToggle />
+                <Button variant="ghost" size="icon" aria-label="Notifications">
+                    <Bell className="h-4 w-4" />
+                </Button>
+                <UserMenu />
+            </header>
+            <div className="flex flex-1 overflow-hidden">
+                <aside className="flex w-[200px] flex-shrink-0 flex-col overflow-y-auto border-r bg-sidebar px-2 py-3">
+                    <p className="px-2 pb-1 pt-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                        Main
+                    </p>
+                    {workspaceId && (
+                        <NavLink
+                            to={`/workspaces/${workspaceId}/dashboard`}
+                            className={({ isActive }) =>
+                                `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                    isActive
+                                        ? 'bg-primary/10 font-medium text-primary'
+                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                }`
+                            }
+                        >
+                            <LayoutGrid className="h-4 w-4 flex-shrink-0" />
+                            Dashboard
+                        </NavLink>
+                    )}
+                    <div className="mt-auto">
+                        <p className="px-2 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                            Workspace
+                        </p>
+                        {workspaceId && (
+                            <NavLink
+                                to={`/workspaces/${workspaceId}/settings`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 font-medium text-primary'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <Settings className="h-4 w-4 flex-shrink-0" />
                                 Settings
-                            </Link>
-                        </Button>
-                    </nav>
-                )}
-                <div className="mt-auto flex flex-col gap-2">
-                    <ThemeToggle />
-                    <Button type="button" variant="outline" onClick={handleOnLogout}>
-                        Logout
-                    </Button>
-                </div>
-            </aside>
-            <main className="flex-1 overflow-auto p-8">
-                <Outlet />
-            </main>
+                            </NavLink>
+                        )}
+                    </div>
+                </aside>
+                <main className="flex-1 overflow-auto bg-background p-8">
+                    <Outlet />
+                </main>
+            </div>
         </div>
     )
 }
