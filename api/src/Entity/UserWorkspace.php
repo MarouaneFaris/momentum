@@ -20,7 +20,7 @@ class UserWorkspace
     private User $user;
 
     #[ORM\ManyToOne(inversedBy: 'userWorkspaces')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Workspace $workspace;
 
     #[ORM\Column(type: 'string', enumType: WorkspaceRole::class)]

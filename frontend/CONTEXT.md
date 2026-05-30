@@ -69,3 +69,36 @@ queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks']
 // wrong — shared cache across workspaces
 queryKey: ['projects']
 ```
+
+## Routing
+
+Workspace identity is always URL-encoded — not stored in React context or hidden state. This keeps links shareable and deep-linkable, consistent with the API's explicit workspace scoping.
+
+### Route tree
+
+```
+/                                   → smart landing: redirect to last-visited workspace (localStorage)
+                                      || first result from GET /api/workspaces
+                                      || render empty state inline if no workspaces
+/workspaces/:id/                    → redirect to /workspaces/:id/dashboard
+/workspaces/:id/dashboard           → workspace dashboard
+/workspaces/:id/settings            → workspace settings (rename + delete zone for owner; read-only for member/guest)
+```
+
+### Workspace switching
+
+Sidebar dropdown at top of AppLayout sidebar:
+
+- Shows current workspace name
+- Click → popover listing all user workspaces with their role
+- Select → navigate to `/workspaces/{id}/dashboard`
+- "Create workspace" trigger at bottom of popover → opens inline modal (single `name` field)
+- After creation → navigate to new workspace's dashboard
+
+### Last-visited workspace
+
+localStorage key: `lastVisitedWorkspaceId`. Written on every workspace navigation. Read on post-login redirect. If key is missing or the workspace is no longer accessible, fall back to first result from `GET /api/workspaces`.
+
+### Delete confirmation
+
+Workspace deletion requires typing the workspace name to confirm (type-to-confirm pattern). Delete button is disabled until input matches exactly. After deletion: redirect to next available workspace, or render empty state on `/` if none remain.
