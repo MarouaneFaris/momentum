@@ -1,3 +1,4 @@
+import { PasswordInput } from '@/components/PasswordInput'
 import { Button } from '@/components/ui/button'
 import {
     Card,
@@ -51,12 +52,7 @@ export default function LoginForm() {
                                     Forgot your password?
                                 </a>
                             </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                required
-                                {...register('password')}
-                            />
+                            <PasswordInput id="password" required {...register('password')} />
                         </div>
                     </div>
                 </form>
