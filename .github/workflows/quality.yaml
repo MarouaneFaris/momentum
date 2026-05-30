@@ -44,6 +44,11 @@ jobs:
       - name: Run tests
         run: npm run test:run
 
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_URL: https://localhost/api
+
   api:
     name: Api
     runs-on: ubuntu-latest
