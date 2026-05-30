@@ -84,6 +84,7 @@ final class WorkspaceController extends AbstractController
         $this->denyAccessUnlessGranted(WorkspaceVoter::VIEW, $workspace);
 
         $role = $userWorkspaceRepository->findRoleByUserAndWorkspace($user, $workspace);
+        assert($role !== null);
 
         return $this->json(
             WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, $role),

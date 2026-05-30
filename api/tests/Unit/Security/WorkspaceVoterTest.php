@@ -9,6 +9,7 @@ use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
 use App\Security\Voter\WorkspaceVoter;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 final class WorkspaceVoterTest extends TestCase
 {
     private WorkspaceVoter $voter;
-    private UserWorkspaceRepository $repository;
+    private UserWorkspaceRepository&Stub $repository;
     private User $user;
     private Workspace $workspace;
 
