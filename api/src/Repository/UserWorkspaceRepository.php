@@ -41,4 +41,11 @@ class UserWorkspaceRepository extends ServiceEntityRepository
             $memberships,
         );
     }
+
+    public function findRoleByUserAndWorkspace(User $user, Workspace $workspace): ?WorkspaceRole
+    {
+        $userWorkspace = $this->findOneBy(['user' => $user, 'workspace' => $workspace]);
+
+        return $userWorkspace?->getRole();
+    }
 }

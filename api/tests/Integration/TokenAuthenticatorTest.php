@@ -9,6 +9,7 @@ use App\Factory\UserFactory;
 use App\Service\AuthTokenManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -16,6 +17,15 @@ final class TokenAuthenticatorTest extends WebTestCase
 {
     use Factories;
     use ResetDatabase;
+
+    protected function tearDown(): void
+    {
+        $apiLimiter = static::getContainer()->get('limiter.api');
+        assert($apiLimiter instanceof RateLimiterFactory);
+        $apiLimiter->create('user@example.com')->reset();
+
+        parent::tearDown();
+    }
 
     public function testValidTokenGrantsAccess(): void
     {

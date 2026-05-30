@@ -19,3 +19,20 @@ export const useCreateWorkspace = () => {
         },
     })
 }
+
+export const useWorkspace = (workspaceId: string) =>
+    useQuery({
+        queryKey: ['workspaces', workspaceId],
+        queryFn: () => api.get<Workspace>(`${ROUTES.workspaces}/${workspaceId}`),
+    })
+
+export const useRenameWorkspace = (workspaceId: string) => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (data: { name: string }) =>
+            api.patch<Workspace>(`${ROUTES.workspaces}/${workspaceId}`, data),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+        },
+    })
+}

@@ -12,6 +12,7 @@ import { AuthProvider } from './contexts/auth/AuthProvider'
 import LandingPage from './pages/LandingPage'
 import RegisterPage from './pages/RegisterPage'
 import WorkspaceDashboardPage from './pages/WorkspaceDashboardPage'
+import WorkspaceSettingsPage from './pages/WorkspaceSettingsPage'
 
 export default function App() {
     return (
@@ -39,6 +40,10 @@ export default function App() {
                                     <Route
                                         path="/workspaces/:id/dashboard"
                                         element={<WorkspaceDashboardPage />}
+                                    />
+                                    <Route
+                                        path="/workspaces/:id/settings"
+                                        element={<WorkspaceSettingsPage />}
                                     />
                                 </Route>
                             </Routes>
