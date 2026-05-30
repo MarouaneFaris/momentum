@@ -18,13 +18,18 @@ export default function DevLoginPanel() {
     }
 
     const handleLoginAs = async (email: string) => {
+        const alreadyLoggedIn = queryClient.getQueryData(['me']) != null
         await api.post('/dev/login-as', { email })
-        await queryClient.invalidateQueries({ queryKey: ['me'] })
-        setOpen(false)
+        if (alreadyLoggedIn) {
+            window.location.reload()
+        } else {
+            await queryClient.invalidateQueries({ queryKey: ['me'] })
+            setOpen(false)
+        }
     }
 
     return (
-        <div className="fixed bottom-4 left-4 z-50">
+        <div className="fixed bottom-4 right-4 z-50">
             {open ? (
                 <div className="bg-background border rounded-lg shadow-lg p-3 min-w-48">
                     <div className="flex items-center justify-between mb-2">
