@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,10 +33,18 @@ export function WorkspaceSwitcher() {
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between">
-                        {current?.name ?? 'Select workspace'}
-                        <ChevronDown className="ml-2 size-4" />
-                    </Button>
+                    <button className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm transition-colors hover:bg-muted">
+                        <span
+                            className="flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded text-[9px] font-semibold text-primary"
+                            style={{ background: 'oklch(0.488 0.243 264.376 / 0.15)' }}
+                        >
+                            {(current?.name?.[0] ?? 'W').toUpperCase()}
+                        </span>
+                        <span className="font-medium text-foreground">
+                            {current?.name ?? 'Select workspace'}
+                        </span>
+                        <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                    </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
                     <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
