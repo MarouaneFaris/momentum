@@ -28,7 +28,7 @@ final class WorkspaceVoterTest extends TestCase
         $this->workspace = new Workspace();
     }
 
-    /** @dataProvider provideRoleAttributeCombinations */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideRoleAttributeCombinations')]
     public function testVoteOnAttributeWithRole(WorkspaceRole $role, string $attribute, int $expectedVote): void
     {
         $this->repository
