@@ -3,7 +3,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
-import { Bell, LayoutDashboard, Settings } from 'lucide-react'
+import { Bell, LayoutGrid, Settings } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet, useParams } from 'react-router'
 
@@ -18,6 +18,9 @@ export default function AppLayout() {
         <div className="flex h-screen flex-col">
             <header className="flex h-12 flex-shrink-0 items-center gap-3 border-b bg-sidebar px-4">
                 <MomentumLogo size="sm" />
+                <span className="text-sm font-semibold tracking-tight">
+                    <span className="text-primary">m</span>omentum
+                </span>
                 <span className="mx-1 h-5 w-px bg-border" />
                 <WorkspaceSwitcher />
                 <span className="flex-1" />
@@ -46,28 +49,30 @@ export default function AppLayout() {
                                 }`
                             }
                         >
-                            <LayoutDashboard className="h-[15px] w-[15px] flex-shrink-0" />
+                            <LayoutGrid className="h-4 w-4 flex-shrink-0" />
                             Dashboard
                         </NavLink>
                     )}
-                    <p className="px-2 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-                        Workspace
-                    </p>
-                    {workspaceId && (
-                        <NavLink
-                            to={`/workspaces/${workspaceId}/settings`}
-                            className={({ isActive }) =>
-                                `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                    isActive
-                                        ? 'bg-primary/10 font-medium text-primary'
-                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                }`
-                            }
-                        >
-                            <Settings className="h-[15px] w-[15px] flex-shrink-0" />
-                            Settings
-                        </NavLink>
-                    )}
+                    <div className="mt-auto">
+                        <p className="px-2 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                            Workspace
+                        </p>
+                        {workspaceId && (
+                            <NavLink
+                                to={`/workspaces/${workspaceId}/settings`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 font-medium text-primary'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <Settings className="h-4 w-4 flex-shrink-0" />
+                                Settings
+                            </NavLink>
+                        )}
+                    </div>
                 </aside>
                 <main className="flex-1 overflow-auto bg-background p-8">
                     <Outlet />
