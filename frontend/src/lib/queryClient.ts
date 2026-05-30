@@ -5,12 +5,14 @@ import ApiError from './ApiError'
 const queryClient = new QueryClient({
     queryCache: new QueryCache({
         onError: (error) => {
-            if (error instanceof ApiError) {
-                if (error.status === 401) {
-                    void queryClient.invalidateQueries({ queryKey: ['me'] })
-                }
-            } else {
+            if (!(error instanceof ApiError)) {
                 toast.error('Network error, please try again.')
+                return
+            }
+
+            if (error.status === 401) {
+                void queryClient.invalidateQueries({ queryKey: ['me'] })
+                return
             }
         },
     }),
