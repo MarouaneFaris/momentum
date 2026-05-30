@@ -22,7 +22,7 @@ final class WorkspaceVoterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(UserWorkspaceRepository::class);
+        $this->repository = $this->createStub(UserWorkspaceRepository::class);
         $this->voter = new WorkspaceVoter($this->repository);
         $this->user = new User();
         $this->workspace = new Workspace();
@@ -83,7 +83,7 @@ final class WorkspaceVoterTest extends TestCase
 
     private function createToken(): TokenInterface
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($this->user);
 
         return $token;
