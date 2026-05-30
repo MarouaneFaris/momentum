@@ -4,6 +4,9 @@ import fs from 'fs'
 import path from 'path'
 import { defineConfig } from 'vite'
 
+const sslCert = process.env.FRONTEND_SSL_CERT
+const sslKey = process.env.FRONTEND_SSL_KEY
+
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [react(), tailwindcss()],
@@ -15,9 +18,9 @@ export default defineConfig({
     server: {
         host: true,
         port: 3000,
-        https: {
-            cert: fs.readFileSync(process.env.FRONTEND_SSL_CERT as string),
-            key: fs.readFileSync(process.env.FRONTEND_SSL_KEY as string),
-        },
+        https:
+            sslCert && sslKey
+                ? { cert: fs.readFileSync(sslCert), key: fs.readFileSync(sslKey) }
+                : undefined,
     },
 })
