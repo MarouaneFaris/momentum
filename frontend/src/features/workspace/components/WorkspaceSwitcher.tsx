@@ -21,7 +21,9 @@ export function WorkspaceSwitcher() {
     const navigate = useNavigate()
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const current = workspaces?.find((w) => w.id === currentId)
+    if (!workspaces?.length) return null
+
+    const current = workspaces.find((w) => w.id === currentId)
 
     const handleSelect = (workspaceId: string) => {
         write(workspaceId)
