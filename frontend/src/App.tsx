@@ -1,4 +1,5 @@
 import { Toaster } from '@/components/ui/sonner'
+import DevLoginPanel from '@/components/DevLoginPanel'
 import '@/index.css'
 import AppLayout from '@/layouts/AppLayout'
 import AuthLayout from '@/layouts/AuthLayout'
@@ -56,6 +57,7 @@ export default function App() {
                             </Routes>
                         </BrowserRouter>
                         <Toaster position="top-center" />
+                        <DevLoginPanel />
                     </ThemeProvider>
                 </AuthProvider>
             </QueryClientProvider>
