@@ -18,15 +18,17 @@ describe('MomentumLogo', () => {
         expect(imgs).toHaveLength(2)
     })
 
-    it('light image uses light SVG src', () => {
+    it('sm uses icon SVG srcs', () => {
         render(<MomentumLogo size="sm" />)
         const imgs = screen.getAllByRole('img', { name: 'Momentum' })
-        expect(imgs[0]).toHaveAttribute('src', '/logo-lockup-light.svg')
+        expect(imgs[0]).toHaveAttribute('src', '/logo-icon-light.svg')
+        expect(imgs[1]).toHaveAttribute('src', '/logo-icon-dark.svg')
     })
 
-    it('dark image uses dark SVG src', () => {
-        render(<MomentumLogo size="sm" />)
+    it('lg uses lockup SVG srcs', () => {
+        render(<MomentumLogo size="lg" />)
         const imgs = screen.getAllByRole('img', { name: 'Momentum' })
+        expect(imgs[0]).toHaveAttribute('src', '/logo-lockup-light.svg')
         expect(imgs[1]).toHaveAttribute('src', '/logo-lockup-dark.svg')
     })
 
