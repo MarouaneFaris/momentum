@@ -41,31 +41,31 @@ export function MomentumLogo({ size }: Props) {
             role="img"
             aria-label="Momentum"
         >
-            <g transform="translate(12, 6) skewX(-12)">
+            <g transform="translate(14, 2) skewX(-12)">
                 <rect
                     x="0"
                     y="0"
-                    width="38"
-                    height="10"
-                    rx="2"
+                    width="52"
+                    height="14"
+                    rx="2.5"
                     className="fill-primary"
                     opacity="0.25"
                 />
                 <rect
                     x="0"
-                    y="15"
-                    width="38"
-                    height="10"
-                    rx="2"
+                    y="21"
+                    width="52"
+                    height="14"
+                    rx="2.5"
                     className="fill-primary"
                     opacity="0.55"
                 />
-                <rect x="0" y="30" width="38" height="10" rx="2" className="fill-primary" />
+                <rect x="0" y="42" width="52" height="14" rx="2.5" className="fill-primary" />
             </g>
             <text
-                x="66"
-                y="44"
-                fontSize="42"
+                x="82"
+                y="46"
+                fontSize="44"
                 fontWeight="600"
                 letterSpacing="-2"
                 className="fill-foreground"
