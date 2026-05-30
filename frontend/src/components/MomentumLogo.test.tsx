@@ -12,73 +12,33 @@ describe('MomentumLogo', () => {
         expect(container.firstChild).toBeInTheDocument()
     })
 
-    it('renders wordmark text', () => {
+    it('renders two img elements for light/dark switching', () => {
         render(<MomentumLogo size="sm" />)
-        expect(screen.getByText('m')).toBeInTheDocument()
-        expect(screen.getByText('omentum')).toBeInTheDocument()
+        const imgs = screen.getAllByRole('img', { name: 'Momentum' })
+        expect(imgs).toHaveLength(2)
     })
 
-    it('renders 3 stripes', () => {
-        const { getAllByTestId } = render(<MomentumLogo size="sm" />)
-        expect(getAllByTestId('logo-stripe')).toHaveLength(3)
-    })
-
-    it('applies sm dimensions to stripes', () => {
-        const { getAllByTestId } = render(<MomentumLogo size="sm" />)
-        const stripes = getAllByTestId('logo-stripe')
-        stripes.forEach((stripe) => {
-            expect(stripe.className).toMatch(/w-\[14px\]/)
-            expect(stripe.className).toMatch(/h-\[3px\]/)
-        })
-    })
-
-    it('applies lg dimensions to stripes', () => {
-        const { getAllByTestId } = render(<MomentumLogo size="lg" />)
-        const stripes = getAllByTestId('logo-stripe')
-        stripes.forEach((stripe) => {
-            expect(stripe.className).toMatch(/w-\[28px\]/)
-            expect(stripe.className).toMatch(/h-\[5px\]/)
-        })
-    })
-
-    it('applies correct opacity classes to stripes', () => {
-        const { getAllByTestId } = render(<MomentumLogo size="sm" />)
-        const stripes = getAllByTestId('logo-stripe')
-        expect(stripes[0].className).toMatch(/opacity-25/)
-        expect(stripes[1].className).toMatch(/opacity-55/)
-        expect(stripes[2].className).not.toMatch(/opacity-/)
-    })
-
-    it('applies -12deg skew to the mark', () => {
-        const { container } = render(<MomentumLogo size="sm" />)
-        const mark = container.querySelector('[style*="skewX"]') as HTMLElement
-        expect(mark).not.toBeNull()
-        expect(mark.style.transform).toBe('skewX(-12deg)')
-    })
-
-    it('applies text-primary class to first letter', () => {
+    it('light image uses light SVG src', () => {
         render(<MomentumLogo size="sm" />)
-        const firstLetter = screen.getByText('m')
-        expect(firstLetter.className).toMatch(/text-primary/)
+        const imgs = screen.getAllByRole('img', { name: 'Momentum' })
+        expect(imgs[0]).toHaveAttribute('src', '/logo-lockup-light.svg')
     })
 
-    it('applies text-foreground class to remaining letters', () => {
+    it('dark image uses dark SVG src', () => {
         render(<MomentumLogo size="sm" />)
-        const rest = screen.getByText('omentum')
-        expect(rest.className).toMatch(/text-foreground/)
+        const imgs = screen.getAllByRole('img', { name: 'Momentum' })
+        expect(imgs[1]).toHaveAttribute('src', '/logo-lockup-dark.svg')
     })
 
-    it('applies lg text classes for lg size', () => {
+    it('sm variant applies h-5 class', () => {
+        render(<MomentumLogo size="sm" />)
+        const imgs = screen.getAllByRole('img', { name: 'Momentum' })
+        imgs.forEach((img) => expect(img.className).toMatch(/h-5/))
+    })
+
+    it('lg variant applies h-10 class', () => {
         render(<MomentumLogo size="lg" />)
-        const wordmark = screen.getByText('m').parentElement as HTMLElement
-        expect(wordmark.className).toMatch(/text-3xl/)
-        expect(wordmark.className).toMatch(/tracking-tighter/)
-    })
-
-    it('applies sm text classes for sm size', () => {
-        render(<MomentumLogo size="sm" />)
-        const wordmark = screen.getByText('m').parentElement as HTMLElement
-        expect(wordmark.className).toMatch(/text-sm/)
-        expect(wordmark.className).toMatch(/tracking-tight/)
+        const imgs = screen.getAllByRole('img', { name: 'Momentum' })
+        imgs.forEach((img) => expect(img.className).toMatch(/h-10/))
     })
 })
