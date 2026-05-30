@@ -3,6 +3,7 @@ import { ThemeToggle } from '@/components/ThemeToggle'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
+import { Button } from '@/components/ui/button'
 import { Bell, LayoutGrid, Settings } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet, useParams } from 'react-router'
@@ -25,12 +26,9 @@ export default function AppLayout() {
                 <WorkspaceSwitcher />
                 <span className="flex-1" />
                 <ThemeToggle />
-                <button
-                    className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                    aria-label="Notifications"
-                >
+                <Button variant="ghost" size="icon" aria-label="Notifications">
                     <Bell className="h-4 w-4" />
-                </button>
+                </Button>
                 <UserMenu />
             </header>
             <div className="flex flex-1 overflow-hidden">
