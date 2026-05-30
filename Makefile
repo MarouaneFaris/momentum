@@ -27,7 +27,7 @@ MAKEFLAGS += --no-print-directory
 	build rebuild up down nuke logs config sh bash node-sh \
 	test test-unit test-integration test-functional \
 	composer vendor \
-	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db \
+	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db load-fixtures \
 	create-db-test drop-db-test migrate-db-test reset-db-test reset-dbs \
 	back-cs-fix stan back-check \
 	npm front-install front-lint front-lint-fix front-format front-check front-test \
@@ -114,10 +114,14 @@ drop-db: sf
 migrate-db: c=doctrine:migrations:migrate --no-interaction ## Update the database up to the last migration
 migrate-db: sf
 
+load-fixtures: c=doctrine:fixtures:load --no-interaction ## Load dev fixtures
+load-fixtures: sf
+
 reset-db: ## Drop database, then re-create it, then run migrations
 	@$(MAKE) drop-db
 	@$(MAKE) create-db
 	@$(MAKE) migrate-db
+	@$(MAKE) load-fixtures
 
 create-db-test: ## Create the test database if it doesn't exist
 	@$(SYMFONY_TEST) doctrine:database:create --if-not-exists
