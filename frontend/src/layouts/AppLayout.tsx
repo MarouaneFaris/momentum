@@ -1,10 +1,10 @@
 import { MomentumLogo } from '@/components/MomentumLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Button } from '@/components/ui/button'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
-import { Button } from '@/components/ui/button'
-import { Bell, LayoutGrid, Settings } from 'lucide-react'
+import { Bell, LayoutDashboard, Settings } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet, useParams } from 'react-router'
 
@@ -47,7 +47,7 @@ export default function AppLayout() {
                                 }`
                             }
                         >
-                            <LayoutGrid className="h-4 w-4 flex-shrink-0" />
+                            <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
                             Dashboard
                         </NavLink>
                     )}
