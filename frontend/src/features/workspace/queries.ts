@@ -36,3 +36,13 @@ export const useRenameWorkspace = (workspaceId: string) => {
         },
     })
 }
+
+export const useDeleteWorkspace = (workspaceId: string) => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: () => api.delete<null>(`${ROUTES.workspaces}/${workspaceId}`),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+        },
+    })
+}

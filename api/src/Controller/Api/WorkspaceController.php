@@ -110,4 +110,21 @@ final class WorkspaceController extends AbstractController
             WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, WorkspaceRole::Owner),
         );
     }
+
+    #[Route(
+        path: '/api/workspaces/{id}',
+        name: 'api_workspace_delete',
+        methods: Request::METHOD_DELETE,
+    )]
+    public function delete(
+        Workspace $workspace,
+        EntityManagerInterface $em,
+    ): Response {
+        $this->denyAccessUnlessGranted(WorkspaceVoter::DELETE, $workspace);
+
+        $em->remove($workspace);
+        $em->flush();
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
 }
