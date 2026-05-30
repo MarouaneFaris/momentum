@@ -27,6 +27,7 @@ export const useRegisterForm = () => {
         formState: { errors },
     } = useForm({
         resolver: zodResolver(schema),
+        mode: 'onChange',
     })
 
     const handleOnSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
