@@ -34,6 +34,10 @@ export default function App() {
                                 <Route element={<AppLayout />}>
                                     <Route path="/" element={<LandingPage />} />
                                     <Route
+                                        path="/workspaces"
+                                        element={<Navigate to="/" replace />}
+                                    />
+                                    <Route
                                         path="/workspaces/:id"
                                         element={<Navigate to="dashboard" replace />}
                                     />
