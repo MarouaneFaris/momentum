@@ -1,8 +1,9 @@
 import { Toaster } from '@/components/ui/sonner'
+import DevLoginPanel from '@/features/dev/components/DevLoginPanel'
+import { WorkspaceGuard } from '@/features/workspace/components/WorkspaceGuard'
 import '@/index.css'
 import AppLayout from '@/layouts/AppLayout'
 import AuthLayout from '@/layouts/AuthLayout'
-import { WorkspaceGuard } from '@/features/workspace/components/WorkspaceGuard'
 import queryClient from '@/lib/queryClient'
 import LoginPage from '@/pages/LoginPage'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -56,6 +57,7 @@ export default function App() {
                             </Routes>
                         </BrowserRouter>
                         <Toaster position="top-center" />
+                        <DevLoginPanel />
                     </ThemeProvider>
                 </AuthProvider>
             </QueryClientProvider>

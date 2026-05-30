@@ -6,4 +6,7 @@ export const ROUTES = {
     workspaces: '/workspaces',
 } as const
 
-export type ApiRoute = (typeof ROUTES)[keyof typeof ROUTES] | `/workspaces/${string}`
+export type ApiRoute =
+    | (typeof ROUTES)[keyof typeof ROUTES]
+    | `/workspaces/${string}`
+    | `/dev/${string}`
