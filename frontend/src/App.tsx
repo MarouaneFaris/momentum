@@ -2,6 +2,7 @@ import { Toaster } from '@/components/ui/sonner'
 import '@/index.css'
 import AppLayout from '@/layouts/AppLayout'
 import AuthLayout from '@/layouts/AuthLayout'
+import { WorkspaceGuard } from '@/features/workspace/components/WorkspaceGuard'
 import queryClient from '@/lib/queryClient'
 import LoginPage from '@/pages/LoginPage'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -41,14 +42,16 @@ export default function App() {
                                         path="/workspaces/:id"
                                         element={<Navigate to="dashboard" replace />}
                                     />
-                                    <Route
-                                        path="/workspaces/:id/dashboard"
-                                        element={<WorkspaceDashboardPage />}
-                                    />
-                                    <Route
-                                        path="/workspaces/:id/settings"
-                                        element={<WorkspaceSettingsPage />}
-                                    />
+                                    <Route element={<WorkspaceGuard />}>
+                                        <Route
+                                            path="/workspaces/:id/dashboard"
+                                            element={<WorkspaceDashboardPage />}
+                                        />
+                                        <Route
+                                            path="/workspaces/:id/settings"
+                                            element={<WorkspaceSettingsPage />}
+                                        />
+                                    </Route>
                                 </Route>
                             </Routes>
                         </BrowserRouter>
