@@ -25,7 +25,7 @@ export default function AuthLayout() {
     const bullets = pathname === '/register' ? REGISTER_BULLETS : LOGIN_BULLETS
 
     return (
-        <div className="grid min-h-screen grid-cols-[1fr_400px]">
+        <div className="grid min-h-screen grid-cols-[1fr_480px]">
             <div className="flex flex-col items-center justify-center gap-3 border-r bg-muted p-12">
                 <MomentumLogo size="lg" />
                 <div className="flex w-full max-w-[280px] items-center gap-3">

@@ -18,8 +18,9 @@ describe('MomentumLogo', () => {
     })
 
     it('lg renders wordmark text', () => {
-        render(<MomentumLogo size="lg" />)
-        expect(screen.getByText(/momentum/i)).toBeInTheDocument()
+        const { container } = render(<MomentumLogo size="lg" />)
+        const textEl = container.querySelector('text')
+        expect(textEl?.textContent?.toLowerCase()).toContain('momentum')
     })
 
     it('sm renders 3 stripes', () => {
@@ -34,11 +35,11 @@ describe('MomentumLogo', () => {
 
     it('sm applies h-5 class', () => {
         render(<MomentumLogo size="sm" />)
-        expect(screen.getByRole('img', { name: 'Momentum' }).className).toMatch(/h-5/)
+        expect(screen.getByRole('img', { name: 'Momentum' }).getAttribute('class')).toMatch(/h-5/)
     })
 
     it('lg applies h-10 class', () => {
         render(<MomentumLogo size="lg" />)
-        expect(screen.getByRole('img', { name: 'Momentum' }).className).toMatch(/h-10/)
+        expect(screen.getByRole('img', { name: 'Momentum' }).getAttribute('class')).toMatch(/h-10/)
     })
 })
