@@ -2,15 +2,32 @@ import { MutationCache, QueryCache, QueryClient } from '@tanstack/query-core'
 import { toast } from 'sonner'
 import ApiError from './ApiError'
 
-const onError = (error: Error) => {
-    if (!(error instanceof ApiError)) {
-        toast.error('Network error, please try again.')
-    }
-}
-
 const queryClient = new QueryClient({
-    queryCache: new QueryCache({ onError }),
-    mutationCache: new MutationCache({ onError }),
+    queryCache: new QueryCache({
+        onError: (error, query) => {
+            if (!(error instanceof ApiError)) {
+                toast.error('Network error, please try again.')
+                return
+            }
+
+            if (error.status === 401 && query.queryKey[0] !== 'me') {
+                void queryClient.invalidateQueries({ queryKey: ['me'] })
+                return
+            }
+        },
+    }),
+    mutationCache: new MutationCache({
+        onError: (error) => {
+            if (!(error instanceof ApiError)) {
+                toast.error('Network error, please try again.')
+            }
+        },
+    }),
+    defaultOptions: {
+        queries: {
+            retry: (_, error) => !(error instanceof ApiError),
+        },
+    },
 })
 
 declare global {
