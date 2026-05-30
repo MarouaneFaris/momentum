@@ -9,7 +9,8 @@ import { useDevLoginAction } from '@/features/dev/hooks/useDevLoginAction'
 import { useDevUsers } from '@/features/dev/queries'
 
 export default function DevLoginPanel() {
-    const { data: users = [] } = useDevUsers()
+    const { data } = useDevUsers()
+    const users = data ?? []
     const { handleLoginAs } = useDevLoginAction()
 
     if (!import.meta.env.DEV) return null
