@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum — V1 Wireframes & Flows</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f11;
+      --surface: #17171a;
+      --surface2: #1e1e22;
+      --surface3: #26262c;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --text: #e8e8ec;
+      --text2: #8b8b96;
+      --text3: #55555e;
+      --accent: #7c6af7;
+      --accent2: #9d8fff;
+      --accent-bg: rgba(124,106,247,0.12);
+      --accent-border: rgba(124,106,247,0.3);
+      --green: #3ecf8e;
+      --green-bg: rgba(62,207,142,0.1);
+      --green-border: rgba(62,207,142,0.25);
+      --amber: #f5a623;
+      --amber-bg: rgba(245,166,35,0.1);
+      --amber-border: rgba(245,166,35,0.25);
+      --red: #f06057;
+      --red-bg: rgba(240,96,87,0.1);
+      --red-border: rgba(240,96,87,0.25);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+
+    .page-header {
+      max-width: 960px;
+      margin: 0 auto 40px;
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--accent2);
+      letter-spacing: -0.5px;
+    }
+
+    .page-title {
+      font-size: 13px;
+      color: var(--text3);
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Tab nav */
+    .tab-nav {
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .tab-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      padding: 10px 18px;
+      background: transparent;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover { color: var(--text2); }
+    .tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Section label */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 12px;
+    }
+
+    .section { margin-bottom: 36px; }
+
+    /* Screen container */
+    .screen {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .screen-titlebar {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot-row { display: flex; gap: 5px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot.red { background: #ff5f57; }
+    .dot.yellow { background: #febc2e; }
+    .dot.green { background: #28c840; }
+
+    .screen-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text3);
+      margin-left: 8px;
+    }
+
+    .screen-body { padding: 24px; }
+
+    /* Mock UI components */
+    .mock-app {
+      display: flex;
+      gap: 0;
+      height: 360px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .mock-sidebar {
+      width: 180px;
+      flex-shrink: 0;
+      background: var(--surface2);
+      border-right: 1px solid var(--border);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--accent2);
+      padding: 4px 8px;
+      margin-bottom: 12px;
+    }
+
+    .sidebar-section {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      padding: 8px 8px 4px;
+    }
+
+    .nav-item {
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      color: var(--text2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-item:hover { background: var(--surface3); color: var(--text); }
+    .nav-item.active { background: var(--accent-bg); color: var(--accent2); }
+
+    .nav-icon { width: 14px; height: 14px; opacity: 0.6; }
+
+    .mock-content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mock-topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .topbar-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--accent2);
+    }
+
+    .mock-inner { padding: 16px 20px; flex: 1; overflow: hidden; }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .badge-todo { background: var(--surface3); color: var(--text2); border: 1px solid var(--border2); }
+    .badge-prog { background: var(--accent-bg); color: var(--accent2); border: 1px solid var(--accent-border); }
+    .badge-done { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .badge-pending { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .badge-declined { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .badge-owner { background: rgba(124,106,247,0.15); color: var(--accent2); border: 1px solid var(--accent-border); }
+    .badge-member { background: var(--surface3); color: var(--text2); border: 1px solid var(--border2); }
+    .badge-guest { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+
+    /* Task table */
+    .task-table { width: 100%; border-collapse: collapse; }
+    .task-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text3);
+      text-align: left;
+      padding: 0 8px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-table td {
+      font-size: 11px;
+      color: var(--text2);
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .task-table tr:last-child td { border-bottom: none; }
+    .task-table tr:hover td { background: var(--surface2); }
+    .task-name { color: var(--text); font-size: 12px; }
+
+    /* Avatar */
+    .avatar {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--accent2);
+    }
+
+    /* Input mock */
+    .mock-input {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--text);
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+    }
+
+    .mock-input::placeholder { color: var(--text3); }
+    .mock-input:focus { border-color: var(--accent-border); }
+
+    .mock-btn {
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius);
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent2);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+    }
+
+    .mock-btn:hover { background: rgba(124,106,247,0.2); }
+
+    .mock-btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 7px 14px;
+      font-size: 12px;
+      color: var(--text2);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 4px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.03em;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    /* Notification item */
+    .notif-item {
+      display: flex;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+
+    .notif-item:last-child { border-bottom: none; }
+
+    .notif-indicator {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+
+    .notif-indicator.unread { background: var(--accent); }
+    .notif-indicator.read { background: var(--surface3); }
+
+    .notif-title { font-size: 12px; color: var(--text); margin-bottom: 2px; }
+    .notif-sub { font-size: 11px; color: var(--text2); }
+    .notif-time { font-size: 10px; color: var(--text3); margin-top: 2px; font-family: 'DM Mono', monospace; }
+
+    /* Flow diagram */
+    .flow { display: flex; flex-direction: column; gap: 0; }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .flow-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: -20px;
+      width: 1px;
+      background: var(--border2);
+    }
+
+    .flow-connector { height: 20px; }
+
+    .flow-num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent2);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .flow-body { padding: 4px 0 20px; }
+    .flow-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .flow-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+    /* Status chain */
+    .status-chain {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .chain-arrow { color: var(--text3); font-size: 12px; }
+    .chain-note { font-size: 11px; color: var(--text3); font-style: italic; }
+
+    /* Card */
+    .card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 12px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.03em;
+    }
+
+    /* Two col */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Detail row */
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--text3); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .detail-val { color: var(--text2); }
+
+    /* Login screen */
+    .login-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 16px 0;
+    }
+
+    .login-box {
+      width: 300px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+    }
+
+    .login-logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 16px;
+      color: var(--accent2);
+      text-align: center;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+
+    /* Triggers table */
+    .trigger-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .trigger-row:last-child { border-bottom: none; }
+    .trigger-scope { width: 80px; flex-shrink: 0; }
+    .trigger-desc { color: var(--text2); }
+
+    /* Select mock */
+    .mock-select {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--text);
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      appearance: none;
+    }
+
+    /* Scrollable inner */
+    .scrollable { overflow-y: auto; max-height: 220px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="logo">momentum</span>
+  <span class="page-title">v1 wireframes &amp; flows</span>
+</div>
+
+<div class="container">
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="show('screens', this)">Screens</button>
+    <button class="tab-btn" onclick="show('task-flow', this)">Task flow</button>
+    <button class="tab-btn" onclick="show('invite-flow', this)">Invite flow</button>
+    <button class="tab-btn" onclick="show('notifications', this)">Notifications</button>
+  </div>
+
+  <!-- SCREENS -->
+  <div id="screens" class="panel active">
+
+    <div class="section">
+      <p class="section-label">01 — Login / Register</p>
+      <div class="screen">
+        <div class="screen-titlebar">
+          <div class="dot-row"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+          <span class="screen-label">momentum — login</span>
+        </div>
+        <div class="screen-body">
+          <div class="login-wrap">
+            <div class="login-box">
+              <div class="login-logo">momentum</div>
+              <div class="field">
+                <div class="field-label">Email</div>
+                <input class="mock-input" placeholder="you@company.com" />
+              </div>
+              <div class="field">
+                <div class="field-label">Password</div>
+                <input class="mock-input" type="password" placeholder="••••••••" />
+              </div>
+              <button class="mock-btn" style="width:100%;text-align:center;margin-bottom:10px">Sign in</button>
+              <div style="text-align:center;font-size:11px;color:var(--text3)">No account? <span style="color:var(--accent2);cursor:pointer">Create one</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-label">02 — Dashboard</p>
+      <div class="screen">
+        <div class="screen-titlebar">
+          <div class="dot-row"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+          <span class="screen-label">momentum — dashboard</span>
+        </div>
+        <div class="screen-body">
+          <div class="mock-app">
+            <div class="mock-sidebar">
+              <div class="sidebar-logo">momentum</div>
+              <div class="sidebar-section">Workspace</div>
+              <div class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+                Dashboard
+              </div>
+              <div class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Projects
+              </div>
+              <div class="sidebar-section">Settings</div>
+              <div class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Members
+              </div>
+              <div class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Settings
+              </div>
+            </div>
+            <div class="mock-content">
+              <div class="mock-topbar">
+                <span class="topbar-title">Dashboard</span>
+                <span class="badge badge-prog" style="margin-right:4px">3 open tasks</span>
+                <div class="topbar-avatar">AJ</div>
+              </div>
+              <div class="mock-inner scrollable">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                  <div style="background:var(--surface3);border-radius:var(--radius);padding:12px">
+                    <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-family:'DM Mono',monospace;letter-spacing:.05em;text-transform:uppercase">My tasks</div>
+                    <div style="font-size:22px;font-weight:500;color:var(--accent2)">3</div>
+                  </div>
+                  <div style="background:var(--surface3);border-radius:var(--radius);padding:12px">
+                    <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-family:'DM Mono',monospace;letter-spacing:.05em;text-transform:uppercase">Projects</div>
+                    <div style="font-size:22px;font-weight:500;color:var(--text)">2</div>
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;letter-spacing:.05em;text-transform:uppercase">Recent tasks</div>
+                <table class="task-table">
+                  <tr><th>Title</th><th>Status</th><th>Project</th></tr>
+                  <tr><td class="task-name">Task CRUD</td><td><span class="badge badge-prog">In progress</span></td><td>Backend API</td></tr>
+                  <tr><td class="task-name">Write ADR-004</td><td><span class="badge badge-todo">To do</span></td><td>Docs</td></tr>
+                  <tr><td class="task-name">Setup Docker</td><td><span class="badge badge-done">Done</span></td><td>Infra</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-label">03 — Project view</p>
+      <div class="screen">
+        <div class="screen-titlebar">
+          <div class="dot-row"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+          <span class="screen-label">momentum — project / backend api</span>
+        </div>
+        <div class="screen-body">
+          <div class="mock-app">
+            <div class="mock-sidebar">
+              <div class="sidebar-logo">momentum</div>
+              <div class="sidebar-section">Workspace</div>
+              <div class="nav-item">Dashboard</div>
+              <div class="nav-item active">Projects</div>
+              <div class="sidebar-section">Settings</div>
+              <div class="nav-item">Members</div>
+              <div class="nav-item">Settings</div>
+            </div>
+            <div class="mock-content">
+              <div class="mock-topbar">
+                <span class="topbar-title">Backend API</span>
+                <button class="mock-btn" style="font-size:11px;padding:5px 12px">+ New task</button>
+              </div>
+              <div class="mock-inner scrollable">
+                <table class="task-table" style="width:100%">
+                  <tr>
+                    <th style="width:100px">Status</th>
+                    <th>Title</th>
+                    <th style="width:70px">Assignee</th>
+                    <th style="width:70px">Due</th>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-done">Done</span></td>
+                    <td class="task-name">Auth endpoint</td>
+                    <td><span class="avatar">AJ</span></td>
+                    <td>May 3</td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-prog">In progress</span></td>
+                    <td class="task-name">Task CRUD</td>
+                    <td><span class="avatar">ML</span></td>
+                    <td>May 8</td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-todo">To do</span></td>
+                    <td class="task-name">Permissions layer</td>
+                    <td><span style="color:var(--text3);font-size:11px">—</span></td>
+                    <td>May 15</td>
+                  </tr>
+                  <tr>
+                    <td><span class="badge badge-todo">To do</span></td>
+                    <td class="task-name">Mercure integration</td>
+                    <td><span style="color:var(--text3);font-size:11px">—</span></td>
+                    <td>May 20</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-label">04 — Task detail</p>
+      <div class="screen">
+        <div class="screen-titlebar">
+          <div class="dot-row"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+          <span class="screen-label">momentum — task / task crud</span>
+        </div>
+        <div class="screen-body">
+          <div class="mock-app">
+            <div class="mock-sidebar">
+              <div class="sidebar-logo">momentum</div>
+              <div class="sidebar-section">Workspace</div>
+              <div class="nav-item">Dashboard</div>
+              <div class="nav-item active">Projects</div>
+              <div class="sidebar-section">Settings</div>
+              <div class="nav-item">Members</div>
+              <div class="nav-item">Settings</div>
+            </div>
+            <div class="mock-content">
+              <div class="mock-topbar">
+                <span class="topbar-title">Task CRUD</span>
+                <span class="badge badge-prog">In progress</span>
+              </div>
+              <div class="mock-inner" style="display:grid;grid-template-columns:1fr 180px;gap:16px;overflow:auto">
+                <div>
+                  <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em">Description</div>
+                  <div style="font-size:12px;color:var(--text2);line-height:1.7;background:var(--surface2);border-radius:var(--radius);padding:12px;border:1px solid var(--border)">
+                    Implement create, read, update, and delete endpoints for tasks. Include status transition validation and assignee logic. Must respect workspace data isolation.
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em">Details</div>
+                  <div class="detail-row"><span class="detail-key">Status</span><span class="badge badge-prog">In progress</span></div>
+                  <div class="detail-row"><span class="detail-key">Assignee</span><span class="avatar">ML</span></div>
+                  <div class="detail-row"><span class="detail-key">Due</span><span class="detail-val">May 8</span></div>
+                  <div class="detail-row"><span class="detail-key">Project</span><span class="detail-val">Backend API</span></div>
+                  <div class="detail-row"><span class="detail-key">Workspace</span><span class="detail-val">Acme</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TASK FLOW -->
+  <div id="task-flow" class="panel">
+
+    <div class="section">
+      <p class="section-label">Status lifecycle</p>
+      <div class="status-chain">
+        <span class="badge badge-todo">To do</span>
+        <span class="chain-arrow">→</span>
+        <span class="badge badge-prog">In progress</span>
+        <span class="chain-arrow">→</span>
+        <span class="badge badge-done">Done</span>
+        <span class="chain-arrow" style="margin-left:8px">↩</span>
+        <span class="chain-note">back transitions allowed</span>
+      </div>
+      <div class="card">
+        <div class="card-title">Allowed transitions</div>
+        <div class="trigger-row"><span class="badge badge-todo" style="width:80px;justify-content:center">To do</span><span class="trigger-desc">→ In progress only</span></div>
+        <div class="trigger-row"><span class="badge badge-prog" style="width:80px;justify-content:center">In progress</span><span class="trigger-desc">→ Done or back to To do</span></div>
+        <div class="trigger-row"><span class="badge badge-done" style="width:80px;justify-content:center">Done</span><span class="trigger-desc">→ back to In progress</span></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);padding:8px 0">
+        Transitions are enforced at the domain layer — the frontend dropdown shows only valid next states.
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="section">
+        <p class="section-label">Create task</p>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-num">1</div>
+            <div class="flow-body">
+              <div class="flow-title">Click "+ New task"</div>
+              <div class="flow-desc">Inside a project view. Opens a creation form.</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">2</div>
+            <div class="flow-body">
+              <div class="flow-title">Fill in title, assignee, due date</div>
+              <div class="flow-desc">Status defaults to To do. Title required, rest optional.</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">3</div>
+            <div class="flow-body">
+              <div class="flow-title">Submit → task created</div>
+              <div class="flow-desc">Appears in project list. Assignee notified in-app if set.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <p class="section-label">Change status</p>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-num">1</div>
+            <div class="flow-body">
+              <div class="flow-title">Open task detail</div>
+              <div class="flow-desc">Click the status badge to open transition dropdown.</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">2</div>
+            <div class="flow-body">
+              <div class="flow-title">Dropdown shows valid states only</div>
+              <div class="flow-desc">Not all statuses — only valid transitions from current state.</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">3</div>
+            <div class="flow-body">
+              <div class="flow-title">Transition applied</div>
+              <div class="flow-desc">Domain event dispatched via Messenger. Assignee notified.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- INVITE FLOW -->
+  <div id="invite-flow" class="panel">
+
+    <div class="section">
+      <p class="section-label">Invitation lifecycle</p>
+      <div class="status-chain">
+        <span class="badge badge-pending">Pending</span>
+        <span class="chain-arrow">→</span>
+        <span class="badge badge-done">Accepted</span>
+        <span class="chain-arrow" style="margin:0 4px">/</span>
+        <span class="badge badge-declined">Declined</span>
+        <span class="chain-arrow" style="margin:0 4px">/</span>
+        <span class="badge badge-todo">Expired</span>
+        <span class="chain-note" style="margin-left:8px">after 7 days</span>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="section">
+        <p class="section-label">Owner invites a member</p>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-num">1</div>
+            <div class="flow-body">
+              <div class="flow-title">Owner opens Members → Invite</div>
+              <div class="flow-desc">Enters email and selects role (member or guest).</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">2</div>
+            <div class="flow-body">
+              <div class="flow-title">Invitation created — Pending</div>
+              <div class="flow-desc">Unique token generated. Expires in 7 days.</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">3</div>
+            <div class="flow-body">
+              <div class="flow-title">In-app notification sent</div>
+              <div class="flow-desc">Only if invitee already has an account (v1 constraint).</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">4</div>
+            <div class="flow-body">
+              <div class="flow-title">Invitee accepts or declines</div>
+              <div class="flow-desc">Accept → joined with role. Decline → owner can reinvite.</div>
+            </div>
+          </div>
+          <div class="flow-connector"></div>
+          <div class="flow-step">
+            <div class="flow-num">5</div>
+            <div class="flow-body">
+              <div class="flow-title">Expiry path</div>
+              <div class="flow-desc">No action after 7 days → Expired. Owner can reissue.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <p class="section-label">Invite form</p>
+        <div class="card">
+          <div class="field">
+            <div class="field-label">Email address</div>
+            <input class="mock-input" placeholder="colleague@company.com" />
+          </div>
+          <div class="field">
+            <div class="field-label">Role</div>
+            <select class="mock-select">
+              <option>Member</option>
+              <option>Guest</option>
+            </select>
+          </div>
+          <button class="mock-btn" style="width:100%;text-align:center">Send invitation</button>
+        </div>
+
+        <p class="section-label" style="margin-top:20px">Pending invitations</p>
+        <div class="card">
+          <div class="trigger-row">
+            <span class="detail-val" style="flex:1;font-size:12px">alice@acme.com</span>
+            <span class="badge badge-member" style="margin-right:8px">Member</span>
+            <span class="badge badge-pending">Pending</span>
+          </div>
+          <div class="trigger-row">
+            <span class="detail-val" style="flex:1;font-size:12px">bob@acme.com</span>
+            <span class="badge badge-guest" style="margin-right:8px">Guest</span>
+            <span class="badge badge-todo">Expired</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div id="notifications" class="panel">
+
+    <div class="two-col">
+      <div class="section">
+        <p class="section-label">Notification panel</p>
+        <div class="card">
+          <div style="display:flex;align-items:center;margin-bottom:12px">
+            <span class="card-title" style="margin:0;flex:1">Notifications</span>
+            <span class="badge badge-prog" style="margin-right:8px">3 new</span>
+            <span style="font-size:11px;color:var(--text3);cursor:pointer">Mark all read</span>
+          </div>
+          <div class="notif-item">
+            <div class="notif-indicator unread"></div>
+            <div>
+              <div class="notif-title">Task assigned to you</div>
+              <div class="notif-sub">Task CRUD — Backend API</div>
+              <div class="notif-time">2 min ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-indicator unread"></div>
+            <div>
+              <div class="notif-title">You were invited to a workspace</div>
+              <div class="notif-sub">Acme workspace — Member role</div>
+              <div class="notif-time">1 hour ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-indicator unread"></div>
+            <div>
+              <div class="notif-title">Invitation accepted</div>
+              <div class="notif-sub">alice@acme.com joined your workspace</div>
+              <div class="notif-time">3 hours ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-indicator read"></div>
+            <div>
+              <div class="notif-title" style="color:var(--text2)">Task status changed</div>
+              <div class="notif-sub">Auth endpoint → Done</div>
+              <div class="notif-time">Yesterday</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <p class="section-label">Notification triggers (v1)</p>
+        <div class="card">
+          <div class="trigger-row">
+            <span class="badge badge-prog trigger-scope">Tasks</span>
+            <span class="trigger-desc">Task assigned to you</span>
+          </div>
+          <div class="trigger-row">
+            <span class="badge badge-prog trigger-scope">Tasks</span>
+            <span class="trigger-desc">Task status changed (if you are assignee)</span>
+          </div>
+          <div class="trigger-row">
+            <span class="badge badge-pending trigger-scope">Workspace</span>
+            <span class="trigger-desc">Invitation received</span>
+          </div>
+          <div class="trigger-row">
+            <span class="badge badge-done trigger-scope">Workspace</span>
+            <span class="trigger-desc">Invitation accepted (owner notified)</span>
+          </div>
+        </div>
+
+        <p class="section-label" style="margin-top:20px">Technical notes</p>
+        <div class="card">
+          <div style="font-size:12px;color:var(--text2);line-height:1.7">
+            Notifications are delivered in real-time via <span style="color:var(--accent2);font-family:'DM Mono',monospace;font-size:11px">Mercure</span> (bundled in FrankenPHP). The frontend subscribes to the Mercure hub on load.<br><br>
+            Events are dispatched asynchronously via <span style="color:var(--accent2);font-family:'DM Mono',monospace;font-size:11px">Symfony Messenger</span>. Adding email notifications in v2 is additive — a new handler on existing events.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function show(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

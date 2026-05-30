@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum — Logo reference</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: oklch(0.488 0.243 264.376);
+      --primary-fg: oklch(0.97 0.014 254.604);
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-foreground: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --radius: 0.625rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: oklch(0.424 0.199 265.638);
+        --background: oklch(0.141 0.005 285.823);
+        --foreground: oklch(0.985 0 0);
+        --muted: oklch(0.274 0.006 286.033);
+        --muted-foreground: oklch(0.705 0.015 286.067);
+        --border: oklch(1 0 0 / 10%);
+      }
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      padding: 48px 32px;
+    }
+
+    .page-title {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+      margin-bottom: 48px;
+    }
+
+    .section { margin-bottom: 56px; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+      margin-bottom: 24px;
+      padding-bottom: 10px;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    /* Logo lockup */
+    .lockup {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mark { display: flex; flex-direction: column; gap: 5px; transform: skewX(-12deg); }
+    .stripe { height: 10px; border-radius: 2px; background: var(--primary); }
+
+    .wordmark {
+      font-size: 42px;
+      font-weight: 600;
+      letter-spacing: -2px;
+      color: var(--foreground);
+      line-height: 1;
+    }
+
+    .wordmark .accent { color: var(--primary); }
+
+    .tagline-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .tagline-line { flex: 1; max-width: 160px; height: 0.5px; background: var(--border); }
+
+    .tagline {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+    }
+
+    /* Variants grid */
+    .variants-grid {
+      display: flex;
+      gap: 40px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .variant { display: flex; flex-direction: column; gap: 12px; }
+
+    .variant-name {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+    }
+
+    /* Icon */
+    .icon-wrap { display: flex; flex-direction: column; gap: 5px; transform: skewX(-12deg); }
+    .icon-stripe { border-radius: 1px; background: var(--primary); }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-mark { display: flex; flex-direction: column; gap: 3px; transform: skewX(-12deg); }
+    .badge-stripe { border-radius: 1px; background: var(--primary-fg); }
+
+    /* Usage table */
+    .usage-table { border-collapse: collapse; width: 100%; max-width: 560px; }
+    .usage-table th {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted-foreground);
+      text-align: left;
+      padding: 8px 16px 8px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .usage-table td {
+      font-size: 12px;
+      color: var(--muted-foreground);
+      padding: 10px 16px 10px 0;
+      border-bottom: 0.5px solid var(--border);
+      vertical-align: top;
+    }
+    .usage-table tr:last-child td { border-bottom: none; }
+    .mono {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      background: var(--muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <p class="page-title">Momentum — Logo reference</p>
+
+  <div class="section">
+    <p class="section-label">Full lockup</p>
+    <div class="lockup">
+      <div class="mark">
+        <div class="stripe" style="width:38px;opacity:0.25"></div>
+        <div class="stripe" style="width:38px;opacity:0.55"></div>
+        <div class="stripe" style="width:38px;opacity:1"></div>
+      </div>
+      <div class="wordmark"><span class="accent">m</span>omentum</div>
+    </div>
+    <div class="tagline-row">
+      <div class="tagline-line"></div>
+      <div class="tagline">Task · Project · Team</div>
+      <div class="tagline-line"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Variants</p>
+    <div class="variants-grid">
+
+      <div class="variant">
+        <div class="variant-name">Icon</div>
+        <div class="icon-wrap">
+          <div class="icon-stripe" style="width:28px;height:9px;opacity:0.25"></div>
+          <div class="icon-stripe" style="width:28px;height:9px;opacity:0.6"></div>
+          <div class="icon-stripe" style="width:28px;height:9px;opacity:1"></div>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="variant-name">Badge</div>
+        <div class="badge">
+          <div class="badge-mark">
+            <div class="badge-stripe" style="width:14px;height:3px;opacity:0.35"></div>
+            <div class="badge-stripe" style="width:14px;height:3px;opacity:0.65"></div>
+            <div class="badge-stripe" style="width:14px;height:3px;opacity:1"></div>
+          </div>
+          <span><span style="opacity:0.6">m</span>omentum</span>
+        </div>
+      </div>
+
+      <div class="variant">
+        <div class="variant-name">Wordmark</div>
+        <div class="wordmark" style="font-size:28px"><span class="accent">m</span>omentum</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Usage guidelines</p>
+    <table class="usage-table">
+      <thead>
+        <tr><th>Variant</th><th>Use case</th><th>File</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full lockup</td>
+          <td>Marketing pages, onboarding, README header</td>
+          <td><span class="mono">logo-lockup.svg</span></td>
+        </tr>
+        <tr>
+          <td>Wordmark</td>
+          <td>App topbar / sidebar header</td>
+          <td><span class="mono">logo-wordmark.svg</span></td>
+        </tr>
+        <tr>
+          <td>Badge</td>
+          <td>Auth pages, email headers, external embeds</td>
+          <td><span class="mono">logo-badge.svg</span></td>
+        </tr>
+        <tr>
+          <td>Icon</td>
+          <td>Favicon, browser tab, small UI contexts</td>
+          <td><span class="mono">logo-icon.svg</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Tokens</p>
+    <table class="usage-table">
+      <thead>
+        <tr><th>Token</th><th>Value (light)</th><th>Value (dark)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="mono">--primary</span></td>
+          <td>oklch(0.488 0.243 264.376)</td>
+          <td>oklch(0.424 0.199 265.638)</td>
+        </tr>
+        <tr>
+          <td>Font</td>
+          <td colspan="2">Inter, weight 600, letter-spacing -2px</td>
+        </tr>
+        <tr>
+          <td>Mark skew</td>
+          <td colspan="2">skewX(-12deg)</td>
+        </tr>
+        <tr>
+          <td>Stripe opacities</td>
+          <td colspan="2">0.25 / 0.55 / 1.0</td>
+        </tr>
+        <tr>
+          <td><span class="mono">--radius</span></td>
+          <td colspan="2">0.625rem (badge only)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

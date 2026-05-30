@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 36" width="260" height="36" role="img">
+  <title>Momentum wordmark (dark)</title>
+  <desc>Momentum wordmark dark variant in Inter semibold</desc>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
+    text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+  </style>
+  <text x="0" y="28" font-size="28" font-weight="600" letter-spacing="-1.5" fill="#fafafa">
+    <tspan fill="#6d63f5">m</tspan>omentum
+  </text>
+</svg>

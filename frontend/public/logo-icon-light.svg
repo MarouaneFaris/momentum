@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" role="img">
+  <title>Momentum icon</title>
+  <desc>Momentum icon: three stacked parallelogram stripes suggesting forward motion</desc>
+  <g transform="translate(6, 5) skewX(-12)">
+    <rect x="0" y="0"  width="28" height="9" rx="1.5" fill="#4f46e5" opacity="0.25"/>
+    <rect x="0" y="13" width="28" height="9" rx="1.5" fill="#4f46e5" opacity="0.6"/>
+    <rect x="0" y="26" width="28" height="9" rx="1.5" fill="#4f46e5" opacity="1"/>
+  </g>
+</svg>
