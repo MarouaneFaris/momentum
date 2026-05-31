@@ -32,12 +32,12 @@ final class WorkspaceController extends AbstractController
         #[CurrentUser] User $user,
         UserWorkspaceRepository $userWorkspaceRepository,
     ): JsonResponse {
-        $memberships = $userWorkspaceRepository->findByUser($user);
+        $userWorkspaces = $userWorkspaceRepository->findByUser($user);
 
         return $this->json(
             array_map(
-                static fn (array $m) => WorkspaceListItemResponse::fromWorkspaceAndRole($m['workspace'], $m['role']),
-                $memberships,
+                static fn (UserWorkspace $uw) => WorkspaceListItemResponse::fromWorkspaceAndRole($uw->getWorkspace(), $uw->getRole()),
+                $userWorkspaces,
             ),
         );
     }
