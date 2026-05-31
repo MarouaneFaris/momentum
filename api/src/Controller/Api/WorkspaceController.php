@@ -7,12 +7,11 @@ namespace App\Controller\Api;
 use App\DTO\CreateWorkspaceDTO;
 use App\DTO\Response\WorkspaceListItemResponse;
 use App\Entity\User;
-use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
 use App\Security\Voter\WorkspaceVoter;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\WorkspaceService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,20 +49,9 @@ final class WorkspaceController extends AbstractController
     public function create(
         #[MapRequestPayload] CreateWorkspaceDTO $dto,
         #[CurrentUser] User $user,
-        EntityManagerInterface $em,
+        WorkspaceService $service,
     ): JsonResponse {
-        $workspace = new Workspace();
-        $workspace->setName($dto->name);
-        $workspace->setCreator($user);
-        $em->persist($workspace);
-
-        $userWorkspace = new UserWorkspace();
-        $userWorkspace->setUser($user);
-        $userWorkspace->setWorkspace($workspace);
-        $userWorkspace->setRole(WorkspaceRole::Owner);
-        $em->persist($userWorkspace);
-
-        $em->flush();
+        $workspace = $service->create($dto->name, $user);
 
         return $this->json(
             WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, WorkspaceRole::Owner),
@@ -99,12 +87,11 @@ final class WorkspaceController extends AbstractController
     public function update(
         Workspace $workspace,
         #[MapRequestPayload] CreateWorkspaceDTO $dto,
-        EntityManagerInterface $em,
+        WorkspaceService $service,
     ): JsonResponse {
         $this->denyAccessUnlessGranted(WorkspaceVoter::EDIT, $workspace);
 
-        $workspace->setName($dto->name);
-        $em->flush();
+        $service->rename($workspace, $dto->name);
 
         return $this->json(
             WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, WorkspaceRole::Owner),
@@ -118,12 +105,11 @@ final class WorkspaceController extends AbstractController
     )]
     public function delete(
         Workspace $workspace,
-        EntityManagerInterface $em,
+        WorkspaceService $service,
     ): Response {
         $this->denyAccessUnlessGranted(WorkspaceVoter::DELETE, $workspace);
 
-        $em->remove($workspace);
-        $em->flush();
+        $service->delete($workspace);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
