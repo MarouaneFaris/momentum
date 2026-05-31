@@ -9,6 +9,7 @@ use App\Entity\Workspace;
 use App\Entity\WorkspaceInvitation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 
 /**
  * @extends ServiceEntityRepository<WorkspaceInvitation>
@@ -24,9 +25,9 @@ class WorkspaceInvitationRepository extends ServiceEntityRepository
     public function findPendingByWorkspace(Workspace $workspace, \DateTimeImmutable $now): array
     {
         return $this->createQueryBuilder('wi')
-            ->where('wi.workspace = :workspace')
+            ->where('IDENTITY(wi.workspace) = :workspaceId')
             ->andWhere('wi.expiresAt > :now')
-            ->setParameter('workspace', $workspace)
+            ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
             ->setParameter('now', $now)
             ->getQuery()
             ->getResult();
@@ -36,9 +37,9 @@ class WorkspaceInvitationRepository extends ServiceEntityRepository
     public function findPendingByInvitee(User $user, \DateTimeImmutable $now): array
     {
         return $this->createQueryBuilder('wi')
-            ->where('wi.invitee = :user')
+            ->where('IDENTITY(wi.invitee) = :inviteeId')
             ->andWhere('wi.expiresAt > :now')
-            ->setParameter('user', $user)
+            ->setParameter('inviteeId', $user->getId(), UuidType::NAME)
             ->setParameter('now', $now)
             ->getQuery()
             ->getResult();

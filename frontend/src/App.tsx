@@ -5,7 +5,9 @@ import '@/index.css'
 import AppLayout from '@/layouts/AppLayout'
 import AuthLayout from '@/layouts/AuthLayout'
 import queryClient from '@/lib/queryClient'
+import InvitationsPage from '@/pages/InvitationsPage'
 import LoginPage from '@/pages/LoginPage'
+import WorkspaceMembersPage from '@/pages/WorkspaceMembersPage'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
 import { StrictMode } from 'react'
@@ -52,7 +54,12 @@ export default function App() {
                                             path="/workspaces/:id/settings"
                                             element={<WorkspaceSettingsPage />}
                                         />
+                                        <Route
+                                            path="/workspaces/:id/members"
+                                            element={<WorkspaceMembersPage />}
+                                        />
                                     </Route>
+                                    <Route path="/invitations" element={<InvitationsPage />} />
                                 </Route>
                             </Routes>
                         </BrowserRouter>
