@@ -1,4 +1,5 @@
 import { MomentumLogo } from '@/components/MomentumLogo'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useContext } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
@@ -44,8 +45,13 @@ export default function AuthLayout() {
                     ))}
                 </ul>
             </div>
-            <div className="flex flex-col justify-center bg-card p-12">
-                <Outlet />
+            <div className="flex flex-col bg-card p-12">
+                <div className="flex justify-end">
+                    <ThemeToggle />
+                </div>
+                <div className="flex flex-1 flex-col justify-center">
+                    <Outlet />
+                </div>
             </div>
         </div>
     )
