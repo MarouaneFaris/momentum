@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -29,6 +30,7 @@ export function CreateWorkspaceModal({ open, onOpenChange }: Props) {
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create workspace</DialogTitle>
+                    <DialogDescription>Enter a name for your new workspace.</DialogDescription>
                 </DialogHeader>
                 <form id="create-workspace-form" onSubmit={(e) => void handleSubmit(onSubmit)(e)}>
                     <div className="grid gap-2">

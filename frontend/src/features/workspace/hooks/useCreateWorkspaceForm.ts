@@ -1,4 +1,5 @@
 import ApiError from '@/lib/ApiError'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
@@ -16,12 +17,14 @@ type FormValues = z.infer<typeof schema>
 export const useCreateWorkspaceForm = (onSuccess: () => void) => {
     const { mutate, isPending } = useCreateWorkspace()
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
     const form = useForm<FormValues>({ resolver: zodResolver(schema) })
 
     const onSubmit = (values: FormValues) => {
         mutate(values, {
             onSuccess: (workspace) => {
+                void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
                 if (workspace) {
                     workspaceStorage.write(workspace.id)
                     onSuccess()
