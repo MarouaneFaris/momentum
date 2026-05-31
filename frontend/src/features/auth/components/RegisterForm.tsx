@@ -47,12 +47,15 @@ export default function RegisterForm() {
                 </Button>
             </form>
 
-            <p className="text-center text-xs text-muted-foreground">
-                Already have an account?{' '}
-                <Link to="/login" className="text-primary hover:underline">
-                    Sign in
-                </Link>
-            </p>
+            <div className="flex items-center gap-2.5">
+                <span className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">already have an account?</span>
+                <span className="h-px flex-1 bg-border" />
+            </div>
+
+            <Button variant="outline" asChild className="w-full">
+                <Link to="/login">Sign in</Link>
+            </Button>
         </div>
     )
 }

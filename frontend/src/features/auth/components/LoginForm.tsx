@@ -40,12 +40,13 @@ export default function LoginForm() {
                 <span className="h-px flex-1 bg-border" />
             </div>
 
-            <p className="text-center text-xs text-muted-foreground">
-                Create a free account{' '}
-                <Link to="/register" className="text-primary hover:underline">
-                    →
-                </Link>
-            </p>
+            <Button variant="outline" asChild className="w-full">
+                <Link to="/register">Create account</Link>
+            </Button>
+
+            <Button variant="link" size="sm" type="button" className="w-full">
+                Forgot password?
+            </Button>
         </div>
     )
 }
