@@ -6,7 +6,18 @@ namespace App\DTO\Response;
 
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'WorkspaceResponse',
+    properties: [
+        new OA\Property(property: 'id', type: 'string', format: 'uuid', example: '018f5c2e-1234-7abc-8def-abcdef012345'),
+        new OA\Property(property: 'name', type: 'string', example: 'Acme Corp'),
+        new OA\Property(property: 'createdAt', type: 'string', format: 'date-time', example: '2025-01-01T00:00:00+00:00'),
+        new OA\Property(property: 'role', type: 'string', enum: ['owner', 'member', 'guest'], example: 'owner'),
+    ],
+    type: 'object'
+)]
 final readonly class WorkspaceListItemResponse
 {
     public function __construct(
