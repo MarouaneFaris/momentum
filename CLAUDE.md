@@ -35,17 +35,11 @@ CI runs `make check` (frontend + backend) via GitHub Actions (`.github/workflows
 
 ### Merge strategy
 
-| Operation | Method | Rationale |
-|---|---|---|
-| feature → epic | **Squash merge** | one commit per PR, clean epic history |
-| epic → main | **Merge commit** | preserves epic's squashed commits, shows feature boundary |
-| hotfix → main | **Merge commit** | preserves hotfix context, easy to identify/revert |
+- feature → epic: **squash merge** (enforced by GitHub ruleset)
+- epic → main: **merge commit** (enforced by GitHub ruleset)
+- hotfix → main: **merge commit** (enforced by GitHub ruleset)
 
-Enforced by GitHub rulesets: epic branches accept squash only; main accepts merge commit only.
-
-**Keeping epic up-to-date with main:** use `git merge origin/main` (not rebase) — epic is a shared branch, rebase rewrites commits others may have branched from.
-
-**Keeping a feature branch up-to-date:** use `git rebase origin/epic/NNN-name` — local branch only, safe to rewrite.
+See `docs/git-workflows.md` for rationale, branch update rules, and release workflow.
 
 ### Epic branches
 
