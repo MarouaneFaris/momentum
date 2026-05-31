@@ -24,6 +24,7 @@ final readonly class RegisterService
     public function register(RegisterDTO $dto): void
     {
         $email = mb_strtolower($dto->email);
+        $name = $dto->name;
         $hash = $this->passwordHasher->hashPassword(new User(), $dto->password);
         $existingUser = $this->userRepository->findOneBy(['email' => $email]);
 
@@ -32,9 +33,10 @@ final readonly class RegisterService
             return;
         }
 
-        $this->entityManager->wrapInTransaction(function () use ($email, $hash): void {
+        $this->entityManager->wrapInTransaction(function () use ($email, $name, $hash): void {
             $user = new User();
             $user->setEmail($email);
+            $user->setName($name);
             $user->setPassword($hash);
             $this->entityManager->persist($user);
 

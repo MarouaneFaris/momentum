@@ -3,7 +3,7 @@ export type LoginPayload = {
     password: string
 }
 
-export type RegisterPayload = LoginPayload
+export type RegisterPayload = LoginPayload & { name: string }
 
 export type LoginResponse = {
     id: number

@@ -1,32 +1,41 @@
 import { render, screen } from '@testing-library/react'
 import RegisterForm from '@/features/auth/components/RegisterForm'
 
-vi.mock('react-router', () => ({ useNavigate: () => vi.fn() }))
+vi.mock('react-router', () => ({
+    useNavigate: () => vi.fn(),
+    Link: ({
+        to,
+        children,
+        className,
+    }: {
+        to: string
+        children: React.ReactNode
+        className?: string
+    }) => (
+        <a href={to} className={className}>
+            {children}
+        </a>
+    ),
+}))
 vi.mock('@/features/auth/hooks/useRegisterForm', () => ({
     useRegisterForm: () => ({ register: () => ({}), handleOnSubmit: vi.fn(), errors: {} }),
 }))
 
 describe('RegisterForm', () => {
-    it('renders email, password and confirm inputs', () => {
+    it('renders name, email and password inputs', () => {
         render(<RegisterForm />)
+        expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/^password/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/confirm/i)).toBeInTheDocument()
     })
 
-    it('renders sign up button', () => {
+    it('renders create account button', () => {
         render(<RegisterForm />)
-        expect(screen.getByRole('button', { name: /sign up/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument()
     })
 
-    it('shows password mismatch error when errors are populated', () => {
-        vi.mock('@/features/auth/hooks/useRegisterForm', () => ({
-            useRegisterForm: () => ({
-                register: () => ({}),
-                handleOnSubmit: vi.fn(),
-                errors: { confirm: { message: "Password don't match" } },
-            }),
-        }))
+    it('renders sign in link', () => {
         render(<RegisterForm />)
+        expect(screen.getByRole('link', { name: /sign in/i })).toHaveAttribute('href', '/login')
     })
 })

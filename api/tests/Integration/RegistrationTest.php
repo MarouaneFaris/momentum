@@ -24,6 +24,7 @@ final class RegistrationTest extends WebTestCase
 
     private const string EMAIL = 'newuser@example.com';
     private const string PASSWORD = 'SuperSecurePass123!';
+    private const string NAME = 'Alex Johnson';
 
     private static int $ipCounter = 10;
 
@@ -52,7 +53,7 @@ final class RegistrationTest extends WebTestCase
     public function testValidPayloadReturns201(): void
     {
         $client = static::createClient();
-        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $this->post($client, $this->nextIp(), ['name' => self::NAME, 'email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
     }
@@ -60,7 +61,7 @@ final class RegistrationTest extends WebTestCase
     public function testUserRowExistsInDbAfterRegistration(): void
     {
         $client = static::createClient();
-        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $this->post($client, $this->nextIp(), ['name' => self::NAME, 'email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -73,7 +74,7 @@ final class RegistrationTest extends WebTestCase
     public function testStoredPasswordIsHashed(): void
     {
         $client = static::createClient();
-        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $this->post($client, $this->nextIp(), ['name' => self::NAME, 'email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -88,9 +89,17 @@ final class RegistrationTest extends WebTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL]);
-        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $this->post($client, $this->nextIp(), ['name' => self::NAME, 'email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+    }
+
+    public function testMissingNameReturns422(): void
+    {
+        $client = static::createClient();
+        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testMissingEmailReturns422(): void
@@ -149,7 +158,7 @@ final class RegistrationTest extends WebTestCase
     /** @return list<UserWorkspace> */
     private function registerAndGetUserWorkspaces(KernelBrowser $client): array
     {
-        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $this->post($client, $this->nextIp(), ['name' => self::NAME, 'email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -164,7 +173,7 @@ final class RegistrationTest extends WebTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL]);
-        $this->post($client, $this->nextIp(), ['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $this->post($client, $this->nextIp(), ['name' => self::NAME, 'email' => self::EMAIL, 'password' => self::PASSWORD]);
 
         /** @var EntityManagerInterface $em */
         $em = static::getContainer()->get(EntityManagerInterface::class);
