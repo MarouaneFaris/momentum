@@ -1,47 +1,21 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import ApiError from '@/lib/ApiError'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import z from 'zod'
-import { useRenameWorkspace } from '../queries'
+import { useRenameWorkspaceForm } from '../hooks/useRenameWorkspaceForm'
 import type { Workspace } from '../types'
-
-const schema = z.object({
-    name: z.string().min(1, 'Name is required').max(64, 'Name must be 64 characters or fewer'),
-})
-
-type FormValues = z.infer<typeof schema>
 
 type Props = {
     workspace: Workspace
 }
 
 export function WorkspaceSettingsForm({ workspace }: Props) {
-    const { mutate, isPending } = useRenameWorkspace(workspace.id)
-    const isOwner = workspace.role === 'owner'
-
+    const { form, isPending, onSubmit } = useRenameWorkspaceForm(workspace)
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<FormValues>({
-        resolver: zodResolver(schema),
-        defaultValues: { name: workspace.name },
-    })
-
-    const onSubmit = (values: FormValues) => {
-        mutate(values, {
-            onSuccess: () => toast.success('Workspace renamed'),
-            onError: (error) => {
-                if (error instanceof ApiError) {
-                    toast.error(error.message)
-                }
-            },
-        })
-    }
+    } = form
+    const isOwner = workspace.role === 'owner'
 
     if (!isOwner) {
         return (
