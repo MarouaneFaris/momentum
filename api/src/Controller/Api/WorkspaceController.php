@@ -7,6 +7,7 @@ namespace App\Controller\Api;
 use App\DTO\CreateWorkspaceDTO;
 use App\DTO\Response\WorkspaceListItemResponse;
 use App\Entity\User;
+use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
