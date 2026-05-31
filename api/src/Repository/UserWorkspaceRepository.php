@@ -25,8 +25,7 @@ class UserWorkspaceRepository extends ServiceEntityRepository
      */
     public function findByUser(User $user): array
     {
-        /** @var list<UserWorkspace> $result */
-        $result = $this->getEntityManager()
+        return $this->getEntityManager()
             ->createQuery(
                 sprintf(
                     'SELECT uw, w FROM %s uw JOIN uw.workspace w WHERE IDENTITY(uw.user) = :userId ORDER BY w.name ASC',
@@ -35,14 +34,10 @@ class UserWorkspaceRepository extends ServiceEntityRepository
             )
             ->setParameter('userId', $user->getId(), UuidType::NAME)
             ->getResult();
-
-        return $result;
     }
 
     public function findRoleByUserAndWorkspace(User $user, Workspace $workspace): ?WorkspaceRole
     {
-        $userWorkspace = $this->findOneBy(['user' => $user, 'workspace' => $workspace]);
-
-        return $userWorkspace?->getRole();
+        return $this->findOneBy(['user' => $user, 'workspace' => $workspace])?->getRole();
     }
 }
