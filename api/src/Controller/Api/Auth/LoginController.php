@@ -46,7 +46,7 @@ final class LoginController extends AbstractController
         name: 'api_login',
         methods: Request::METHOD_POST,
     )]
-    public function index(
+    public function __invoke(
         #[CurrentUser] User $user,
         AuthTokenManager $service,
     ): JsonResponse {

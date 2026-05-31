@@ -17,7 +17,7 @@ final class DevUsersController extends AbstractController
         name: 'api_dev_users',
         methods: Request::METHOD_GET,
     )]
-    public function index(DevService $devService): JsonResponse
+    public function __invoke(DevService $devService): JsonResponse
     {
         $devService->ensureDevEnvironment();
 

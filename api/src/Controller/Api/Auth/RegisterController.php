@@ -41,7 +41,7 @@ final class RegisterController extends AbstractController
         name: 'api_register',
         methods: Request::METHOD_POST,
     )]
-    public function index(
+    public function __invoke(
         #[MapRequestPayload] RegisterDTO $dto,
         RegisterService $registerService,
     ): JsonResponse {

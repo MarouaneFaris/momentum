@@ -34,7 +34,7 @@ final class MeController extends AbstractController
         name: 'api_me',
         methods: Request::METHOD_GET,
     )]
-    public function index(#[CurrentUser] User $user): JsonResponse
+    public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
         return $this->json(
             LoginResponse::fromEntity($user),

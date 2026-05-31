@@ -20,7 +20,7 @@ final class DevLoginAsController extends AbstractController
         name: 'api_dev_login_as',
         methods: Request::METHOD_POST,
     )]
-    public function index(Request $request, DevService $devService): JsonResponse
+    public function __invoke(Request $request, DevService $devService): JsonResponse
     {
         $devService->ensureDevEnvironment();
 
