@@ -9,6 +9,8 @@ use App\DTO\Response\WorkspaceListItemResponse;
 use App\Entity\User;
 use App\Enum\WorkspaceRole;
 use App\Service\WorkspaceService;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +21,23 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class CreateWorkspaceController extends AbstractController
 {
+    #[OA\Post(
+        path: '/api/workspaces',
+        summary: 'Create a new workspace',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: new Model(type: CreateWorkspaceDTO::class))
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Workspace created',
+                content: new OA\JsonContent(ref: new Model(type: WorkspaceListItemResponse::class))
+            ),
+            new OA\Response(response: 401, description: 'Not authenticated'),
+            new OA\Response(response: 422, description: 'Validation error — name missing or exceeds 64 characters'),
+        ]
+    )]
     #[Route(
         path: '/api/workspaces',
         name: 'api_workspaces_create',
