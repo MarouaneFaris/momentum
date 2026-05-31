@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
-import { Bell, LayoutDashboard, Settings } from 'lucide-react'
+import { Bell, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet, useParams } from 'react-router'
 
@@ -51,24 +51,52 @@ export default function AppLayout() {
                             Dashboard
                         </NavLink>
                     )}
+                    <NavLink
+                        to="/invitations"
+                        className={({ isActive }) =>
+                            `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                isActive
+                                    ? 'bg-primary/10 font-medium text-primary'
+                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                            }`
+                        }
+                    >
+                        <Mail className="h-4 w-4 flex-shrink-0" />
+                        Invitations
+                    </NavLink>
                     <div className="mt-auto">
                         <p className="px-2 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
                             Workspace
                         </p>
                         {workspaceId && (
-                            <NavLink
-                                to={`/workspaces/${workspaceId}/settings`}
-                                className={({ isActive }) =>
-                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                        isActive
-                                            ? 'bg-primary/10 font-medium text-primary'
-                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                    }`
-                                }
-                            >
-                                <Settings className="h-4 w-4 flex-shrink-0" />
-                                Settings
-                            </NavLink>
+                            <>
+                                <NavLink
+                                    to={`/workspaces/${workspaceId}/members`}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                            isActive
+                                                ? 'bg-primary/10 font-medium text-primary'
+                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                        }`
+                                    }
+                                >
+                                    <Users className="h-4 w-4 flex-shrink-0" />
+                                    Members
+                                </NavLink>
+                                <NavLink
+                                    to={`/workspaces/${workspaceId}/settings`}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                            isActive
+                                                ? 'bg-primary/10 font-medium text-primary'
+                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                        }`
+                                    }
+                                >
+                                    <Settings className="h-4 w-4 flex-shrink-0" />
+                                    Settings
+                                </NavLink>
+                            </>
                         )}
                     </div>
                 </aside>

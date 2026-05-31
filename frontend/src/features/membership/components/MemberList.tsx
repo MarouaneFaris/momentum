@@ -1,5 +1,13 @@
 import { Button } from '@/components/ui/button'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import ApiError from '@/lib/ApiError'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import {
@@ -20,6 +28,7 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
     const { mutate: changeRole, isPending: isChanging } = useChangeMemberRole(workspaceId)
     const { mutate: removeMember, isPending: isRemoving } = useRemoveMember(workspaceId)
     const { mutate: leave, isPending: isLeaving } = useLeaveWorkspace(workspaceId)
+    const queryClient = useQueryClient()
     const navigate = useNavigate()
 
     if (isLoading) return <p className="text-sm text-muted-foreground">Loading members…</p>
@@ -48,14 +57,22 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                         <div className="flex gap-2">
                             {canManage && (
                                 <>
-                                    <select
-                                        className="h-7 rounded border border-input bg-background px-2 text-xs"
+                                    <Select
                                         value={member.role}
                                         disabled={isChanging}
-                                        onChange={(e) =>
+                                        onValueChange={(role) =>
                                             changeRole(
-                                                { userId: member.id, role: e.target.value },
+                                                { userId: member.id, role },
                                                 {
+                                                    onSuccess: () => {
+                                                        void queryClient.invalidateQueries({
+                                                            queryKey: [
+                                                                'workspaces',
+                                                                workspaceId,
+                                                                'members',
+                                                            ],
+                                                        })
+                                                    },
                                                     onError: (err) => {
                                                         if (err instanceof ApiError)
                                                             toast.error(err.message)
@@ -64,16 +81,30 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                                             )
                                         }
                                     >
-                                        <option value="member">Member</option>
-                                        <option value="guest">Guest</option>
-                                    </select>
+                                        <SelectTrigger size="sm" className="w-28">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="member">Member</SelectItem>
+                                            <SelectItem value="guest">Guest</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         disabled={isRemoving}
                                         onClick={() =>
                                             removeMember(member.id, {
-                                                onSuccess: () => toast.success('Member removed'),
+                                                onSuccess: () => {
+                                                    void queryClient.invalidateQueries({
+                                                        queryKey: [
+                                                            'workspaces',
+                                                            workspaceId,
+                                                            'members',
+                                                        ],
+                                                    })
+                                                    toast.success('Member removed')
+                                                },
                                                 onError: (err) => {
                                                     if (err instanceof ApiError)
                                                         toast.error(err.message)
@@ -93,6 +124,9 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                                     onClick={() =>
                                         leave(undefined, {
                                             onSuccess: () => {
+                                                void queryClient.invalidateQueries({
+                                                    queryKey: ['workspaces'],
+                                                })
                                                 toast.success('Left workspace')
                                                 void navigate('/')
                                             },

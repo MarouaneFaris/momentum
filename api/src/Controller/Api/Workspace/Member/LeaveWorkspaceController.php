@@ -20,7 +20,7 @@ final class LeaveWorkspaceController extends AbstractController
         path: '/api/workspaces/{workspaceId}/members/me',
         name: 'api_workspace_member_leave',
         methods: Request::METHOD_DELETE,
-        priority: 1,
+        priority: 1, // must outrank the {userId} route so "me" isn't matched as a UUID
     )]
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
