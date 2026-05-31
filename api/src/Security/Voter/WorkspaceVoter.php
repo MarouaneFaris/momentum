@@ -18,8 +18,24 @@ final class WorkspaceVoter extends Voter
     public const string VIEW = 'workspace.view';
     public const string EDIT = 'workspace.edit';
     public const string DELETE = 'workspace.delete';
+    public const string INVITE = 'workspace.invite';
+    public const string CANCEL_INVITATION = 'workspace.cancel_invitation';
+    public const string VIEW_INVITATIONS = 'workspace.view_invitations';
+    public const string VIEW_MEMBERS = 'workspace.view_members';
+    public const string REMOVE_MEMBER = 'workspace.remove_member';
+    public const string CHANGE_ROLE = 'workspace.change_role';
 
-    private const array ATTRIBUTES = [self::VIEW, self::EDIT, self::DELETE];
+    private const array ATTRIBUTES = [
+        self::VIEW,
+        self::EDIT,
+        self::DELETE,
+        self::INVITE,
+        self::CANCEL_INVITATION,
+        self::VIEW_INVITATIONS,
+        self::VIEW_MEMBERS,
+        self::REMOVE_MEMBER,
+        self::CHANGE_ROLE,
+    ];
 
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
@@ -47,7 +63,14 @@ final class WorkspaceVoter extends Voter
 
         return match ($attribute) {
             self::VIEW => true,
-            self::EDIT, self::DELETE => $role === WorkspaceRole::Owner,
+            self::EDIT,
+            self::DELETE,
+            self::INVITE,
+            self::CANCEL_INVITATION,
+            self::VIEW_INVITATIONS,
+            self::REMOVE_MEMBER,
+            self::CHANGE_ROLE => $role === WorkspaceRole::Owner,
+            self::VIEW_MEMBERS => true,
             default => false,
         };
     }

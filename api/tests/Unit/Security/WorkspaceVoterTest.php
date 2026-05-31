@@ -47,14 +47,32 @@ final class WorkspaceVoterTest extends TestCase
         yield 'owner can view' => [WorkspaceRole::Owner, WorkspaceVoter::VIEW, VoterInterface::ACCESS_GRANTED];
         yield 'owner can edit' => [WorkspaceRole::Owner, WorkspaceVoter::EDIT, VoterInterface::ACCESS_GRANTED];
         yield 'owner can delete' => [WorkspaceRole::Owner, WorkspaceVoter::DELETE, VoterInterface::ACCESS_GRANTED];
+        yield 'owner can invite' => [WorkspaceRole::Owner, WorkspaceVoter::INVITE, VoterInterface::ACCESS_GRANTED];
+        yield 'owner can cancel invitation' => [WorkspaceRole::Owner, WorkspaceVoter::CANCEL_INVITATION, VoterInterface::ACCESS_GRANTED];
+        yield 'owner can view invitations' => [WorkspaceRole::Owner, WorkspaceVoter::VIEW_INVITATIONS, VoterInterface::ACCESS_GRANTED];
+        yield 'owner can view members' => [WorkspaceRole::Owner, WorkspaceVoter::VIEW_MEMBERS, VoterInterface::ACCESS_GRANTED];
+        yield 'owner can remove member' => [WorkspaceRole::Owner, WorkspaceVoter::REMOVE_MEMBER, VoterInterface::ACCESS_GRANTED];
+        yield 'owner can change role' => [WorkspaceRole::Owner, WorkspaceVoter::CHANGE_ROLE, VoterInterface::ACCESS_GRANTED];
 
         yield 'member can view' => [WorkspaceRole::Member, WorkspaceVoter::VIEW, VoterInterface::ACCESS_GRANTED];
         yield 'member cannot edit' => [WorkspaceRole::Member, WorkspaceVoter::EDIT, VoterInterface::ACCESS_DENIED];
         yield 'member cannot delete' => [WorkspaceRole::Member, WorkspaceVoter::DELETE, VoterInterface::ACCESS_DENIED];
+        yield 'member cannot invite' => [WorkspaceRole::Member, WorkspaceVoter::INVITE, VoterInterface::ACCESS_DENIED];
+        yield 'member cannot cancel invitation' => [WorkspaceRole::Member, WorkspaceVoter::CANCEL_INVITATION, VoterInterface::ACCESS_DENIED];
+        yield 'member cannot view invitations' => [WorkspaceRole::Member, WorkspaceVoter::VIEW_INVITATIONS, VoterInterface::ACCESS_DENIED];
+        yield 'member can view members' => [WorkspaceRole::Member, WorkspaceVoter::VIEW_MEMBERS, VoterInterface::ACCESS_GRANTED];
+        yield 'member cannot remove member' => [WorkspaceRole::Member, WorkspaceVoter::REMOVE_MEMBER, VoterInterface::ACCESS_DENIED];
+        yield 'member cannot change role' => [WorkspaceRole::Member, WorkspaceVoter::CHANGE_ROLE, VoterInterface::ACCESS_DENIED];
 
         yield 'guest can view' => [WorkspaceRole::Guest, WorkspaceVoter::VIEW, VoterInterface::ACCESS_GRANTED];
         yield 'guest cannot edit' => [WorkspaceRole::Guest, WorkspaceVoter::EDIT, VoterInterface::ACCESS_DENIED];
         yield 'guest cannot delete' => [WorkspaceRole::Guest, WorkspaceVoter::DELETE, VoterInterface::ACCESS_DENIED];
+        yield 'guest cannot invite' => [WorkspaceRole::Guest, WorkspaceVoter::INVITE, VoterInterface::ACCESS_DENIED];
+        yield 'guest cannot cancel invitation' => [WorkspaceRole::Guest, WorkspaceVoter::CANCEL_INVITATION, VoterInterface::ACCESS_DENIED];
+        yield 'guest cannot view invitations' => [WorkspaceRole::Guest, WorkspaceVoter::VIEW_INVITATIONS, VoterInterface::ACCESS_DENIED];
+        yield 'guest can view members' => [WorkspaceRole::Guest, WorkspaceVoter::VIEW_MEMBERS, VoterInterface::ACCESS_GRANTED];
+        yield 'guest cannot remove member' => [WorkspaceRole::Guest, WorkspaceVoter::REMOVE_MEMBER, VoterInterface::ACCESS_DENIED];
+        yield 'guest cannot change role' => [WorkspaceRole::Guest, WorkspaceVoter::CHANGE_ROLE, VoterInterface::ACCESS_DENIED];
     }
 
     public function testNonMemberIsdenied(): void
