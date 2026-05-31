@@ -1,6 +1,6 @@
 import api from '@/lib/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { InvitationInviteeView, InvitationOwnerView, InvitationRole } from './types'
+import type { InvitationInviteeView, InvitationOwnerView, InvitationRole, Member } from './types'
 
 export const useWorkspaceInvitations = (workspaceId: string) =>
     useQuery({
@@ -30,6 +30,48 @@ export const useCancelInvitation = (workspaceId: string) => {
             void queryClient.invalidateQueries({
                 queryKey: ['workspaces', workspaceId, 'invitations'],
             })
+        },
+    })
+}
+
+export const useWorkspaceMembers = (workspaceId: string) =>
+    useQuery({
+        queryKey: ['workspaces', workspaceId, 'members'],
+        queryFn: () => api.get<Member[]>(`/workspaces/${workspaceId}/members`),
+    })
+
+export const useChangeMemberRole = (workspaceId: string) => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+            api.patch<Member>(`/workspaces/${workspaceId}/members/${userId}`, { role }),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({
+                queryKey: ['workspaces', workspaceId, 'members'],
+            })
+        },
+    })
+}
+
+export const useRemoveMember = (workspaceId: string) => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (userId: string) =>
+            api.delete<null>(`/workspaces/${workspaceId}/members/${userId}`),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({
+                queryKey: ['workspaces', workspaceId, 'members'],
+            })
+        },
+    })
+}
+
+export const useLeaveWorkspace = (workspaceId: string) => {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: () => api.delete<null>(`/workspaces/${workspaceId}/members/me`),
+        onSuccess: () => {
+            void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
         },
     })
 }

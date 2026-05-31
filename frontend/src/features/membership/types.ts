@@ -1,5 +1,7 @@
 export type InvitationRole = 'member' | 'guest'
 
+export type WorkspaceRole = 'owner' | 'member' | 'guest'
+
 export type InvitationInvitee = {
     id: string
     name: string
@@ -31,4 +33,12 @@ export type InvitationInviteeView = {
     role: InvitationRole
     expiresAt: string
     createdAt: string
+}
+
+export type Member = {
+    id: string
+    name: string
+    email: string
+    role: WorkspaceRole
+    joinedAt: string
 }
