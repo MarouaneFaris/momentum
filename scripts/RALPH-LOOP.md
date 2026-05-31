@@ -2,7 +2,7 @@
 
 ## Your mission each iteration
 
-Pick the highest-priority unfinished `ready-for-agent` issue, implement it fully, verify it passes all checks, commit it, open a PR, and close the issue. One issue per iteration. Stop when no eligible `ready-for-agent` issues remain.
+Pick the highest-priority unfinished `ready-for-agent` issue, implement it fully, verify it passes all checks, commit it, and open a PR. One issue per iteration. Stop when no eligible `ready-for-agent` issues remain.
 
 ---
 
@@ -70,6 +70,12 @@ git checkout -b type/short-description epic/{parent.number}-{kebab-title}
 ```
 
 Branch naming: `type/scope-description` (e.g. `feat/tasks-create-endpoint`).
+
+Claim the issue immediately so other loop iterations skip it:
+
+```bash
+gh issue edit <number> --add-label "in-progress" --remove-label "ready-for-agent"
+```
 
 ---
 
@@ -160,16 +166,15 @@ EOF
 
 ---
 
-## Step 8 — Close issue and label
+## Step 8 — Confirm PR
 
-```bash
-gh issue close <number> --comment "Implemented in PR #<pr-number>"
-gh issue edit <number> --remove-label "ready-for-agent"
-```
+Verify the PR URL printed by Step 7 is open. The issue closes automatically when the PR merges via `Closes #ISSUE_NUMBER` in the PR body — do not close it manually.
 
 ---
 
 ## Step 9 — Decide next action
+
+Issues claimed in Step 3 no longer carry `ready-for-agent`, so the Step 1 query naturally skips them on the next iteration.
 
 - More eligible `ready-for-agent` issues exist → loop continues (do NOT output `<promise>`)
 - No more eligible issues → output exactly:
