@@ -1,11 +1,9 @@
 import { DeleteWorkspaceZone } from '@/features/workspace/components/DeleteWorkspaceZone'
 import { WorkspaceSettingsForm } from '@/features/workspace/components/WorkspaceSettingsForm'
 import { useWorkspace } from '@/features/workspace/queries'
-import { useParams } from 'react-router'
 
 export default function WorkspaceSettingsPage() {
-    const { id } = useParams<{ id: string }>()
-    const { data: workspace, isLoading } = useWorkspace(id!)
+    const { data: workspace, isLoading } = useWorkspace()
 
     if (isLoading) return <div>Loading...</div>
     if (!workspace) return null

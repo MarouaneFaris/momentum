@@ -8,7 +8,7 @@ import { workspaceStorage } from '../workspaceStorage'
 
 export const useDeleteWorkspaceAction = (workspace: Workspace) => {
     const [confirmation, setConfirmation] = useState('')
-    const { mutate, isPending } = useDeleteWorkspace(workspace.id)
+    const { mutate, isPending } = useDeleteWorkspace()
     const { data: workspaces } = useWorkspaces()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
