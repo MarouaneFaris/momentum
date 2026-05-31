@@ -9,8 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     schema: 'RegisterDTO',
-    required: ['email', 'password'],
+    required: ['name', 'email', 'password'],
     properties: [
+        new OA\Property(property: 'name', type: 'string', minLength: 2, maxLength: 255, example: 'Alex Johnson'),
         new OA\Property(property: 'email', type: 'string', format: 'email', example: 'user@example.com'),
         new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 12, description: 'Min 12 chars'),
     ],
@@ -19,6 +20,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class RegisterDTO
 {
     public function __construct(
+        #[Assert\NotBlank]
+        #[Assert\Length(min: 2, max: 255)]
+        public string $name,
         #[Assert\NotBlank]
         #[Assert\Email]
         public string $email,

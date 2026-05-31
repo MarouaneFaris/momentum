@@ -1,70 +1,51 @@
 import { PasswordInput } from '@/components/PasswordInput'
 import { Button } from '@/components/ui/button'
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { useLoginForm } from '../hooks/useLoginForm'
 
 export default function LoginForm() {
-    const navigate = useNavigate()
     const { register, handleOnSubmit } = useLoginForm()
 
     return (
-        <Card className="w-full max-w-sm">
-            <CardHeader>
-                <CardTitle>Sign in to your account</CardTitle>
-                <CardDescription>Enter your email below to sign in</CardDescription>
-                <CardAction>
-                    <Button variant="link" onClick={() => void navigate('/register')}>
-                        Sign Up
-                    </Button>
-                </CardAction>
-            </CardHeader>
-            <CardContent>
-                <form id="login-form" onSubmit={handleOnSubmit}>
-                    <div className="flex flex-col gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="m@example.com"
-                                required
-                                {...register('email')}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <div className="flex items-center">
-                                <Label htmlFor="password">Password</Label>
-                                <a
-                                    href="#"
-                                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                                >
-                                    Forgot your password?
-                                </a>
-                            </div>
-                            <PasswordInput id="password" required {...register('password')} />
-                        </div>
-                    </div>
-                </form>
-            </CardContent>
-            <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full" form="login-form">
+        <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1">
+                <h1 className="text-lg font-semibold tracking-tight">Welcome back</h1>
+                <p className="text-sm text-muted-foreground">Sign in to your workspace</p>
+            </div>
+
+            <form id="login-form" onSubmit={handleOnSubmit} className="flex flex-col gap-5">
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@company.com"
+                        {...register('email')}
+                    />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="password">Password</Label>
+                    <PasswordInput id="password" {...register('password')} />
+                </div>
+                <Button type="submit" className="w-full">
                     Sign in
                 </Button>
-                <Button variant="outline" className="w-full">
-                    Login with Google
-                </Button>
-            </CardFooter>
-        </Card>
+            </form>
+
+            <div className="flex items-center gap-2.5">
+                <span className="h-px flex-1 bg-border" />
+                <span className="text-xs text-muted-foreground">no account yet?</span>
+                <span className="h-px flex-1 bg-border" />
+            </div>
+
+            <p className="text-center text-xs text-muted-foreground">
+                Create a free account{' '}
+                <Link to="/register" className="text-primary hover:underline">
+                    →
+                </Link>
+            </p>
+        </div>
     )
 }

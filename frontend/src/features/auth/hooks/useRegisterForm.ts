@@ -6,16 +6,11 @@ import { toast } from 'sonner'
 import z from 'zod'
 import { useRegister } from '../queries'
 
-const schema = z
-    .object({
-        email: z.email(),
-        password: z.string().min(12, 'Password must be at least 12 characters'),
-        confirm: z.string(),
-    })
-    .refine((data) => data.password === data.confirm, {
-        error: "Password don't match",
-        path: ['confirm'],
-    })
+const schema = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    email: z.email(),
+    password: z.string().min(12, 'Password must be at least 12 characters'),
+})
 
 export const useRegisterForm = () => {
     const { mutate } = useRegister()
@@ -30,9 +25,9 @@ export const useRegisterForm = () => {
     })
 
     const handleOnSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-        void handleSubmit(({ email, password }) =>
+        void handleSubmit(({ name, email, password }) =>
             mutate(
-                { email, password },
+                { name, email, password },
                 {
                     onSuccess: (data) => {
                         if (data) {

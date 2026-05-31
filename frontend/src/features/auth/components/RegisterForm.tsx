@@ -1,74 +1,58 @@
 import { PasswordInput } from '@/components/PasswordInput'
 import { Button } from '@/components/ui/button'
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { useRegisterForm } from '../hooks/useRegisterForm'
 
 export default function RegisterForm() {
-    const navigate = useNavigate()
     const { register, handleOnSubmit, errors } = useRegisterForm()
 
     return (
-        <Card className="w-full max-w-sm">
-            <CardHeader>
-                <CardTitle>Create an account</CardTitle>
-                <CardDescription>Enter your details to get started</CardDescription>
-                <CardAction>
-                    <Button variant="link" onClick={() => void navigate('/login')}>
-                        Sign In
-                    </Button>
-                </CardAction>
-            </CardHeader>
-            <CardContent>
-                <form id="registration-form" onSubmit={handleOnSubmit}>
-                    <div className="flex flex-col gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="m@example.com"
-                                required
-                                {...register('email')}
-                            />
-                            {errors.email && (
-                                <p className="text-sm text-destructive">{errors.email.message}</p>
-                            )}
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
-                            <PasswordInput id="password" required {...register('password')} />
-                            {errors.password && (
-                                <p className="text-sm text-destructive">
-                                    {errors.password.message}
-                                </p>
-                            )}
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="confirm">Confirm password</Label>
-                            <PasswordInput id="confirm" required {...register('confirm')} />
-                            {errors.confirm && (
-                                <p className="text-sm text-destructive">{errors.confirm.message}</p>
-                            )}
-                        </div>
-                    </div>
-                </form>
-            </CardContent>
-            <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full" form="registration-form">
-                    Sign Up
+        <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1">
+                <h1 className="text-lg font-semibold tracking-tight">Create an account</h1>
+                <p className="text-sm text-muted-foreground">Get started with Momentum</p>
+            </div>
+
+            <form id="registration-form" onSubmit={handleOnSubmit} className="flex flex-col gap-5">
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="name">Full name</Label>
+                    <Input id="name" type="text" placeholder="Alex Johnson" {...register('name')} />
+                    {errors.name && (
+                        <p className="text-sm text-destructive">{errors.name.message}</p>
+                    )}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@company.com"
+                        {...register('email')}
+                    />
+                    {errors.email && (
+                        <p className="text-sm text-destructive">{errors.email.message}</p>
+                    )}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="password">Password</Label>
+                    <PasswordInput id="password" {...register('password')} />
+                    {errors.password && (
+                        <p className="text-sm text-destructive">{errors.password.message}</p>
+                    )}
+                </div>
+                <Button type="submit" className="w-full">
+                    Create account
                 </Button>
-            </CardFooter>
-        </Card>
+            </form>
+
+            <p className="text-center text-xs text-muted-foreground">
+                Already have an account?{' '}
+                <Link to="/login" className="text-primary hover:underline">
+                    Sign in
+                </Link>
+            </p>
+        </div>
     )
 }
