@@ -43,6 +43,20 @@ If `parent` is non-null:
 
 If `parent` is null: base on `main`, PR targets `main`.
 
+## PRD / Epic issues
+
+Issues labeled `prd` are documentation — never implement them directly.
+
+When you encounter a `prd` issue:
+- Do **not** apply `ready-for-agent` or `ready-for-human`
+- Advance the state label instead (see `docs/agents/triage-labels.md`)
+- To act on it: break it into sub-issues, then link them (see below)
+
+State transitions:
+- After writing/reviewing PRD → move to `prd:ready`
+- After spawning all sub-issues → move to `prd:active`
+- After epic branch merges to main → move to `prd:complete`
+
 ## Linking sub-issues when creating issues from a PRD
 
 After creating each sub-issue, register it under the PRD:
