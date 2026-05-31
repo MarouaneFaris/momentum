@@ -30,6 +30,14 @@ class UserWorkspace
     #[ORM\Column(type: 'string', enumType: WorkspaceRole::class)]
     private WorkspaceRole $role;
 
+    #[ORM\Column]
+    private \DateTimeImmutable $joinedAt;
+
+    public function __construct()
+    {
+        $this->joinedAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?Uuid
     {
         return $this->id;
@@ -69,5 +77,10 @@ class UserWorkspace
         $this->role = $role;
 
         return $this;
+    }
+
+    public function getJoinedAt(): \DateTimeImmutable
+    {
+        return $this->joinedAt;
     }
 }
