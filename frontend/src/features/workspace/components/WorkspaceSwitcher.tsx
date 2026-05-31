@@ -8,27 +8,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ChevronDown, PlusIcon } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
-import { useWorkspaces } from '../queries'
-import { workspaceStorage } from '../workspaceStorage'
+import { useWorkspaceSwitcher } from '../hooks/useWorkspaceSwitcher'
 import { CreateWorkspaceModal } from './CreateWorkspaceModal'
 
 export function WorkspaceSwitcher() {
-    const { id: currentId } = useParams<{ id: string }>()
-    const { data: workspaces } = useWorkspaces()
-    const { write } = workspaceStorage
-    const navigate = useNavigate()
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const { current, workspaces, isModalOpen, setIsModalOpen, handleSelect } =
+        useWorkspaceSwitcher()
 
     if (!workspaces?.length) return null
-
-    const current = workspaces.find((w) => w.id === currentId)
-
-    const handleSelect = (workspaceId: string) => {
-        write(workspaceId)
-        void navigate(`/workspaces/${workspaceId}/dashboard`)
-    }
 
     return (
         <>

@@ -1,43 +1,16 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
-import { toast } from 'sonner'
-import { useDeleteWorkspace, useWorkspaces } from '../queries'
+import { useDeleteWorkspaceAction } from '../hooks/useDeleteWorkspaceAction'
 import type { Workspace } from '../types'
-import { workspaceStorage } from '../workspaceStorage'
 
 type Props = {
     workspace: Workspace
 }
 
 export function DeleteWorkspaceZone({ workspace }: Props) {
-    const [confirmation, setConfirmation] = useState('')
-    const { mutate, isPending } = useDeleteWorkspace(workspace.id)
-    const { data: workspaces } = useWorkspaces()
-    const { write } = workspaceStorage
-    const navigate = useNavigate()
-
-    const isConfirmed = confirmation === workspace.name
-
-    const handleDelete = () => {
-        mutate(undefined, {
-            onSuccess: () => {
-                localStorage.removeItem('lastVisitedWorkspaceId')
-                const remaining = workspaces?.filter((w) => w.id !== workspace.id) ?? []
-                if (remaining.length > 0) {
-                    write(remaining[0].id)
-                    void navigate(`/workspaces/${remaining[0].id}/dashboard`)
-                } else {
-                    void navigate('/')
-                }
-            },
-            onError: () => {
-                toast.error('Failed to delete workspace')
-            },
-        })
-    }
+    const { confirmation, setConfirmation, isConfirmed, isPending, handleDelete } =
+        useDeleteWorkspaceAction(workspace)
 
     return (
         <div className="flex flex-col gap-4 rounded-lg border border-destructive/50 p-4">
