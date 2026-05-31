@@ -33,6 +33,14 @@ CI runs `make check` (frontend + backend) via GitHub Actions (`.github/workflows
 
 `main` is protected — direct push blocked, CI must pass before merge. Epic branches (`epic/*`) are equally protected.
 
+### Merge strategy
+
+- feature → epic: **squash merge** (enforced by GitHub ruleset)
+- epic → main: **merge commit** (enforced by GitHub ruleset)
+- hotfix → main: **merge commit** (enforced by GitHub ruleset)
+
+See `docs/git-workflows.md` for rationale, branch update rules, and release workflow.
+
 ### Epic branches
 
 PRDs spawn an epic branch: `epic/{prd-issue-number}-{kebab-title}` (e.g. `epic/125-workspace-crud-and-switching`). Sub-issues from the PRD are implemented on feature branches based off the epic branch and merged back into it via PR. The epic branch merges to `main` when all sub-issues are done.
