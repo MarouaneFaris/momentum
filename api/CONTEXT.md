@@ -98,6 +98,8 @@ Separate entity from `UserWorkspace`. Fields: `id` (UUID v7), `workspace` (FK, C
 
 Unique constraint on `(workspace_id, invitee_id)` — one pending invite per user per workspace.
 
+Design rationale: [ADR-012](../docs/adr/012-workspace-invitation-entity.md).
+
 ### Invitation Flow
 
 1. Owner invites by email + role → backend looks up user by email; rejects 422 if not found or already a member or pending invite exists
