@@ -80,7 +80,7 @@ Workspace object shape: `{ id, name, createdAt, role }` — `role` is the authen
 | Create projects | ✅ | ✅ | ❌ |
 | View projects | ✅ | ✅ | ✅ |
 
-*Owner cannot leave — must transfer ownership or delete workspace first.
+*Owner cannot leave — must delete the workspace. Ownership transfer is v2.
 
 ### Task Status Transitions
 
@@ -92,15 +92,58 @@ Valid transitions (enforced by backend domain logic, not frontend only):
 
 Invalid transitions are rejected by the API. The frontend may mirror this logic for UX but the backend is authoritative.
 
+### WorkspaceInvitation Entity
+
+Separate entity from `UserWorkspace`. Fields: `id` (UUID v7), `workspace` (FK, CASCADE DELETE), `invitee` (FK → User, CASCADE DELETE), `invitedBy` (FK → User, SET NULL on delete), `role` (WorkspaceRole enum), `expiresAt` (DateTimeImmutable), `createdAt` (DateTimeImmutable).
+
+Unique constraint on `(workspace_id, invitee_id)` — one pending invite per user per workspace.
+
 ### Invitation Flow
 
-1. Owner invites by email + role selection → invitation created with status `pending`, unique token, 7-day expiry
-2. In-app notification sent to invitee (if user already exists in the system)
-3. Invitee accepts: authenticated `POST /api/invitations/{invitationId}/accept` → joined with assigned role
-4. Invitee declines: `POST /api/invitations/{invitationId}/decline` → owner can reinvite
-5. Expired after 7 days → owner can reissue
+1. Owner invites by email + role → backend looks up user by email; rejects 422 if not found or already a member or pending invite exists
+2. `WorkspaceInvitation` row created with `expiresAt = now + 7 days`; no token — UUID v7 id is the identifier
+3. Invitee discovers invitation on their dedicated invitations page via `GET /api/invitations`
+4. Invitee accepts: `POST /api/invitations/{id}/accept` (authenticated) → `UserWorkspace` row created, invitation deleted
+5. Invitee declines: `POST /api/invitations/{id}/decline` → invitation deleted; owner can reinvite
+6. Owner cancels: `DELETE /api/workspaces/{id}/invitations/{invitationId}` → invitation deleted
+7. Expired invitations (checked lazily on read): treated as not found; owner must reissue
+8. Non-existing user invites are v2 (requires email delivery)
+
+Role change via `PATCH /api/workspaces/{id}/members/{userId}`: `member ↔ guest` only. Sending `owner` as target role returns 422 — ownership transfer is v2. Enforced in service layer, not voter.
+
+### Membership Endpoints
+
+| Method | Route | Auth | Body | Response |
+|---|---|---|---|---|
+| `POST` | `/api/workspaces/{id}/invitations` | owner | `{ email, role }` | `201` invitation object |
+| `GET` | `/api/workspaces/{id}/invitations` | owner | — | `200` array of pending invitations |
+| `DELETE` | `/api/workspaces/{id}/invitations/{invitationId}` | owner | — | `204` |
+| `GET` | `/api/invitations` | `ROLE_USER` | — | `200` array of pending invitations for current user |
+| `POST` | `/api/invitations/{id}/accept` | invitee | — | `204` |
+| `POST` | `/api/invitations/{id}/decline` | invitee | — | `204` |
+| `GET` | `/api/workspaces/{id}/members` | member | — | `200` array of member objects |
+| `PATCH` | `/api/workspaces/{id}/members/{userId}` | owner | `{ role }` | `200` member object |
+| `DELETE` | `/api/workspaces/{id}/members/{userId}` | owner | — | `204` |
+| `DELETE` | `/api/workspaces/{id}/members/me` | member/guest | — | `204` |
 
 Non-existing user invites are v2 (requires email delivery infrastructure). In v1, invitees must already have an account.
+
+### Membership Response Shapes
+
+**Member object** (returned by `GET /api/workspaces/{id}/members`):
+```json
+{ "id": "...", "name": "...", "email": "...", "role": "member", "joinedAt": "..." }
+```
+
+**Invitation object — owner view** (`GET /api/workspaces/{id}/invitations`):
+```json
+{ "id": "...", "invitee": { "id": "...", "name": "...", "email": "..." }, "role": "member", "expiresAt": "...", "createdAt": "..." }
+```
+
+**Invitation object — invitee view** (`GET /api/invitations`):
+```json
+{ "id": "...", "workspace": { "id": "...", "name": "..." }, "invitedBy": { "id": "...", "name": "..." }, "role": "member", "expiresAt": "...", "createdAt": "..." }
+```
 
 ### Notification Triggers (v1)
 
