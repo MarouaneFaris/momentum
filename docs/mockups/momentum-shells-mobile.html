@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum — Mobile shell mockups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: oklch(0.488 0.243 264.376);
+      --primary-fg: oklch(0.97 0.014 254.604);
+      --primary-hover: oklch(0.44 0.22 264.376);
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-fg: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --radius: 0.625rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: oklch(0.624 0.214 259.815);
+        --primary-fg: oklch(0.97 0.014 254.604);
+        --background: oklch(0.141 0.005 285.823);
+        --foreground: oklch(0.985 0 0);
+        --card: oklch(0.21 0.006 285.885);
+        --muted: oklch(0.274 0.006 286.033);
+        --muted-fg: oklch(0.705 0.015 286.067);
+        --border: oklch(1 0 0 / 10%);
+      }
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--muted);
+      color: var(--foreground);
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+
+    .page-header {
+      max-width: 960px;
+      margin: 0 auto 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-logo { display: flex; align-items: center; gap: 10px; }
+    .mark { display: flex; flex-direction: column; gap: 4px; transform: skewX(-12deg); }
+    .stripe { border-radius: 2px; background: var(--primary); }
+    .wordmark { font-size: 16px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .wordmark .acc { color: var(--primary); }
+    .page-divider { flex: 1; height: 0.5px; background: var(--border); }
+    .page-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); white-space: nowrap; }
+
+    .screens-grid {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+    }
+
+    .screen-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+    .screen-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+    }
+
+    /* Phone frame */
+    .phone {
+      width: 220px;
+      border-radius: 28px;
+      border: 1.5px solid var(--border);
+      background: var(--background);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 4px oklch(0 0 0 / 0.06);
+    }
+
+    /* Notch bar */
+    .notch-bar {
+      height: 32px;
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .notch {
+      width: 60px; height: 12px;
+      border-radius: 6px;
+      background: var(--muted);
+    }
+
+    /* Top bar */
+    .topbar {
+      height: 44px;
+      background: var(--card);
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .topbar-mark { display: flex; flex-direction: column; gap: 3px; transform: skewX(-12deg); }
+    .topbar-wordmark { font-size: 13px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .spacer { flex: 1; }
+
+    .icon-btn {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius);
+      color: var(--muted-fg);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .icon-btn svg { width: 16px; height: 16px; }
+
+    .notif-badge {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 1.5px solid var(--card);
+    }
+
+    .avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: oklch(0.488 0.243 264.376 / 0.15);
+      border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* Body */
+    .body {
+      flex: 1;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+      background: var(--background);
+    }
+
+    .sec-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      margin-bottom: 2px;
+    }
+
+    .card {
+      background: var(--muted);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+    }
+
+    .t1 { font-size: 13px; font-weight: 500; color: var(--foreground); }
+    .t2 { font-size: 12px; color: var(--muted-fg); }
+    .t3 { font-size: 10px; color: var(--muted-fg); }
+
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .stat { background: var(--muted); border-radius: var(--radius); padding: 10px 12px; }
+    .stat-num { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .stat-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted-fg); }
+
+    /* Tasks */
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .task-row:last-child { border-bottom: none; }
+
+    .check {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .check.done { border-color: var(--primary); background: oklch(0.488 0.243 264.376 / 0.12); }
+
+    .task-name { font-size: 11px; color: var(--foreground); flex: 1; line-height: 1.3; }
+    .task-name.done { text-decoration: line-through; color: var(--muted-fg); }
+
+    .badge {
+      font-size: 9px; font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .badge-todo { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); }
+    .badge-prog { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); }
+    .badge-done { background: oklch(0.3 0.1 145 / 0.1); color: oklch(0.35 0.12 145); border: 0.5px solid oklch(0.3 0.1 145 / 0.25); }
+    .badge-new { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); }
+
+    /* Projects */
+    .project-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .project-row:last-child { border-bottom: none; }
+    .project-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Tab bar */
+    .tabbar {
+      height: 56px;
+      border-top: 0.5px solid var(--border);
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px 4px;
+      flex-shrink: 0;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .tab-icon {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tab-icon svg { width: 20px; height: 20px; color: var(--muted-fg); }
+    .tab-icon.active svg { color: var(--primary); }
+
+    .tab-lbl { font-size: 9px; color: var(--muted-fg); }
+    .tab-lbl.active { color: var(--primary); font-weight: 500; }
+
+    /* Auth specific */
+    .auth-body {
+      flex: 1;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+      background: var(--background);
+    }
+
+    .auth-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .auth-mark { display: flex; flex-direction: column; gap: 4px; transform: skewX(-12deg); }
+    .auth-wordmark { font-size: 20px; font-weight: 600; letter-spacing: -1px; color: var(--foreground); }
+
+    .tagline-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .tagline-line { flex: 1; height: 0.5px; background: var(--border); }
+    .tagline { font-size: 8px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-fg); white-space: nowrap; }
+
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 11px; font-weight: 500; color: var(--foreground); }
+
+    .mock-input {
+      width: 100%;
+      height: 38px;
+      background: var(--muted);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0 12px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      color: var(--foreground);
+    }
+    .mock-input::placeholder { color: var(--muted-fg); }
+
+    .submit-btn {
+      width: 100%;
+      height: 38px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+
+    .ghost-btn {
+      width: 100%;
+      height: 38px;
+      background: transparent;
+      color: var(--muted-fg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+
+    .divider-row { display: flex; align-items: center; gap: 8px; }
+    .divider-line { flex: 1; height: 0.5px; background: var(--border); }
+    .divider-text { font-size: 10px; color: var(--muted-fg); }
+
+    .footer-note { font-size: 11px; color: var(--muted-fg); text-align: center; }
+    .footer-note span { color: var(--primary); }
+
+    /* Notification items */
+    .notif-item {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 9px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .notif-item:last-child { border-bottom: none; }
+
+    .notif-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: 4px; }
+    .notif-dot-read { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; margin-top: 4px; }
+
+    .notif-text { font-size: 11px; color: var(--foreground); line-height: 1.4; margin-bottom: 2px; }
+    .notif-meta { font-size: 10px; color: var(--muted-fg); }
+
+    /* Task detail */
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 11px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--muted-fg); }
+    .detail-val { color: var(--foreground); font-weight: 500; }
+
+    .back-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Members */
+    .member-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .member-row:last-child { border-bottom: none; }
+    .member-av {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: oklch(0.488 0.243 264.376 / 0.15);
+      border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 600;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .badge-role { font-size: 9px; font-weight: 500; padding: 2px 7px; border-radius: 10px; }
+    .badge-owner { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); }
+    .badge-member { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); }
+    .badge-guest { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); opacity: 0.7; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="page-logo">
+      <div class="mark">
+        <div class="stripe" style="width:20px;height:6px;opacity:.25"></div>
+        <div class="stripe" style="width:20px;height:6px;opacity:.55"></div>
+        <div class="stripe" style="width:20px;height:6px;opacity:1"></div>
+      </div>
+      <div class="wordmark"><span class="acc">m</span>omentum</div>
+    </div>
+    <div class="page-divider"></div>
+    <div class="page-label">Mobile shells</div>
+  </div>
+
+  <div class="screens-grid">
+
+    <!-- LOGIN -->
+    <div class="screen-col">
+      <div class="screen-label">Login</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="auth-body">
+          <div class="auth-logo">
+            <div class="auth-mark">
+              <div class="stripe" style="width:28px;height:8px;opacity:.25"></div>
+              <div class="stripe" style="width:28px;height:8px;opacity:.55"></div>
+              <div class="stripe" style="width:28px;height:8px;opacity:1"></div>
+            </div>
+            <div class="auth-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+            <div class="tagline-row">
+              <div class="tagline-line"></div>
+              <div class="tagline">Task · Project · Team</div>
+              <div class="tagline-line"></div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Email</div>
+            <input class="mock-input" value="alex@acme.com" readonly />
+          </div>
+          <div class="field">
+            <div class="field-label">Password</div>
+            <input class="mock-input" type="password" value="password" readonly />
+          </div>
+          <button class="submit-btn">Sign in</button>
+          <div class="divider-row">
+            <div class="divider-line"></div>
+            <div class="divider-text">no account yet?</div>
+            <div class="divider-line"></div>
+          </div>
+          <button class="ghost-btn">Create account</button>
+        </div>
+        <div style="height:24px;background:var(--card);border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:center">
+          <div style="width:80px;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="screen-col">
+      <div class="screen-label">Register</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="auth-body">
+          <div style="margin-bottom:4px">
+            <div class="t1" style="font-size:16px;margin-bottom:4px">Create account</div>
+            <div class="t3">Get started with Momentum</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Full name</div>
+            <input class="mock-input" placeholder="Alex Johnson" readonly />
+          </div>
+          <div class="field">
+            <div class="field-label">Email</div>
+            <input class="mock-input" placeholder="you@company.com" readonly />
+          </div>
+          <div class="field">
+            <div class="field-label">Password</div>
+            <input class="mock-input" type="password" placeholder="••••••••" readonly />
+          </div>
+          <button class="submit-btn">Create account</button>
+          <div class="footer-note">Already have an account? <span>Sign in</span></div>
+        </div>
+        <div style="height:24px;background:var(--card);border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:center">
+          <div style="width:80px;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="screen-col">
+      <div class="screen-label">Dashboard</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:16px;height:4px;opacity:.25"></div>
+            <div class="stripe" style="width:16px;height:4px;opacity:.55"></div>
+            <div class="stripe" style="width:16px;height:4px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+          <div class="spacer"></div>
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M7 12.5C9.98 12.5 12.5 9.98 12.5 7C12.5 4.02 9.98 1.5 7 1.5C4.02 1.5 1.5 4.02 1.5 7C1.5 9.98 4.02 12.5 7 12.5Z" stroke="currentColor" stroke-width="1.2"/><path d="M14.5 14.5L11.5 11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+            <div class="notif-badge"></div>
+          </div>
+          <div class="avatar">AJ</div>
+        </div>
+        <div class="body">
+          <div class="sec-label">Overview</div>
+          <div class="stats-row">
+            <div class="stat"><div class="stat-num">3</div><div class="stat-lbl">Open tasks</div></div>
+            <div class="stat"><div class="stat-num">5</div><div class="stat-lbl">Done this week</div></div>
+          </div>
+          <div class="sec-label" style="margin-top:2px">My tasks</div>
+          <div class="card" style="padding:8px 10px">
+            <div class="task-row">
+              <div class="check"></div>
+              <div class="task-name" style="flex:1">Task CRUD endpoints</div>
+              <span class="badge badge-prog">In progress</span>
+            </div>
+            <div class="task-row">
+              <div class="check"></div>
+              <div class="task-name" style="flex:1">Write ADR-006</div>
+              <span class="badge badge-todo">To do</span>
+            </div>
+            <div class="task-row">
+              <div class="check done"></div>
+              <div class="task-name done" style="flex:1">Setup Docker</div>
+              <span class="badge badge-done">Done</span>
+            </div>
+          </div>
+          <div class="sec-label" style="margin-top:2px">Projects</div>
+          <div class="card" style="padding:8px 10px">
+            <div class="project-row">
+              <div class="project-dot" style="background:var(--primary)"></div>
+              <div class="t2" style="flex:1;font-size:11px">Backend API</div>
+              <span class="badge badge-prog">3 tasks</span>
+            </div>
+            <div class="project-row">
+              <div class="project-dot" style="background:oklch(0.55 0.15 145)"></div>
+              <div class="t2" style="flex:1;font-size:11px">Frontend MVP</div>
+              <span class="badge badge-todo">1 task</span>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab-item">
+            <div class="tab-icon active"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl active">Home</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Tasks</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M7 4V2M13 4V2M3 8h14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Projects</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Settings</div>
+          </div>
+        </div>
+        <div style="height:24px;background:var(--card);display:flex;align-items:center;justify-content:center">
+          <div style="width:80px;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="screen-col">
+      <div class="screen-label">Notifications</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div class="back-row" style="color:var(--primary);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Back
+          </div>
+          <div class="spacer"></div>
+          <div class="t1" style="font-size:13px">Notifications</div>
+          <div class="spacer"></div>
+          <span class="badge badge-new">2 new</span>
+        </div>
+        <div class="body" style="padding:12px;gap:0">
+          <div class="notif-item">
+            <div class="notif-dot"></div>
+            <div style="flex:1">
+              <div class="notif-text">Task assigned to you</div>
+              <div class="notif-meta">Task CRUD · Backend API · 2 min ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot"></div>
+            <div style="flex:1">
+              <div class="notif-text">alice@acme.com accepted your invite</div>
+              <div class="notif-meta">Acme workspace · 1 hour ago</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot-read"></div>
+            <div style="flex:1">
+              <div class="notif-text" style="color:var(--muted-fg)">Auth endpoint marked done</div>
+              <div class="notif-meta">Backend API · Yesterday</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot-read"></div>
+            <div style="flex:1">
+              <div class="notif-text" style="color:var(--muted-fg)">Status changed to In progress</div>
+              <div class="notif-meta">Task CRUD · 2 days ago</div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Home</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Tasks</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M7 4V2M13 4V2M3 8h14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Projects</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Settings</div>
+          </div>
+        </div>
+        <div style="height:24px;background:var(--card);display:flex;align-items:center;justify-content:center">
+          <div style="width:80px;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TASK DETAIL -->
+    <div class="screen-col">
+      <div class="screen-label">Task detail</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Backend API
+          </div>
+          <div class="spacer"></div>
+          <span class="badge badge-prog">In progress</span>
+        </div>
+        <div class="body" style="gap:10px">
+          <div class="t1" style="font-size:14px;line-height:1.3">Task CRUD endpoints</div>
+          <div class="card" style="padding:8px 10px">
+            <div class="detail-row"><span class="detail-key">Status</span><span class="badge badge-prog">In progress</span></div>
+            <div class="detail-row"><span class="detail-key">Assignee</span><div style="display:flex;align-items:center;gap:6px"><div class="member-av" style="width:20px;height:20px;font-size:8px">AJ</div><span class="detail-val">Alex J.</span></div></div>
+            <div class="detail-row"><span class="detail-key">Due date</span><span class="detail-val">May 8</span></div>
+            <div class="detail-row"><span class="detail-key">Project</span><span class="detail-val">Backend API</span></div>
+          </div>
+          <div class="sec-label">Description</div>
+          <div class="card" style="font-size:11px;color:var(--muted-fg);line-height:1.6">
+            Implement create, read, update, and delete endpoints for tasks. Include status transition validation and assignee logic. Must respect workspace data isolation.
+          </div>
+          <button class="submit-btn" style="margin-top:auto">Change status</button>
+        </div>
+        <div class="tabbar">
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Home</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon active"><svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl active">Tasks</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M7 4V2M13 4V2M3 8h14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Projects</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Settings</div>
+          </div>
+        </div>
+        <div style="height:24px;background:var(--card);display:flex;align-items:center;justify-content:center">
+          <div style="width:80px;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="screen-col">
+      <div class="screen-label">Members</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Back
+          </div>
+          <div class="spacer"></div>
+          <div class="t1" style="font-size:13px">Members</div>
+          <div class="spacer"></div>
+          <div style="color:var(--primary);font-size:12px;font-weight:500">Invite</div>
+        </div>
+        <div class="body" style="gap:10px">
+          <div class="sec-label">Acme workspace — 3 members</div>
+          <div class="card" style="padding:8px 10px">
+            <div class="member-row">
+              <div class="member-av">AJ</div>
+              <div style="flex:1"><div class="t2" style="font-size:11px;font-weight:500;color:var(--foreground)">Alex Johnson</div><div class="t3">alex@acme.com</div></div>
+              <span class="badge-role badge-owner">Owner</span>
+            </div>
+            <div class="member-row">
+              <div class="member-av" style="background:oklch(0.55 0.15 145/.15);border-color:oklch(0.55 0.15 145/.3);color:oklch(0.35 0.12 145)">ML</div>
+              <div style="flex:1"><div class="t2" style="font-size:11px;font-weight:500;color:var(--foreground)">Marie L.</div><div class="t3">marie@acme.com</div></div>
+              <span class="badge-role badge-member">Member</span>
+            </div>
+            <div class="member-row">
+              <div class="member-av" style="background:oklch(0.6 0.15 55/.15);border-color:oklch(0.6 0.15 55/.3);color:oklch(0.45 0.12 55)">BK</div>
+              <div style="flex:1"><div class="t2" style="font-size:11px;font-weight:500;color:var(--foreground)">Bob K.</div><div class="t3">bob@client.com</div></div>
+              <span class="badge-role badge-guest">Guest</span>
+            </div>
+          </div>
+          <div class="sec-label" style="margin-top:2px">Pending invitations</div>
+          <div class="card" style="padding:8px 10px">
+            <div class="member-row">
+              <div class="member-av" style="background:var(--muted);border-color:var(--border);color:var(--muted-fg)">?</div>
+              <div style="flex:1"><div class="t3">alice@acme.com</div><div class="t3">Expires in 5 days</div></div>
+              <span class="badge badge-todo">Pending</span>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Home</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Tasks</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M7 4V2M13 4V2M3 8h14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Projects</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon active"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl active">Settings</div>
+          </div>
+        </div>
+        <div style="height:24px;background:var(--card);display:flex;align-items:center;justify-content:center">
+          <div style="width:80px;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
