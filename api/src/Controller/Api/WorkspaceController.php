@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class WorkspaceController extends AbstractController
 {
@@ -65,13 +66,12 @@ final class WorkspaceController extends AbstractController
         name: 'api_workspace_show',
         methods: Request::METHOD_GET,
     )]
+    #[IsGranted(WorkspaceVoter::VIEW, subject: 'workspace')]
     public function show(
         Workspace $workspace,
         #[CurrentUser] User $user,
         UserWorkspaceRepository $userWorkspaceRepository,
     ): JsonResponse {
-        $this->denyAccessUnlessGranted(WorkspaceVoter::VIEW, $workspace);
-
         $role = $userWorkspaceRepository->findRoleByUserAndWorkspace($user, $workspace);
         assert($role !== null);
 
@@ -85,13 +85,12 @@ final class WorkspaceController extends AbstractController
         name: 'api_workspace_update',
         methods: Request::METHOD_PATCH,
     )]
+    #[IsGranted(WorkspaceVoter::EDIT, subject: 'workspace')]
     public function update(
         Workspace $workspace,
         #[MapRequestPayload] CreateWorkspaceDTO $dto,
         WorkspaceService $service,
     ): JsonResponse {
-        $this->denyAccessUnlessGranted(WorkspaceVoter::EDIT, $workspace);
-
         $service->rename($workspace, $dto->name);
 
         return $this->json(
@@ -104,12 +103,11 @@ final class WorkspaceController extends AbstractController
         name: 'api_workspace_delete',
         methods: Request::METHOD_DELETE,
     )]
+    #[IsGranted(WorkspaceVoter::DELETE, subject: 'workspace')]
     public function delete(
         Workspace $workspace,
         WorkspaceService $service,
     ): Response {
-        $this->denyAccessUnlessGranted(WorkspaceVoter::DELETE, $workspace);
-
         $service->delete($workspace);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
