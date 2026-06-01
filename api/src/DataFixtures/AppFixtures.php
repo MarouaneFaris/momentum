@@ -16,9 +16,9 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $alice = $this->makeUser('alice@example.com', 'password123!', $manager);
-        $bob = $this->makeUser('bob@example.com', 'password123!', $manager);
-        $this->makeUser('charlie@example.com', 'password123!', $manager);
+        $alice = $this->makeUser('alice@example.com', 'password123!', 'Alice Martin', $manager);
+        $bob = $this->makeUser('bob@example.com', 'password123!', 'Bob Johnson', $manager);
+        $this->makeUser('charlie@example.com', 'password123!', 'Charlie Brown', $manager);
 
         $aliceWs = $this->makeWorkspace("Alice's Workspace", $alice, $manager);
         $bobWs = $this->makeWorkspace("Bob's Workspace", $bob, $manager);
@@ -30,10 +30,11 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    private function makeUser(string $email, string $plainPassword, ObjectManager $manager): User
+    private function makeUser(string $email, string $plainPassword, string $name, ObjectManager $manager): User
     {
         $user = new User();
         $user->setEmail($email);
+        $user->setName($name);
         $user->setPassword($this->hasher->hashPassword($user, $plainPassword));
         $manager->persist($user);
 
