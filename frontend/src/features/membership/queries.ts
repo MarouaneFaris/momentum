@@ -1,9 +1,10 @@
 import api from '@/lib/api'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useSettledQuery } from '@/lib/useSettledQuery'
+import { useMutation } from '@tanstack/react-query'
 import type { InvitationInviteeView, InvitationOwnerView, InvitationRole, Member } from './types'
 
 export const useWorkspaceInvitations = (workspaceId: string) =>
-    useQuery({
+    useSettledQuery({
         queryKey: ['workspaces', workspaceId, 'invitations'],
         queryFn: () => api.get<InvitationOwnerView[]>(`/workspaces/${workspaceId}/invitations`),
     })
@@ -21,7 +22,7 @@ export const useCancelInvitation = (workspaceId: string) =>
     })
 
 export const useWorkspaceMembers = (workspaceId: string) =>
-    useQuery({
+    useSettledQuery({
         queryKey: ['workspaces', workspaceId, 'members'],
         queryFn: () => api.get<Member[]>(`/workspaces/${workspaceId}/members`),
     })
@@ -44,7 +45,7 @@ export const useLeaveWorkspace = (workspaceId: string) =>
     })
 
 export const useMyInvitations = () =>
-    useQuery({
+    useSettledQuery({
         queryKey: ['invitations'],
         queryFn: () => api.get<InvitationInviteeView[]>('/invitations'),
     })
