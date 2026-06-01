@@ -6,16 +6,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import ApiError from '@/lib/ApiError'
-import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router'
-import { toast } from 'sonner'
-import {
-    useChangeMemberRole,
-    useLeaveWorkspace,
-    useRemoveMember,
-    useWorkspaceMembers,
-} from '../queries'
+import { useMemberList } from '../hooks/useMemberList'
 
 type Props = {
     workspaceId: string
@@ -24,12 +15,16 @@ type Props = {
 }
 
 export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
-    const { data: members, isLoading } = useWorkspaceMembers(workspaceId)
-    const { mutate: changeRole, isPending: isChanging } = useChangeMemberRole(workspaceId)
-    const { mutate: removeMember, isPending: isRemoving } = useRemoveMember(workspaceId)
-    const { mutate: leave, isPending: isLeaving } = useLeaveWorkspace(workspaceId)
-    const queryClient = useQueryClient()
-    const navigate = useNavigate()
+    const {
+        members,
+        isLoading,
+        isChanging,
+        isRemoving,
+        isLeaving,
+        handleRoleChange,
+        handleRemove,
+        handleLeave,
+    } = useMemberList(workspaceId)
 
     if (isLoading) return <p className="text-sm text-muted-foreground">Loading members…</p>
 
@@ -60,26 +55,7 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                                     <Select
                                         value={member.role}
                                         disabled={isChanging}
-                                        onValueChange={(role) =>
-                                            changeRole(
-                                                { userId: member.id, role },
-                                                {
-                                                    onSuccess: () => {
-                                                        void queryClient.invalidateQueries({
-                                                            queryKey: [
-                                                                'workspaces',
-                                                                workspaceId,
-                                                                'members',
-                                                            ],
-                                                        })
-                                                    },
-                                                    onError: (err) => {
-                                                        if (err instanceof ApiError)
-                                                            toast.error(err.message)
-                                                    },
-                                                },
-                                            )
-                                        }
+                                        onValueChange={(role) => handleRoleChange(member.id, role)}
                                     >
                                         <SelectTrigger size="sm" className="w-28">
                                             <SelectValue />
@@ -93,24 +69,7 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                                         variant="ghost"
                                         size="sm"
                                         disabled={isRemoving}
-                                        onClick={() =>
-                                            removeMember(member.id, {
-                                                onSuccess: () => {
-                                                    void queryClient.invalidateQueries({
-                                                        queryKey: [
-                                                            'workspaces',
-                                                            workspaceId,
-                                                            'members',
-                                                        ],
-                                                    })
-                                                    toast.success('Member removed')
-                                                },
-                                                onError: (err) => {
-                                                    if (err instanceof ApiError)
-                                                        toast.error(err.message)
-                                                },
-                                            })
-                                        }
+                                        onClick={() => handleRemove(member.id)}
                                     >
                                         Remove
                                     </Button>
@@ -121,21 +80,7 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                                     variant="outline"
                                     size="sm"
                                     disabled={isLeaving}
-                                    onClick={() =>
-                                        leave(undefined, {
-                                            onSuccess: () => {
-                                                void queryClient.invalidateQueries({
-                                                    queryKey: ['workspaces'],
-                                                })
-                                                toast.success('Left workspace')
-                                                void navigate('/')
-                                            },
-                                            onError: (err) => {
-                                                if (err instanceof ApiError)
-                                                    toast.error(err.message)
-                                            },
-                                        })
-                                    }
+                                    onClick={handleLeave}
                                 >
                                     Leave
                                 </Button>

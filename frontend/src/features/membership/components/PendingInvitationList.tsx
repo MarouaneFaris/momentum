@@ -1,16 +1,13 @@
 import { Button } from '@/components/ui/button'
-import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { useCancelInvitation, useWorkspaceInvitations } from '../queries'
+import { usePendingInvitationList } from '../hooks/usePendingInvitationList'
 
 type Props = {
     workspaceId: string
 }
 
 export function PendingInvitationList({ workspaceId }: Props) {
-    const { data: invitations, isLoading } = useWorkspaceInvitations(workspaceId)
-    const { mutate: cancel, isPending } = useCancelInvitation(workspaceId)
-    const queryClient = useQueryClient()
+    const { invitations, isLoading, isPending, handleCancel } =
+        usePendingInvitationList(workspaceId)
 
     if (isLoading) return <p className="text-sm text-muted-foreground">Loading invitations…</p>
 
@@ -35,16 +32,7 @@ export function PendingInvitationList({ workspaceId }: Props) {
                         variant="ghost"
                         size="sm"
                         disabled={isPending}
-                        onClick={() =>
-                            cancel(inv.id, {
-                                onSuccess: () => {
-                                    void queryClient.invalidateQueries({
-                                        queryKey: ['workspaces', workspaceId, 'invitations'],
-                                    })
-                                    toast.success('Invitation cancelled')
-                                },
-                            })
-                        }
+                        onClick={() => handleCancel(inv.id)}
                     >
                         Cancel
                     </Button>

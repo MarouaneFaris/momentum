@@ -1,14 +1,9 @@
 import { Button } from '@/components/ui/button'
-import ApiError from '@/lib/ApiError'
-import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { useAcceptInvitation, useDeclineInvitation, useMyInvitations } from '../queries'
+import { useInvitationActions } from '../hooks/useInvitationActions'
 
 export function InvitationsPage() {
-    const { data: invitations, isLoading } = useMyInvitations()
-    const { mutate: accept, isPending: isAccepting } = useAcceptInvitation()
-    const { mutate: decline, isPending: isDeclining } = useDeclineInvitation()
-    const queryClient = useQueryClient()
+    const { invitations, isLoading, isAccepting, isDeclining, handleAccept, handleDecline } =
+        useInvitationActions()
 
     if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>
 
@@ -36,22 +31,7 @@ export function InvitationsPage() {
                         <Button
                             size="sm"
                             disabled={isAccepting || isDeclining}
-                            onClick={() =>
-                                accept(inv.id, {
-                                    onSuccess: () => {
-                                        void queryClient.invalidateQueries({
-                                            queryKey: ['invitations'],
-                                        })
-                                        void queryClient.invalidateQueries({
-                                            queryKey: ['workspaces'],
-                                        })
-                                        toast.success('Joined workspace')
-                                    },
-                                    onError: (err) => {
-                                        if (err instanceof ApiError) toast.error(err.message)
-                                    },
-                                })
-                            }
+                            onClick={() => handleAccept(inv.id)}
                         >
                             Accept
                         </Button>
@@ -59,16 +39,7 @@ export function InvitationsPage() {
                             variant="outline"
                             size="sm"
                             disabled={isAccepting || isDeclining}
-                            onClick={() =>
-                                decline(inv.id, {
-                                    onSuccess: () => {
-                                        void queryClient.invalidateQueries({
-                                            queryKey: ['invitations'],
-                                        })
-                                        toast.info('Invitation declined')
-                                    },
-                                })
-                            }
+                            onClick={() => handleDecline(inv.id)}
                         >
                             Decline
                         </Button>
