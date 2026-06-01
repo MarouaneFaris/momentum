@@ -65,41 +65,39 @@ export default function AppLayout() {
                         <Mail className="h-4 w-4 flex-shrink-0" />
                         Invitations
                     </NavLink>
-                    <div className="mt-auto">
-                        <p className="px-2 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-                            Workspace
-                        </p>
-                        {workspaceId && (
-                            <>
-                                <NavLink
-                                    to={`/workspaces/${workspaceId}/members`}
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                            isActive
-                                                ? 'bg-primary/10 font-medium text-primary'
-                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                        }`
-                                    }
-                                >
-                                    <Users className="h-4 w-4 flex-shrink-0" />
-                                    Members
-                                </NavLink>
-                                <NavLink
-                                    to={`/workspaces/${workspaceId}/settings`}
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                            isActive
-                                                ? 'bg-primary/10 font-medium text-primary'
-                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                        }`
-                                    }
-                                >
-                                    <Settings className="h-4 w-4 flex-shrink-0" />
-                                    Settings
-                                </NavLink>
-                            </>
-                        )}
-                    </div>
+                    {workspaceId && (
+                        <div className="mt-auto">
+                            <p className="px-2 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                                Workspace
+                            </p>
+                            <NavLink
+                                to={`/workspaces/${workspaceId}/members`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 font-medium text-primary'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <Users className="h-4 w-4 flex-shrink-0" />
+                                Members
+                            </NavLink>
+                            <NavLink
+                                to={`/workspaces/${workspaceId}/settings`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 font-medium text-primary'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <Settings className="h-4 w-4 flex-shrink-0" />
+                                Settings
+                            </NavLink>
+                        </div>
+                    )}
                 </aside>
                 <main className="flex-1 overflow-auto bg-background p-8">
                     <Outlet />
