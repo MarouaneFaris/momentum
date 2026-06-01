@@ -117,7 +117,7 @@ migrate-db: sf
 load-fixtures: c=doctrine:fixtures:load --no-interaction ## Load dev fixtures
 load-fixtures: sf
 
-reset-db: ## Drop database, then re-create it, then run migrations
+reset-db: ## Drop database, re-create it, run migrations, and load fixtures
 	@$(MAKE) drop-db
 	@$(MAKE) create-db
 	@$(MAKE) migrate-db
@@ -191,5 +191,6 @@ dev-certs: ## Generate trusted local HTTPS certs with mkcert (run once, requires
 install: dev-certs rebuild ## Install the whole project for the first time
 	@$(DOCKER_COMP) down --remove-orphans
 	@$(DOCKER_COMP) up --detach --wait
+	@$(MAKE) vendor
 	@$(MAKE) reset-dbs
 	@$(MAKE) install-hooks
