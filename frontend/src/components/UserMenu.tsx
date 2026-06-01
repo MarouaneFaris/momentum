@@ -9,7 +9,14 @@ import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useLogoutAction } from '@/features/auth/hooks/useLogoutAction'
 import { useContext } from 'react'
 
-function getInitials(email?: string | null): string {
+function getInitials(name?: string | null, email?: string | null): string {
+    if (name) {
+        const parts = name.trim().split(/\s+/)
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        }
+        return name.slice(0, 2).toUpperCase()
+    }
     if (!email) return 'U'
     const local = email.split('@')[0]
     return local.slice(0, 2).toUpperCase()
@@ -18,7 +25,7 @@ function getInitials(email?: string | null): string {
 export function UserMenu() {
     const { user } = useContext(AuthContext)
     const { handleOnLogout } = useLogoutAction()
-    const initials = getInitials(user?.email)
+    const initials = getInitials(user?.name, user?.email)
 
     return (
         <DropdownMenu>
