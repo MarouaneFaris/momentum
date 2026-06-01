@@ -10,11 +10,11 @@ vi.mock('@/features/auth/hooks/useLogoutAction', () => ({
 }))
 
 const makeWrapper =
-    (email: string | null = 'john.doe@example.com') =>
+    (email: string | null = 'john.doe@example.com', name: string = '') =>
     ({ children }: { children: React.ReactNode }) => (
         <AuthContext.Provider
             value={{
-                user: email ? { id: 1, email } : null,
+                user: email ? { id: 1, email, name } : null,
                 isLoading: false,
                 isAuthenticated: email !== null,
             }}
@@ -28,8 +28,18 @@ describe('UserMenu', () => {
         mockLogout.mockClear()
     })
 
-    it('renders avatar button with correct initials from user email', () => {
-        render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com') })
+    it('derives initials from full name', () => {
+        render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com', 'John Doe') })
+        expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('JD')
+    })
+
+    it('derives initials from single-word name', () => {
+        render(<UserMenu />, { wrapper: makeWrapper('alice@example.com', 'Alice') })
+        expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('AL')
+    })
+
+    it('falls back to email initials when name is empty', () => {
+        render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com', '') })
         expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('JO')
     })
 
@@ -38,8 +48,8 @@ describe('UserMenu', () => {
         expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('U')
     })
 
-    it('derives initials from different email formats', () => {
-        render(<UserMenu />, { wrapper: makeWrapper('ab@example.com') })
+    it('derives initials from different email formats when no name', () => {
+        render(<UserMenu />, { wrapper: makeWrapper('ab@example.com', '') })
         expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('AB')
     })
 

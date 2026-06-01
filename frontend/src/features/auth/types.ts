@@ -8,6 +8,7 @@ export type RegisterPayload = LoginPayload & { name: string }
 export type LoginResponse = {
     id: number
     email: string
+    name: string
 }
 
 export type AuthResponse = LoginResponse
