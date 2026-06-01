@@ -4,7 +4,8 @@ import { useWorkspaces } from '../queries'
 import { workspaceStorage } from '../workspaceStorage'
 
 export const useWorkspaceSwitcher = () => {
-    const { id: currentId } = useParams<{ id: string }>()
+    const { id: currentIdFromParams } = useParams<{ id: string }>()
+    const currentId = currentIdFromParams ?? workspaceStorage.read() ?? undefined
     const { data: workspaces } = useWorkspaces()
     const navigate = useNavigate()
     const [isModalOpen, setIsModalOpen] = useState(false)

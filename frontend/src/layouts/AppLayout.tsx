@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
+import { workspaceStorage } from '@/features/workspace/workspaceStorage'
 import { Bell, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet, useParams } from 'react-router'
 
 export default function AppLayout() {
     const auth = useContext(AuthContext)
-    const { id: workspaceId } = useParams<{ id: string }>()
+    const { id: workspaceIdFromParams } = useParams<{ id: string }>()
+    const workspaceId = workspaceIdFromParams ?? workspaceStorage.read() ?? undefined
 
     if (auth.isLoading) return null
     if (!auth.isAuthenticated) return <Navigate to="/login" />
