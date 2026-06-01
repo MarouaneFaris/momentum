@@ -68,7 +68,11 @@ export default function AppLayout() {
                     >
                         <Mail className="h-4 w-4 flex-shrink-0" />
                         Invitations
-                        {pendingCount > 0 && <Badge className="ml-auto">{pendingCount}</Badge>}
+                        {pendingCount > 0 && (
+                            <Badge className="ml-auto h-4 min-w-4 px-1 text-[10px]">
+                                {pendingCount}
+                            </Badge>
+                        )}
                     </NavLink>
                     {workspaceId && (
                         <div className="mt-auto">
