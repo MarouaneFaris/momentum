@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate } from 'react-router'
 import { useWorkspaces } from '../queries'
 import { workspaceStorage } from '../workspaceStorage'
+import { useActiveWorkspaceId } from './useActiveWorkspaceId'
 
 export const useWorkspaceSwitcher = () => {
-    const { id: currentIdFromParams } = useParams<{ id: string }>()
-    const currentId = currentIdFromParams ?? workspaceStorage.read() ?? undefined
+    const currentId = useActiveWorkspaceId()
     const { data: workspaces } = useWorkspaces()
     const navigate = useNavigate()
     const [isModalOpen, setIsModalOpen] = useState(false)
