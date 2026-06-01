@@ -1,5 +1,6 @@
 import { MomentumLogo } from '@/components/MomentumLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
@@ -67,11 +68,7 @@ export default function AppLayout() {
                     >
                         <Mail className="h-4 w-4 flex-shrink-0" />
                         Invitations
-                        {pendingCount > 0 && (
-                            <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
-                                {pendingCount}
-                            </span>
-                        )}
+                        {pendingCount > 0 && <Badge className="ml-auto">{pendingCount}</Badge>}
                     </NavLink>
                     {workspaceId && (
                         <div className="mt-auto">
