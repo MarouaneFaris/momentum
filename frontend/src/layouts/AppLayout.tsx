@@ -1,8 +1,10 @@
 import { MomentumLogo } from '@/components/MomentumLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
+import { useMyInvitations } from '@/features/membership/queries'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
 import { Bell, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
@@ -12,6 +14,8 @@ import { NavLink, Navigate, Outlet } from 'react-router'
 export default function AppLayout() {
     const auth = useContext(AuthContext)
     const workspaceId = useActiveWorkspaceId()
+    const { data: invitations } = useMyInvitations()
+    const pendingCount = invitations?.length ?? 0
 
     if (auth.isLoading) return null
     if (!auth.isAuthenticated) return <Navigate to="/login" />
@@ -64,6 +68,11 @@ export default function AppLayout() {
                     >
                         <Mail className="h-4 w-4 flex-shrink-0" />
                         Invitations
+                        {pendingCount > 0 && (
+                            <Badge className="ml-auto h-4 min-w-4 px-2 text-[10px]">
+                                {pendingCount}
+                            </Badge>
+                        )}
                     </NavLink>
                     {workspaceId && (
                         <div className="mt-auto">
