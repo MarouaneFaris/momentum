@@ -18,7 +18,7 @@ final class AcceptInvitationController extends AbstractController
     #[Route(
         path: '/api/invitations/{id}/accept',
         name: 'api_invitation_accept',
-        methods: Request::METHOD_POST,
+        methods: Request::METHOD_PUT,
     )]
     public function __invoke(
         WorkspaceInvitation $invitation,

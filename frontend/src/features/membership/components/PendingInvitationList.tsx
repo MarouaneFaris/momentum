@@ -1,14 +1,13 @@
 import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
-import { useCancelInvitation, useWorkspaceInvitations } from '../queries'
+import { usePendingInvitationList } from '../hooks/usePendingInvitationList'
 
 type Props = {
     workspaceId: string
 }
 
 export function PendingInvitationList({ workspaceId }: Props) {
-    const { data: invitations, isLoading } = useWorkspaceInvitations(workspaceId)
-    const { mutate: cancel, isPending } = useCancelInvitation(workspaceId)
+    const { invitations, isLoading, isPending, handleCancel } =
+        usePendingInvitationList(workspaceId)
 
     if (isLoading) return <p className="text-sm text-muted-foreground">Loading invitations…</p>
 
@@ -33,11 +32,7 @@ export function PendingInvitationList({ workspaceId }: Props) {
                         variant="ghost"
                         size="sm"
                         disabled={isPending}
-                        onClick={() =>
-                            cancel(inv.id, {
-                                onSuccess: () => toast.success('Invitation cancelled'),
-                            })
-                        }
+                        onClick={() => handleCancel(inv.id)}
                     >
                         Cancel
                     </Button>

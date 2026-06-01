@@ -1,5 +1,5 @@
 import api from '@/lib/api'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type { InvitationInviteeView, InvitationOwnerView, InvitationRole, Member } from './types'
 
 export const useWorkspaceInvitations = (workspaceId: string) =>
@@ -8,31 +8,17 @@ export const useWorkspaceInvitations = (workspaceId: string) =>
         queryFn: () => api.get<InvitationOwnerView[]>(`/workspaces/${workspaceId}/invitations`),
     })
 
-export const useCreateInvitation = (workspaceId: string) => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useCreateInvitation = (workspaceId: string) =>
+    useMutation({
         mutationFn: (data: { email: string; role: InvitationRole }) =>
             api.post<InvitationOwnerView>(`/workspaces/${workspaceId}/invitations`, data),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: ['workspaces', workspaceId, 'invitations'],
-            })
-        },
     })
-}
 
-export const useCancelInvitation = (workspaceId: string) => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useCancelInvitation = (workspaceId: string) =>
+    useMutation({
         mutationFn: (invitationId: string) =>
             api.delete<null>(`/workspaces/${workspaceId}/invitations/${invitationId}`),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: ['workspaces', workspaceId, 'invitations'],
-            })
-        },
     })
-}
 
 export const useWorkspaceMembers = (workspaceId: string) =>
     useQuery({
@@ -40,41 +26,22 @@ export const useWorkspaceMembers = (workspaceId: string) =>
         queryFn: () => api.get<Member[]>(`/workspaces/${workspaceId}/members`),
     })
 
-export const useChangeMemberRole = (workspaceId: string) => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useChangeMemberRole = (workspaceId: string) =>
+    useMutation({
         mutationFn: ({ userId, role }: { userId: string; role: string }) =>
             api.patch<Member>(`/workspaces/${workspaceId}/members/${userId}`, { role }),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: ['workspaces', workspaceId, 'members'],
-            })
-        },
     })
-}
 
-export const useRemoveMember = (workspaceId: string) => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useRemoveMember = (workspaceId: string) =>
+    useMutation({
         mutationFn: (userId: string) =>
             api.delete<null>(`/workspaces/${workspaceId}/members/${userId}`),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: ['workspaces', workspaceId, 'members'],
-            })
-        },
     })
-}
 
-export const useLeaveWorkspace = (workspaceId: string) => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useLeaveWorkspace = (workspaceId: string) =>
+    useMutation({
         mutationFn: () => api.delete<null>(`/workspaces/${workspaceId}/members/me`),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-        },
     })
-}
 
 export const useMyInvitations = () =>
     useQuery({
@@ -82,24 +49,13 @@ export const useMyInvitations = () =>
         queryFn: () => api.get<InvitationInviteeView[]>('/invitations'),
     })
 
-export const useAcceptInvitation = () => {
-    const queryClient = useQueryClient()
-    return useMutation({
-        mutationFn: (invitationId: string) => api.post<null>(`/invitations/${invitationId}/accept`),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({ queryKey: ['invitations'] })
-            void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-        },
+export const useAcceptInvitation = () =>
+    useMutation({
+        mutationFn: (invitationId: string) => api.put<null>(`/invitations/${invitationId}/accept`),
     })
-}
 
-export const useDeclineInvitation = () => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useDeclineInvitation = () =>
+    useMutation({
         mutationFn: (invitationId: string) =>
-            api.post<null>(`/invitations/${invitationId}/decline`),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({ queryKey: ['invitations'] })
-        },
+            api.delete<null>(`/invitations/${invitationId}/decline`),
     })
-}

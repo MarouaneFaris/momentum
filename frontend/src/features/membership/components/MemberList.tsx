@@ -1,13 +1,12 @@
 import { Button } from '@/components/ui/button'
-import ApiError from '@/lib/ApiError'
-import { useNavigate } from 'react-router'
-import { toast } from 'sonner'
 import {
-    useChangeMemberRole,
-    useLeaveWorkspace,
-    useRemoveMember,
-    useWorkspaceMembers,
-} from '../queries'
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+import { useMemberList } from '../hooks/useMemberList'
 
 type Props = {
     workspaceId: string
@@ -16,11 +15,16 @@ type Props = {
 }
 
 export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
-    const { data: members, isLoading } = useWorkspaceMembers(workspaceId)
-    const { mutate: changeRole, isPending: isChanging } = useChangeMemberRole(workspaceId)
-    const { mutate: removeMember, isPending: isRemoving } = useRemoveMember(workspaceId)
-    const { mutate: leave, isPending: isLeaving } = useLeaveWorkspace(workspaceId)
-    const navigate = useNavigate()
+    const {
+        members,
+        isLoading,
+        isChanging,
+        isRemoving,
+        isLeaving,
+        handleRoleChange,
+        handleRemove,
+        handleLeave,
+    } = useMemberList(workspaceId)
 
     if (isLoading) return <p className="text-sm text-muted-foreground">Loading members…</p>
 
@@ -48,38 +52,24 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                         <div className="flex gap-2">
                             {canManage && (
                                 <>
-                                    <select
-                                        className="h-7 rounded border border-input bg-background px-2 text-xs"
+                                    <Select
                                         value={member.role}
                                         disabled={isChanging}
-                                        onChange={(e) =>
-                                            changeRole(
-                                                { userId: member.id, role: e.target.value },
-                                                {
-                                                    onError: (err) => {
-                                                        if (err instanceof ApiError)
-                                                            toast.error(err.message)
-                                                    },
-                                                },
-                                            )
-                                        }
+                                        onValueChange={(role) => handleRoleChange(member.id, role)}
                                     >
-                                        <option value="member">Member</option>
-                                        <option value="guest">Guest</option>
-                                    </select>
+                                        <SelectTrigger size="sm" className="w-28">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="member">Member</SelectItem>
+                                            <SelectItem value="guest">Guest</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         disabled={isRemoving}
-                                        onClick={() =>
-                                            removeMember(member.id, {
-                                                onSuccess: () => toast.success('Member removed'),
-                                                onError: (err) => {
-                                                    if (err instanceof ApiError)
-                                                        toast.error(err.message)
-                                                },
-                                            })
-                                        }
+                                        onClick={() => handleRemove(member.id)}
                                     >
                                         Remove
                                     </Button>
@@ -90,18 +80,7 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                                     variant="outline"
                                     size="sm"
                                     disabled={isLeaving}
-                                    onClick={() =>
-                                        leave(undefined, {
-                                            onSuccess: () => {
-                                                toast.success('Left workspace')
-                                                void navigate('/')
-                                            },
-                                            onError: (err) => {
-                                                if (err instanceof ApiError)
-                                                    toast.error(err.message)
-                                            },
-                                        })
-                                    }
+                                    onClick={handleLeave}
                                 >
                                     Leave
                                 </Button>

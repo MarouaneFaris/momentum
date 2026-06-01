@@ -18,7 +18,7 @@ final class DeclineInvitationController extends AbstractController
     #[Route(
         path: '/api/invitations/{id}/decline',
         name: 'api_invitation_decline',
-        methods: Request::METHOD_POST,
+        methods: Request::METHOD_DELETE,
     )]
     public function __invoke(
         WorkspaceInvitation $invitation,
