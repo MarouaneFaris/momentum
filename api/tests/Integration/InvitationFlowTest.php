@@ -279,14 +279,14 @@ final class InvitationFlowTest extends WebTestCase
         self::assertArrayHasKey('invitedBy', $data[0]);
     }
 
-    // — POST /api/invitations/{id}/accept —————————————————————————————————————
+    // — PUT /api/invitations/{id}/accept ——————————————————————————————————————
 
     public function testAcceptInvitationReturns401WhenUnauthenticated(): void
     {
         $client = static::createClient();
         $invitation = WorkspaceInvitationFactory::createOne();
 
-        $client->request('POST', '/api/invitations/' . $invitation->getId() . '/accept');
+        $client->request('PUT', '/api/invitations/' . $invitation->getId() . '/accept');
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
@@ -300,7 +300,7 @@ final class InvitationFlowTest extends WebTestCase
         ]);
 
         $this->loginAs($client);
-        $client->request('POST', '/api/invitations/' . $invitation->getId() . '/accept');
+        $client->request('PUT', '/api/invitations/' . $invitation->getId() . '/accept');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -315,7 +315,7 @@ final class InvitationFlowTest extends WebTestCase
         ]);
 
         $this->loginAs($client);
-        $client->request('POST', '/api/invitations/' . $invitation->getId() . '/accept');
+        $client->request('PUT', '/api/invitations/' . $invitation->getId() . '/accept');
 
         self::assertResponseStatusCodeSame(Response::HTTP_GONE);
     }
@@ -330,19 +330,19 @@ final class InvitationFlowTest extends WebTestCase
         ]);
 
         $this->loginAs($client);
-        $client->request('POST', '/api/invitations/' . $invitation->getId() . '/accept');
+        $client->request('PUT', '/api/invitations/' . $invitation->getId() . '/accept');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
 
-    // — POST /api/invitations/{id}/decline ————————————————————————————————————
+    // — DELETE /api/invitations/{id}/decline ——————————————————————————————————
 
     public function testDeclineInvitationReturns401WhenUnauthenticated(): void
     {
         $client = static::createClient();
         $invitation = WorkspaceInvitationFactory::createOne();
 
-        $client->request('POST', '/api/invitations/' . $invitation->getId() . '/decline');
+        $client->request('DELETE', '/api/invitations/' . $invitation->getId() . '/decline');
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
@@ -354,7 +354,7 @@ final class InvitationFlowTest extends WebTestCase
         $invitation = WorkspaceInvitationFactory::createOne();
 
         $this->loginAs($client);
-        $client->request('POST', '/api/invitations/' . $invitation->getId() . '/decline');
+        $client->request('DELETE', '/api/invitations/' . $invitation->getId() . '/decline');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
@@ -369,7 +369,7 @@ final class InvitationFlowTest extends WebTestCase
         ]);
 
         $this->loginAs($client);
-        $client->request('POST', '/api/invitations/' . $invitation->getId() . '/decline');
+        $client->request('DELETE', '/api/invitations/' . $invitation->getId() . '/decline');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
     }
