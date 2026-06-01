@@ -49,6 +49,25 @@ src/
 - Use `it` over `test` (enforced by ESLint)
 - Run: `make front-test` · `npm run test:run` (CI / one-shot) · `npm test` (watch mode)
 
+## Data fetching
+
+All data-fetching queries **must** use `useSettledQuery` from `src/lib/useSettledQuery.ts` instead of `useQuery` directly. By default it gates on `isAuthenticated`, so no query fires before identity is confirmed and no request leaks when the user is logged out.
+
+```typescript
+import { useSettledQuery } from '@/lib/useSettledQuery'
+
+// default: fires only when authenticated
+export const useFoo = () =>
+    useSettledQuery({ queryKey: ['foo'], queryFn: () => api.get('/foo') })
+
+// requireAuth: false — fires once /api/me has settled, regardless of auth state
+// Use only for queries that must work for unauthenticated users (e.g. dev tooling)
+export const usePublicFoo = () =>
+    useSettledQuery({ queryKey: ['foo'], queryFn: () => api.get('/foo'), requireAuth: false })
+```
+
+The sole exception is `useAuth` in `features/auth/queries.ts` — it uses raw `useQuery` because it is the auth driver itself and cannot gate on its own result.
+
 ## Workspace-scoped API calls
 
 All workspace-scoped API calls **must** use `useWorkspaceApi()` from `src/lib/useWorkspaceApi.ts`. The hook reads `workspaceId` from the URL params and returns pre-bound API methods that prepend `/workspaces/{id}` to every path. It throws if called outside a `/workspaces/:id/` route.

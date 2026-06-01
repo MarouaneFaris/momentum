@@ -5,14 +5,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useDevLoginAction } from '@/features/dev/hooks/useDevLoginAction'
 import { useDevUsers } from '@/features/dev/queries'
-import { useContext } from 'react'
 
 export default function DevLoginPanel() {
-    const { isLoading } = useContext(AuthContext)
-    const { data } = useDevUsers(!isLoading)
+    const { data } = useDevUsers()
     const users = data ?? []
     const { handleLoginAs } = useDevLoginAction()
 
