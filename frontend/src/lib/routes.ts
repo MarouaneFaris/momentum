@@ -9,4 +9,6 @@ export const ROUTES = {
 export type ApiRoute =
     | (typeof ROUTES)[keyof typeof ROUTES]
     | `/workspaces/${string}`
+    | '/invitations'
+    | `/invitations/${string}`
     | `/dev/${string}`
