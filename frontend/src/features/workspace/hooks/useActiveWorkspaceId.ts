@@ -8,7 +8,10 @@ export const useActiveWorkspaceId = (): string | undefined => {
     const { data: workspaces } = useWorkspaces()
 
     const stored = workspaceStorage.read() ?? undefined
-    const resolved = id ?? stored ?? workspaces?.[0]?.id
+    // Treat stored as valid only while workspaces are loading or stored ID is in the list.
+    // This evicts a stale ID left by a previous user (e.g. after dev login switch).
+    const storedIsValid = workspaces === undefined || workspaces.some((w) => w.id === stored)
+    const resolved = id ?? (storedIsValid ? stored : undefined) ?? workspaces?.[0]?.id
 
     useEffect(() => {
         if (resolved && resolved !== stored) {
