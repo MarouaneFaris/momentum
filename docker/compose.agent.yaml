@@ -50,6 +50,8 @@ services:
         required: true
       - path: ../.env.local
         required: false
+    environment:
+      VITE_API_URL: https://localhost:8843/api
     volumes:
       - ../../momentum-agent/frontend:/app
       - ./certs:/certs:ro
