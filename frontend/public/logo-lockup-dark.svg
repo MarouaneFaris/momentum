@@ -1,16 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 60" width="420" height="60" role="img">
-  <title>Momentum — full lockup (dark)</title>
-  <desc>Momentum logo dark variant: three stacked parallelogram stripes followed by the wordmark in Inter</desc>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap');
-    text { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-  </style>
+  <title>Momentum</title>
   <g transform="translate(2, 6) skewX(-12)">
     <rect x="0" y="0"  width="38" height="10" rx="2" fill="#6d63f5" opacity="0.25"/>
     <rect x="0" y="15" width="38" height="10" rx="2" fill="#6d63f5" opacity="0.55"/>
     <rect x="0" y="30" width="38" height="10" rx="2" fill="#6d63f5" opacity="1"/>
   </g>
-  <text x="56" y="44" font-size="42" font-weight="600" letter-spacing="-2" fill="#fafafa">
+  <text x="56" y="44" font-size="42" font-weight="600" letter-spacing="-2" fill="#fafafa" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
     <tspan fill="#6d63f5">m</tspan>omentum
   </text>
 </svg>
