@@ -1,0 +1,42 @@
+---
+services:
+  php:
+    image: ${IMAGES_PREFIX:-}app-php-dev
+    volumes:
+      - ../../momentum-agent/api:/app
+      - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
+      - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
+      - /app/var
+      - ./certs:/etc/caddy/certs:ro
+    ports:
+      - name: http
+        target: 80
+        published: 8880
+        protocol: tcp
+      - name: https
+        target: 443
+        published: 8843
+        protocol: tcp
+      - name: http3
+        target: 443
+        published: 8843
+        protocol: udp
+
+  frontend:
+    volumes:
+      - ../../momentum-agent/frontend:/app
+    ports:
+      - 3001:3000
+
+  database:
+    volumes:
+      - database_agent_data:/var/lib/mysql:rw
+    ports:
+      - 3307:3306
+
+  redis:
+    ports:
+      - 6380:6379
+
+volumes:
+  database_agent_data:
