@@ -24,19 +24,6 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
-    ports:
-      - name: http
-        target: 80
-        published: ${HTTP_PORT}
-        protocol: tcp
-      - name: https
-        target: 443
-        published: ${HTTPS_PORT}
-        protocol: tcp
-      - name: http3
-        target: 443
-        published: ${HTTP3_PORT}
-        protocol: udp
     depends_on:
       database:
         condition: service_healthy

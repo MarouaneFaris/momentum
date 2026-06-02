@@ -5,6 +5,19 @@ services:
     image: ${IMAGES_PREFIX:-}app-php-prod
     build:
       target: frankenphp_prod
+    ports:
+      - name: http
+        target: 80
+        published: ${HTTP_PORT}
+        protocol: tcp
+      - name: https
+        target: 443
+        published: ${HTTPS_PORT}
+        protocol: tcp
+      - name: http3
+        target: 443
+        published: ${HTTP3_PORT}
+        protocol: udp
     environment:
       APP_SECRET: ${APP_SECRET}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}

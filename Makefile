@@ -2,6 +2,7 @@
 ENV_FILE_ARGS = --env-file .env $(if $(wildcard .env.local),--env-file .env.local,)
 COMPOSE = UID=$(shell id -u) GID=$(shell id -g) docker compose $(ENV_FILE_ARGS)
 DOCKER_COMP = $(COMPOSE) -f docker/compose.yaml -f docker/compose.override.yaml
+AGENT_COMP  = $(COMPOSE) -f docker/compose.yaml -f docker/compose.agent.yaml -p agent
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
@@ -25,6 +26,7 @@ MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
 .PHONY : help \
 	build rebuild up down nuke logs config sh bash node-sh \
+	agent-up agent-down \
 	test test-unit test-integration test-functional \
 	composer vendor \
 	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db load-fixtures \
@@ -171,6 +173,13 @@ front-test: ## Run frontend tests
 
 front-check: ## Run all frontend quality checks (type-check + lint + format)
 	@$(NPM) run check
+
+## —— Agent 🤖 ————————————————————————————————————————————————————————————————
+agent-up: ## Start the isolated agent Docker stack (ports: HTTPS 8843, frontend 3001, DB 3307, Redis 6380)
+	@$(AGENT_COMP) up --detach
+
+agent-down: ## Stop the isolated agent Docker stack
+	@$(AGENT_COMP) down --remove-orphans
 
 ## —— Quality ✅ ———————————————————————————————————————————————————————————————
 check: front-check back-check ## Run all quality checks

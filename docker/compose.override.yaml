@@ -30,6 +30,19 @@ services:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway
     tty: true
+    ports:
+      - name: http
+        target: 80
+        published: ${HTTP_PORT}
+        protocol: tcp
+      - name: https
+        target: 443
+        published: ${HTTPS_PORT}
+        protocol: tcp
+      - name: http3
+        target: 443
+        published: ${HTTP3_PORT}
+        protocol: udp
   ###> symfony/mercure-bundle ###
   ###< symfony/mercure-bundle ###
 
