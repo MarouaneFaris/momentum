@@ -1,7 +1,9 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MarouaneFaris/momentum/main/frontend/public/logo-lockup-dark.svg">
-  <img alt="Momentum" src="https://raw.githubusercontent.com/MarouaneFaris/momentum/main/frontend/public/logo-lockup-light.svg" height="60">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/MarouaneFaris/momentum/main/frontend/public/logo-icon-dark.svg">
+  <img alt="Momentum" src="https://raw.githubusercontent.com/MarouaneFaris/momentum/main/frontend/public/logo-icon-light.svg" height="48">
 </picture>
+
+# Momentum
 
 [![Quality checks](https://img.shields.io/github/actions/workflow/status/MarouaneFaris/momentum/quality.yaml?branch=main&label=Quality+checks)](https://github.com/MarouaneFaris/momentum/actions/workflows/quality.yaml)
 ![PHP](https://img.shields.io/badge/PHP-8.5-777BB4?logo=php)
