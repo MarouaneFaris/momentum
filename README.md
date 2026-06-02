@@ -1,4 +1,7 @@
-# Momentum
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="frontend/public/logo-lockup-dark.svg">
+  <img alt="Momentum" src="frontend/public/logo-lockup-light.svg" height="60">
+</picture>
 
 [![Quality checks](https://img.shields.io/github/actions/workflow/status/MarouaneFaris/momentum/quality.yaml?branch=main&label=Quality+checks)](https://github.com/MarouaneFaris/momentum/actions/workflows/quality.yaml)
 ![PHP](https://img.shields.io/badge/PHP-8.5-777BB4?logo=php)
