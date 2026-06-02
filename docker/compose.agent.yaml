@@ -1,13 +1,30 @@
 ---
+# Standalone agent dev override — use without compose.override.yaml:
+#   docker compose -f compose.yaml -f compose.agent.yaml -p agent up -d
 services:
   php:
     image: ${IMAGES_PREFIX:-}app-php-dev
+    build:
+      target: frankenphp_dev
     volumes:
       - ../../momentum-agent/api:/app
       - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro
       - ./frankenphp/conf.d/20-app.dev.ini:/usr/local/etc/php/app.conf.d/20-app.dev.ini:ro
       - /app/var
       - ./certs:/etc/caddy/certs:ro
+    environment:
+      FRANKENPHP_WORKER_CONFIG: watch
+      FRANKENPHP_SITE_CONFIG: hot_reload
+      MERCURE_EXTRA_DIRECTIVES: demo
+      XDEBUG_MODE: "${XDEBUG_MODE}"
+      APP_ENV: "${APP_ENV}"
+      CADDY_EXTRA_CONFIG: |
+        https:// {
+          tls /etc/caddy/certs/tls.pem /etc/caddy/certs/tls.key
+        }
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    tty: true
     ports:
       - name: http
         target: 80
@@ -23,13 +40,28 @@ services:
         protocol: udp
 
   frontend:
+    user: "${UID}:${GID}"
+    image: node:lts-alpine
+    restart: unless-stopped
+    working_dir: /app
+    env_file:
+      - path: ../.env
+        required: true
+      - path: ../.env.local
+        required: false
     volumes:
       - ../../momentum-agent/frontend:/app
+      - ./certs:/certs:ro
+    command: "sh -c '[ -d node_modules ] || npm ci && npm run dev'"
     ports:
       - 3001:3000
+    depends_on:
+      php:
+        condition: service_started
 
   database:
     volumes:
+      - ./mariadb/init-test-db.sh:/docker-entrypoint-initdb.d/10-init-test-db.sh:ro
       - database_agent_data:/var/lib/mysql:rw
     ports:
       - 3307:3306
