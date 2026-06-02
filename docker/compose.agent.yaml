@@ -6,6 +6,7 @@ services:
     image: ${IMAGES_PREFIX:-}app-php-dev
     build:
       target: frankenphp_dev
+    restart: "no"
     volumes:
       - ../../momentum-agent/api:/app
       - ./frankenphp/Caddyfile:/etc/frankenphp/Caddyfile:ro

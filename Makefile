@@ -26,7 +26,7 @@ MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
 .PHONY : help \
 	build rebuild up down nuke logs config sh bash node-sh \
-	agent-up agent-down \
+	agent-up agent-vendor agent-down \
 	test test-unit test-integration test-functional \
 	composer vendor \
 	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db load-fixtures \
@@ -177,6 +177,9 @@ front-check: ## Run all frontend quality checks (type-check + lint + format)
 ## —— Agent 🤖 ————————————————————————————————————————————————————————————————
 agent-up: ## Start the isolated agent Docker stack (ports: HTTPS 8843, frontend 3001, DB 3307, Redis 6380)
 	@$(AGENT_COMP) up --detach
+
+agent-vendor: ## Install composer vendors in the agent PHP container (run once after worktree creation)
+	@$(AGENT_COMP) run --rm php composer install
 
 agent-down: ## Stop the isolated agent Docker stack
 	@$(AGENT_COMP) down --remove-orphans
