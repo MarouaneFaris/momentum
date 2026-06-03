@@ -25,7 +25,7 @@ final class ProjectFactory extends PersistentObjectFactory
         return [
             'name' => self::faker()->words(3, true),
             'description' => null,
-            'status' => ProjectStatus::Active,
+            'status' => ProjectStatus::Draft,
             'logoUrl' => null,
             'workspace' => WorkspaceFactory::new(),
             'owner' => UserWorkspaceFactory::new(),

@@ -42,34 +42,34 @@ export default function AppLayout() {
                         Main
                     </p>
                     {workspaceId && (
-                        <NavLink
-                            to={`/workspaces/${workspaceId}/projects`}
-                            className={({ isActive }) =>
-                                `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                    isActive
-                                        ? 'bg-primary/10 font-medium text-primary'
-                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                }`
-                            }
-                        >
-                            <FolderOpen className="h-4 w-4 flex-shrink-0" />
-                            Projects
-                        </NavLink>
-                    )}
-                    {workspaceId && (
-                        <NavLink
-                            to={`/workspaces/${workspaceId}/dashboard`}
-                            className={({ isActive }) =>
-                                `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                    isActive
-                                        ? 'bg-primary/10 font-medium text-primary'
-                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                }`
-                            }
-                        >
-                            <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
-                            Dashboard
-                        </NavLink>
+                        <>
+                            <NavLink
+                                to={`/workspaces/${workspaceId}/dashboard`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 font-medium text-primary'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
+                                Dashboard
+                            </NavLink>
+                            <NavLink
+                                to={`/workspaces/${workspaceId}/projects`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 font-medium text-primary'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <FolderOpen className="h-4 w-4 flex-shrink-0" />
+                                Projects
+                            </NavLink>
+                        </>
                     )}
                     <NavLink
                         to="/invitations"

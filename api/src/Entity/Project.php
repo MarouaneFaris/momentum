@@ -36,7 +36,7 @@ class Project
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', enumType: ProjectStatus::class)]
-    private ProjectStatus $status = ProjectStatus::Active;
+    private ProjectStatus $status = ProjectStatus::Draft;
 
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $logoUrl = null;
