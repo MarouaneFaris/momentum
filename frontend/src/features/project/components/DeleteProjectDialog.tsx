@@ -7,8 +7,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
-import { useQueryClient } from '@tanstack/react-query'
-import { useDeleteProject } from '../queries'
+import { useDeleteProjectAction } from '../hooks/useDeleteProjectAction'
 import type { Project } from '../types'
 
 type Props = {
@@ -19,20 +18,11 @@ type Props = {
 }
 
 export function DeleteProjectDialog({ open, onOpenChange, workspaceId, project }: Props) {
-    const queryClient = useQueryClient()
-    const { mutate, isPending } = useDeleteProject(workspaceId, project.id)
-
-    function handleConfirm() {
-        mutate(undefined, {
-            onSuccess: () => {
-                queryClient.setQueryData<Project[]>(
-                    ['workspaces', workspaceId, 'projects'],
-                    (prev) => prev?.filter((p) => p.id !== project.id) ?? [],
-                )
-                onOpenChange(false)
-            },
-        })
-    }
+    const { confirm, isPending } = useDeleteProjectAction({
+        workspaceId,
+        projectId: project.id,
+        onSuccess: () => onOpenChange(false),
+    })
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -55,7 +45,7 @@ export function DeleteProjectDialog({ open, onOpenChange, workspaceId, project }
                     <Button
                         type="button"
                         variant="destructive"
-                        onClick={handleConfirm}
+                        onClick={confirm}
                         disabled={isPending}
                     >
                         Delete
