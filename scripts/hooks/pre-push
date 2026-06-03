@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-export UID=$(id -u)
-export GID=$(id -g)
+export DOCKER_UID=$(id -u)
+export DOCKER_GID=$(id -g)
 if [ -f .env.local ]; then
     DOCKER_COMP="docker compose --env-file .env --env-file .env.local -f docker/compose.yaml -f docker/compose.override.yaml"
 else
