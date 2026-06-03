@@ -1,0 +1,103 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Unit\Service;
+
+use App\Entity\Project;
+use App\Entity\UserWorkspace;
+use App\Entity\Workspace;
+use App\Enum\ProjectStatus;
+use App\Service\ProjectService;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+
+final class ProjectServiceTest extends TestCase
+{
+    private ProjectService $service;
+    private EntityManagerInterface&MockObject $em;
+
+    protected function setUp(): void
+    {
+        $this->em = $this->createMock(EntityManagerInterface::class);
+        $this->service = new ProjectService($this->em);
+    }
+
+    public function testCreatePersistsAndFlushes(): void
+    {
+        $workspace = new Workspace();
+        $owner = new UserWorkspace();
+
+        $this->em->expects($this->once())->method('persist')->with($this->isInstanceOf(Project::class));
+        $this->em->expects($this->once())->method('flush');
+
+        $project = $this->service->create($workspace, $owner, 'My Project', 'A description', ProjectStatus::Active);
+
+        self::assertSame('My Project', $project->getName());
+        self::assertSame('A description', $project->getDescription());
+        self::assertSame(ProjectStatus::Active, $project->getStatus());
+        self::assertSame($workspace, $project->getWorkspace());
+        self::assertSame($owner, $project->getOwner());
+    }
+
+    public function testCreateWithNullDescription(): void
+    {
+        $this->em->expects($this->once())->method('persist');
+        $this->em->expects($this->once())->method('flush');
+
+        $project = $this->service->create(new Workspace(), new UserWorkspace(), 'Project', null, ProjectStatus::Draft);
+
+        self::assertNull($project->getDescription());
+        self::assertSame(ProjectStatus::Draft, $project->getStatus());
+    }
+
+    public function testUpdateUpdatesProvidedFields(): void
+    {
+        $project = $this->makeProject('Original', 'Old desc', ProjectStatus::Draft);
+
+        $this->em->expects($this->once())->method('flush');
+
+        $this->service->update($project, 'Updated', 'New desc', ProjectStatus::Active);
+
+        self::assertSame('Updated', $project->getName());
+        self::assertSame('New desc', $project->getDescription());
+        self::assertSame(ProjectStatus::Active, $project->getStatus());
+    }
+
+    public function testUpdateSkipsNullFields(): void
+    {
+        $project = $this->makeProject('Original', 'Old desc', ProjectStatus::Draft);
+
+        $this->em->expects($this->once())->method('flush');
+
+        $this->service->update($project, null, null, null);
+
+        self::assertSame('Original', $project->getName());
+        self::assertSame('Old desc', $project->getDescription());
+        self::assertSame(ProjectStatus::Draft, $project->getStatus());
+    }
+
+    public function testUpdateClearsDescriptionWithEmptyString(): void
+    {
+        $project = $this->makeProject('Name', 'Has desc', ProjectStatus::Active);
+
+        $this->em->expects($this->once())->method('flush');
+
+        $this->service->update($project, null, '', null);
+
+        self::assertNull($project->getDescription());
+    }
+
+    private function makeProject(string $name, ?string $description, ProjectStatus $status): Project
+    {
+        $project = new Project();
+        $project->setWorkspace(new Workspace());
+        $project->setOwner(new UserWorkspace());
+        $project->setName($name);
+        $project->setDescription($description);
+        $project->setStatus($status);
+
+        return $project;
+    }
+}

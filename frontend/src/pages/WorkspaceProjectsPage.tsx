@@ -1,5 +1,8 @@
+import { Button } from '@/components/ui/button'
+import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
 import { useProjects } from '@/features/project/queries'
 import type { Project } from '@/features/project/types'
+import { useState } from 'react'
 import { useParams } from 'react-router'
 
 function statusLabel(status: Project['status']): string {
@@ -17,12 +20,19 @@ function statusClass(status: Project['status']): string {
 export default function WorkspaceProjectsPage() {
     const { id } = useParams<{ id: string }>()
     const { data: projects, isLoading } = useProjects(id!)
+    const [createOpen, setCreateOpen] = useState(false)
+    const [editProject, setEditProject] = useState<Project | null>(null)
 
     if (isLoading) return null
 
     return (
         <div className="flex flex-col gap-6 p-6">
-            <h1 className="text-xl font-semibold">Projects</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="text-xl font-semibold">Projects</h1>
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                    New project
+                </Button>
+            </div>
             {projects && projects.length > 0 ? (
                 <ul className="flex flex-col gap-2">
                     {projects.map((project) => (
@@ -31,16 +41,36 @@ export default function WorkspaceProjectsPage() {
                             className="flex items-center justify-between rounded-lg border bg-card px-4 py-3"
                         >
                             <span className="font-medium">{project.name}</span>
-                            <span
-                                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass(project.status)}`}
-                            >
-                                {statusLabel(project.status)}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass(project.status)}`}
+                                >
+                                    {statusLabel(project.status)}
+                                </span>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setEditProject(project)}
+                                >
+                                    Edit
+                                </Button>
+                            </div>
                         </li>
                     ))}
                 </ul>
             ) : (
                 <p className="text-sm text-muted-foreground">No projects yet.</p>
+            )}
+
+            <ProjectFormModal open={createOpen} onOpenChange={setCreateOpen} workspaceId={id!} />
+
+            {editProject && (
+                <ProjectFormModal
+                    open={!!editProject}
+                    onOpenChange={(open) => !open && setEditProject(null)}
+                    workspaceId={id!}
+                    project={editProject}
+                />
             )}
         </div>
     )

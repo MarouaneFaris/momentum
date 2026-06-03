@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
+use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\Workspace;
+use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-/** @extends Voter<string, Workspace> */
+/** @extends Voter<string, Workspace|Project> */
 final class ProjectVoter extends Voter
 {
     public const string VIEW = 'project.view';
-
-    private const array ATTRIBUTES = [
-        self::VIEW,
-    ];
+    public const string CREATE = 'project.create';
+    public const string EDIT = 'project.edit';
 
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
@@ -26,7 +26,11 @@ final class ProjectVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return \in_array($attribute, self::ATTRIBUTES, true) && $subject instanceof Workspace;
+        return match (true) {
+            \in_array($attribute, [self::VIEW, self::CREATE], true) && $subject instanceof Workspace => true,
+            $attribute === self::EDIT && $subject instanceof Project => true,
+            default => false,
+        };
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -34,6 +38,21 @@ final class ProjectVoter extends Voter
         $user = $token->getUser();
         if (!$user instanceof User) {
             return false;
+        }
+
+        if ($subject instanceof Project) {
+            $membership = $this->userWorkspaceRepository->findOneBy([
+                'user' => $user,
+                'workspace' => $subject->getWorkspace(),
+            ]);
+
+            if ($membership === null) {
+                return false;
+            }
+
+            return $membership->getRole() === WorkspaceRole::Owner
+                || ($membership->getRole() === WorkspaceRole::Member
+                    && (string) $subject->getOwner()->getId() === (string) $membership->getId());
         }
 
         /** @var Workspace $workspace */
@@ -46,6 +65,7 @@ final class ProjectVoter extends Voter
 
         return match ($attribute) {
             self::VIEW => true,
+            self::CREATE => $role === WorkspaceRole::Owner || $role === WorkspaceRole::Member,
             default => false,
         };
     }

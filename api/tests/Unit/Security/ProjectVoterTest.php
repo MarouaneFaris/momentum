@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Security;
 
+use App\Entity\Project;
 use App\Entity\User;
+use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
@@ -13,6 +15,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class ProjectVoterTest extends TestCase
 {
@@ -29,24 +32,101 @@ final class ProjectVoterTest extends TestCase
         $this->workspace = new Workspace();
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('provideRoleAttributeCombinations')]
-    public function testVoteOnAttributeWithRole(WorkspaceRole $role, string $attribute, int $expectedVote): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideViewCombinations')]
+    public function testViewAttribute(WorkspaceRole $role, int $expectedVote): void
     {
         $this->repository
             ->method('findRoleByUserAndWorkspace')
             ->willReturn($role);
 
-        $result = $this->voter->vote($this->createToken(), $this->workspace, [$attribute]);
+        $result = $this->voter->vote($this->createToken(), $this->workspace, [ProjectVoter::VIEW]);
 
         self::assertSame($expectedVote, $result);
     }
 
-    /** @return iterable<string, array{WorkspaceRole, string, int}> */
-    public static function provideRoleAttributeCombinations(): iterable
+    /** @return iterable<string, array{WorkspaceRole, int}> */
+    public static function provideViewCombinations(): iterable
     {
-        yield 'owner can view' => [WorkspaceRole::Owner, ProjectVoter::VIEW, VoterInterface::ACCESS_GRANTED];
-        yield 'member can view' => [WorkspaceRole::Member, ProjectVoter::VIEW, VoterInterface::ACCESS_GRANTED];
-        yield 'guest can view' => [WorkspaceRole::Guest, ProjectVoter::VIEW, VoterInterface::ACCESS_GRANTED];
+        yield 'owner can view' => [WorkspaceRole::Owner, VoterInterface::ACCESS_GRANTED];
+        yield 'member can view' => [WorkspaceRole::Member, VoterInterface::ACCESS_GRANTED];
+        yield 'guest can view' => [WorkspaceRole::Guest, VoterInterface::ACCESS_GRANTED];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideCreateCombinations')]
+    public function testCreateAttribute(WorkspaceRole $role, int $expectedVote): void
+    {
+        $this->repository
+            ->method('findRoleByUserAndWorkspace')
+            ->willReturn($role);
+
+        $result = $this->voter->vote($this->createToken(), $this->workspace, [ProjectVoter::CREATE]);
+
+        self::assertSame($expectedVote, $result);
+    }
+
+    /** @return iterable<string, array{WorkspaceRole, int}> */
+    public static function provideCreateCombinations(): iterable
+    {
+        yield 'owner can create' => [WorkspaceRole::Owner, VoterInterface::ACCESS_GRANTED];
+        yield 'member can create' => [WorkspaceRole::Member, VoterInterface::ACCESS_GRANTED];
+        yield 'guest denied create' => [WorkspaceRole::Guest, VoterInterface::ACCESS_DENIED];
+    }
+
+    public function testOwnerCanEditAnyProject(): void
+    {
+        $ownerMembership = $this->makeMembership(WorkspaceRole::Owner, Uuid::v4());
+        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($otherMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($ownerMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testMemberCanEditOwnProject(): void
+    {
+        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($memberMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($memberMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testMemberCannotEditOtherMembersProject(): void
+    {
+        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($otherMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($memberMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testNonMemberIsDeniedEdit(): void
+    {
+        $project = $this->makeProject($this->makeMembership(WorkspaceRole::Member, Uuid::v4()));
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn(null);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 
     public function testNonMemberIsDenied(): void
@@ -80,5 +160,24 @@ final class ProjectVoterTest extends TestCase
         $token->method('getUser')->willReturn($this->user);
 
         return $token;
+    }
+
+    private function makeMembership(WorkspaceRole $role, Uuid $id): UserWorkspace&Stub
+    {
+        $membership = $this->createStub(UserWorkspace::class);
+        $membership->method('getRole')->willReturn($role);
+        $membership->method('getId')->willReturn($id);
+        $membership->method('getWorkspace')->willReturn($this->workspace);
+
+        return $membership;
+    }
+
+    private function makeProject(UserWorkspace $owner): Project&Stub
+    {
+        $project = $this->createStub(Project::class);
+        $project->method('getOwner')->willReturn($owner);
+        $project->method('getWorkspace')->willReturn($this->workspace);
+
+        return $project;
     }
 }
