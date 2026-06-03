@@ -1,6 +1,6 @@
 # Executables (local)
 ENV_FILE_ARGS = --env-file .env $(if $(wildcard .env.local),--env-file .env.local,)
-COMPOSE = UID=$(shell id -u) GID=$(shell id -g) docker compose $(ENV_FILE_ARGS)
+COMPOSE = DOCKER_UID=$(shell id -u) DOCKER_GID=$(shell id -g) docker compose $(ENV_FILE_ARGS)
 DOCKER_COMP = $(COMPOSE) -f docker/compose.yaml -f docker/compose.override.yaml
 
 # Docker containers

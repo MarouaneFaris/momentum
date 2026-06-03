@@ -44,7 +44,7 @@ services:
       - 6379:6379
 
   frontend:
-    user: "${UID}:${GID}"
+    user: "${DOCKER_UID}:${DOCKER_GID}"
     image: node:lts-alpine
     restart: unless-stopped
     working_dir: /app
