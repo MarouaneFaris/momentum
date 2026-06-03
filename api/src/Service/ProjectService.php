@@ -36,6 +36,13 @@ final readonly class ProjectService
         return $project;
     }
 
+    public function delete(Project $project): void
+    {
+        // cascade stub: child tasks deleted here when Task entity exists
+        $this->em->remove($project);
+        $this->em->flush();
+    }
+
     public function update(
         Project $project,
         ?string $name,

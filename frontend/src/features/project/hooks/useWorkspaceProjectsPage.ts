@@ -8,6 +8,7 @@ export function useWorkspaceProjectsPage() {
     const { data: projects, isLoading } = useProjects(id!)
     const [createOpen, setCreateOpen] = useState(false)
     const [editProject, setEditProject] = useState<Project | null>(null)
+    const [deleteProject, setDeleteProject] = useState<Project | null>(null)
 
     return {
         workspaceId: id!,
@@ -17,5 +18,7 @@ export function useWorkspaceProjectsPage() {
         setCreateOpen,
         editProject,
         setEditProject,
+        deleteProject,
+        setDeleteProject,
     }
 }

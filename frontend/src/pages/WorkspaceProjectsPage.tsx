@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { Project } from '@/features/project/types'
@@ -24,6 +25,8 @@ export default function WorkspaceProjectsPage() {
         setCreateOpen,
         editProject,
         setEditProject,
+        deleteProject,
+        setDeleteProject,
     } = useWorkspaceProjectsPage()
 
     if (isLoading) return null
@@ -57,6 +60,14 @@ export default function WorkspaceProjectsPage() {
                                 >
                                     Edit
                                 </Button>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-destructive hover:text-destructive"
+                                    onClick={() => setDeleteProject(project)}
+                                >
+                                    Delete
+                                </Button>
                             </div>
                         </li>
                     ))}
@@ -77,6 +88,15 @@ export default function WorkspaceProjectsPage() {
                     onOpenChange={(open) => !open && setEditProject(null)}
                     workspaceId={workspaceId}
                     project={editProject}
+                />
+            )}
+
+            {deleteProject && (
+                <DeleteProjectDialog
+                    open={!!deleteProject}
+                    onOpenChange={(open) => !open && setDeleteProject(null)}
+                    workspaceId={workspaceId}
+                    project={deleteProject}
                 />
             )}
         </div>

@@ -19,6 +19,7 @@ final class ProjectVoter extends Voter
     public const string VIEW = 'project.view';
     public const string CREATE = 'project.create';
     public const string EDIT = 'project.edit';
+    public const string DELETE = 'project.delete';
 
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
@@ -28,7 +29,7 @@ final class ProjectVoter extends Voter
     {
         return match (true) {
             \in_array($attribute, [self::VIEW, self::CREATE], true) && $subject instanceof Workspace => true,
-            $attribute === self::EDIT && $subject instanceof Project => true,
+            \in_array($attribute, [self::EDIT, self::DELETE], true) && $subject instanceof Project => true,
             default => false,
         };
     }
