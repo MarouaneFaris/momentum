@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
     Select,
     SelectContent,
@@ -69,11 +70,10 @@ export function ProjectFormModal({ open, onOpenChange, workspaceId, project }: P
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="project-description">Description</Label>
-                            <textarea
+                            <Textarea
                                 id="project-description"
                                 placeholder="Optional description"
                                 rows={3}
-                                className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                                 {...register('description')}
                             />
                         </div>

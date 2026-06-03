@@ -1,9 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
-import { useProjects } from '@/features/project/queries'
+import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { Project } from '@/features/project/types'
-import { useState } from 'react'
-import { useParams } from 'react-router'
 
 function statusLabel(status: Project['status']): string {
     return { draft: 'Draft', active: 'Active', archived: 'Archived' }[status]
@@ -18,10 +16,15 @@ function statusClass(status: Project['status']): string {
 }
 
 export default function WorkspaceProjectsPage() {
-    const { id } = useParams<{ id: string }>()
-    const { data: projects, isLoading } = useProjects(id!)
-    const [createOpen, setCreateOpen] = useState(false)
-    const [editProject, setEditProject] = useState<Project | null>(null)
+    const {
+        workspaceId,
+        projects,
+        isLoading,
+        createOpen,
+        setCreateOpen,
+        editProject,
+        setEditProject,
+    } = useWorkspaceProjectsPage()
 
     if (isLoading) return null
 
@@ -62,13 +65,17 @@ export default function WorkspaceProjectsPage() {
                 <p className="text-sm text-muted-foreground">No projects yet.</p>
             )}
 
-            <ProjectFormModal open={createOpen} onOpenChange={setCreateOpen} workspaceId={id!} />
+            <ProjectFormModal
+                open={createOpen}
+                onOpenChange={setCreateOpen}
+                workspaceId={workspaceId}
+            />
 
             {editProject && (
                 <ProjectFormModal
                     open={!!editProject}
                     onOpenChange={(open) => !open && setEditProject(null)}
-                    workspaceId={id!}
+                    workspaceId={workspaceId}
                     project={editProject}
                 />
             )}

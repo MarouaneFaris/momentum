@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
 import { useCreateProject, useUpdateProject } from '../queries'
-import type { Project } from '../types'
+import type { UseProjectFormOptions } from '../types'
 
 const schema = z.object({
     name: z.string().min(1, 'Name is required').max(255, 'Name must be 255 characters or fewer'),
@@ -14,12 +14,6 @@ const schema = z.object({
 })
 
 type FormValues = z.infer<typeof schema>
-
-type UseProjectFormOptions = {
-    workspaceId: string
-    project?: Project
-    onSuccess: () => void
-}
 
 export const useProjectForm = ({ workspaceId, project, onSuccess }: UseProjectFormOptions) => {
     const queryClient = useQueryClient()

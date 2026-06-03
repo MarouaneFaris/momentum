@@ -8,3 +8,9 @@ export type Project = {
     createdAt: string
     updatedAt: string
 }
+
+export type UseProjectFormOptions = {
+    workspaceId: string
+    project?: Project
+    onSuccess: () => void
+}
