@@ -129,6 +129,63 @@ final class ProjectVoterTest extends TestCase
         self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 
+    public function testOwnerCanDeleteAnyProject(): void
+    {
+        $ownerMembership = $this->makeMembership(WorkspaceRole::Owner, Uuid::v4());
+        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($otherMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($ownerMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testMemberCanDeleteOwnProject(): void
+    {
+        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($memberMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($memberMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testMemberCannotDeleteOtherMembersProject(): void
+    {
+        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($otherMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($memberMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testNonMemberIsDeniedDelete(): void
+    {
+        $project = $this->makeProject($this->makeMembership(WorkspaceRole::Member, Uuid::v4()));
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn(null);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
     public function testNonMemberIsDenied(): void
     {
         $this->repository

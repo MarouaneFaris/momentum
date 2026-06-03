@@ -5,6 +5,7 @@ export type Project = {
     name: string
     description: string | null
     status: ProjectStatus
+    ownerUserId: string
     createdAt: string
     updatedAt: string
 }

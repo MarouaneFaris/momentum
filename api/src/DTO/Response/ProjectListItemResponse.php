@@ -18,6 +18,8 @@ final readonly class ProjectListItemResponse
         public ?string $description,
         #[OA\Property(type: 'string', enum: ['draft', 'active', 'archived'], example: 'active')]
         public string $status,
+        #[OA\Property(type: 'string', format: 'uuid', example: '018f5c2e-1234-7abc-8def-abcdef012346')]
+        public string $ownerUserId,
         #[OA\Property(type: 'string', format: 'date-time', example: '2025-01-01T00:00:00+00:00')]
         public string $createdAt,
         #[OA\Property(type: 'string', format: 'date-time', example: '2025-01-01T00:00:00+00:00')]
@@ -31,6 +33,7 @@ final readonly class ProjectListItemResponse
             name: $project->getName(),
             description: $project->getDescription(),
             status: $project->getStatus()->value,
+            ownerUserId: (string) $project->getOwner()->getUser()->getId(),
             createdAt: $project->getCreatedAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $project->getUpdatedAt()->format(\DateTimeInterface::ATOM),
         );

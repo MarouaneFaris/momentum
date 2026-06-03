@@ -1,7 +1,15 @@
 import { Button } from '@/components/ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { Project } from '@/features/project/types'
+import { EllipsisVerticalIcon } from 'lucide-react'
 
 function statusLabel(status: Project['status']): string {
     return { draft: 'Draft', active: 'Active', archived: 'Archived' }[status]
@@ -24,6 +32,10 @@ export default function WorkspaceProjectsPage() {
         setCreateOpen,
         editProject,
         setEditProject,
+        deleteProject,
+        setDeleteProject,
+        canCreateProject,
+        canManageProject,
     } = useWorkspaceProjectsPage()
 
     if (isLoading) return null
@@ -32,9 +44,11 @@ export default function WorkspaceProjectsPage() {
         <div className="flex flex-col gap-6 p-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold">Projects</h1>
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                    New project
-                </Button>
+                {canCreateProject() && (
+                    <Button size="sm" onClick={() => setCreateOpen(true)}>
+                        New project
+                    </Button>
+                )}
             </div>
             {projects && projects.length > 0 ? (
                 <ul className="flex flex-col gap-2">
@@ -50,13 +64,31 @@ export default function WorkspaceProjectsPage() {
                                 >
                                     {statusLabel(project.status)}
                                 </span>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => setEditProject(project)}
-                                >
-                                    Edit
-                                </Button>
+                                <div className="size-9 shrink-0">
+                                    {canManageProject(project) && (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <EllipsisVerticalIcon className="size-4" />
+                                                    <span className="sr-only">Project actions</span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem
+                                                    onClick={() => setEditProject(project)}
+                                                >
+                                                    Edit
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    variant="destructive"
+                                                    onClick={() => setDeleteProject(project)}
+                                                >
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )}
+                                </div>
                             </div>
                         </li>
                     ))}
@@ -77,6 +109,15 @@ export default function WorkspaceProjectsPage() {
                     onOpenChange={(open) => !open && setEditProject(null)}
                     workspaceId={workspaceId}
                     project={editProject}
+                />
+            )}
+
+            {deleteProject && (
+                <DeleteProjectDialog
+                    open={!!deleteProject}
+                    onOpenChange={(open) => !open && setDeleteProject(null)}
+                    workspaceId={workspaceId}
+                    project={deleteProject}
                 />
             )}
         </div>

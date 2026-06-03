@@ -89,6 +89,16 @@ final class ProjectServiceTest extends TestCase
         self::assertNull($project->getDescription());
     }
 
+    public function testDeleteRemovesAndFlushes(): void
+    {
+        $project = $this->makeProject('To delete', null, ProjectStatus::Draft);
+
+        $this->em->expects($this->once())->method('remove')->with($project);
+        $this->em->expects($this->once())->method('flush');
+
+        $this->service->delete($project);
+    }
+
     private function makeProject(string $name, ?string $description, ProjectStatus $status): Project
     {
         $project = new Project();
