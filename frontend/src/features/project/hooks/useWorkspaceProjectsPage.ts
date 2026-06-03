@@ -14,6 +14,11 @@ export function useWorkspaceProjectsPage() {
     const [editProject, setEditProject] = useState<Project | null>(null)
     const [deleteProject, setDeleteProject] = useState<Project | null>(null)
 
+    function canCreateProject(): boolean {
+        const role = workspace?.role
+        return role === 'owner' || role === 'member'
+    }
+
     function canManageProject(project: Project): boolean {
         const role = workspace?.role
         if (!role || role === 'guest') return false
@@ -31,6 +36,7 @@ export function useWorkspaceProjectsPage() {
         setEditProject,
         deleteProject,
         setDeleteProject,
+        canCreateProject,
         canManageProject,
     }
 }

@@ -34,6 +34,7 @@ export default function WorkspaceProjectsPage() {
         setEditProject,
         deleteProject,
         setDeleteProject,
+        canCreateProject,
         canManageProject,
     } = useWorkspaceProjectsPage()
 
@@ -43,9 +44,11 @@ export default function WorkspaceProjectsPage() {
         <div className="flex flex-col gap-6 p-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold">Projects</h1>
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                    New project
-                </Button>
+                {canCreateProject() && (
+                    <Button size="sm" onClick={() => setCreateOpen(true)}>
+                        New project
+                    </Button>
+                )}
             </div>
             {projects && projects.length > 0 ? (
                 <ul className="flex flex-col gap-2">
