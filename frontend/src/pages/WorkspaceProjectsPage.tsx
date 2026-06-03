@@ -1,8 +1,15 @@
 import { Button } from '@/components/ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { Project } from '@/features/project/types'
+import { EllipsisVerticalIcon } from 'lucide-react'
 
 function statusLabel(status: Project['status']): string {
     return { draft: 'Draft', active: 'Active', archived: 'Archived' }[status]
@@ -54,25 +61,31 @@ export default function WorkspaceProjectsPage() {
                                 >
                                     {statusLabel(project.status)}
                                 </span>
-                                {canManageProject(project) && (
-                                    <>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={() => setEditProject(project)}
-                                        >
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-destructive hover:text-destructive"
-                                            onClick={() => setDeleteProject(project)}
-                                        >
-                                            Delete
-                                        </Button>
-                                    </>
-                                )}
+                                <div className="size-9 shrink-0">
+                                    {canManageProject(project) && (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <EllipsisVerticalIcon className="size-4" />
+                                                    <span className="sr-only">Project actions</span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem
+                                                    onClick={() => setEditProject(project)}
+                                                >
+                                                    Edit
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    variant="destructive"
+                                                    onClick={() => setDeleteProject(project)}
+                                                >
+                                                    Delete
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )}
+                                </div>
                             </div>
                         </li>
                     ))}
