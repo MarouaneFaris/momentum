@@ -35,10 +35,17 @@ class Workspace
     #[ORM\OneToMany(targetEntity: UserWorkspace::class, mappedBy: 'workspace', cascade: ['remove'], orphanRemoval: true)]
     private Collection $userWorkspaces;
 
+    /**
+     * @var Collection<int, Project>
+     */
+    #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'workspace', cascade: ['remove'], orphanRemoval: true)]
+    private Collection $projects;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->userWorkspaces = new ArrayCollection();
+        $this->projects = new ArrayCollection();
     }
 
     public function getId(): ?Uuid

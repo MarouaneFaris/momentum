@@ -7,7 +7,7 @@ import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useMyInvitations } from '@/features/membership/queries'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
-import { Bell, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
+import { Bell, FolderOpen, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 
@@ -41,6 +41,21 @@ export default function AppLayout() {
                     <p className="px-2 pb-1 pt-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
                         Main
                     </p>
+                    {workspaceId && (
+                        <NavLink
+                            to={`/workspaces/${workspaceId}/projects`}
+                            className={({ isActive }) =>
+                                `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                    isActive
+                                        ? 'bg-primary/10 font-medium text-primary'
+                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                }`
+                            }
+                        >
+                            <FolderOpen className="h-4 w-4 flex-shrink-0" />
+                            Projects
+                        </NavLink>
+                    )}
                     {workspaceId && (
                         <NavLink
                             to={`/workspaces/${workspaceId}/dashboard`}
