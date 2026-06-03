@@ -27,6 +27,7 @@ export default function WorkspaceProjectsPage() {
         setEditProject,
         deleteProject,
         setDeleteProject,
+        canManageProject,
     } = useWorkspaceProjectsPage()
 
     if (isLoading) return null
@@ -53,21 +54,25 @@ export default function WorkspaceProjectsPage() {
                                 >
                                     {statusLabel(project.status)}
                                 </span>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => setEditProject(project)}
-                                >
-                                    Edit
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-destructive hover:text-destructive"
-                                    onClick={() => setDeleteProject(project)}
-                                >
-                                    Delete
-                                </Button>
+                                {canManageProject(project) && (
+                                    <>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => setEditProject(project)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="text-destructive hover:text-destructive"
+                                            onClick={() => setDeleteProject(project)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </li>
                     ))}
