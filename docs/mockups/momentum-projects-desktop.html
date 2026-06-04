@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum — Projects (Desktop)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: oklch(0.488 0.243 264.376);
+      --primary-fg: oklch(0.97 0.014 254.604);
+      --primary-hover: oklch(0.44 0.22 264.376);
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-fg: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --radius: 0.625rem;
+      --sidebar-bg: oklch(0.985 0 0);
+      --sidebar-border: oklch(0.92 0.004 286.32);
+      --green: oklch(0.35 0.12 145);
+      --green-bg: oklch(0.3 0.1 145 / 0.1);
+      --green-border: oklch(0.3 0.1 145 / 0.25);
+      --amber: oklch(0.5 0.15 75);
+      --amber-bg: oklch(0.5 0.15 75 / 0.1);
+      --amber-border: oklch(0.5 0.15 75 / 0.25);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: oklch(0.624 0.214 259.815);
+        --background: oklch(0.141 0.005 285.823);
+        --foreground: oklch(0.985 0 0);
+        --card: oklch(0.21 0.006 285.885);
+        --muted: oklch(0.274 0.006 286.033);
+        --muted-fg: oklch(0.705 0.015 286.067);
+        --border: oklch(1 0 0 / 10%);
+        --sidebar-bg: oklch(0.21 0.006 285.885);
+        --sidebar-border: oklch(1 0 0 / 10%);
+      }
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--muted); color: var(--foreground); padding: 40px 24px; }
+
+    /* Page header */
+    .page-header { max-width: 1100px; margin: 0 auto 32px; display: flex; align-items: center; gap: 12px; }
+    .page-logo { display: flex; align-items: center; gap: 10px; }
+    .mark { display: flex; flex-direction: column; gap: 4px; transform: skewX(-12deg); }
+    .stripe { border-radius: 2px; background: var(--primary); }
+    .wordmark { font-size: 16px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .wordmark .acc { color: var(--primary); }
+    .page-divider { flex: 1; height: 0.5px; background: var(--border); }
+    .page-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); white-space: nowrap; }
+
+    .shells { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+    .shell-section { display: flex; flex-direction: column; gap: 10px; }
+    .shell-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-fg); padding-left: 2px; }
+    .shell-frame { border-radius: calc(var(--radius) * 1.4); overflow: hidden; border: 0.5px solid var(--border); background: var(--background); box-shadow: 0 1px 3px oklch(0 0 0 / 0.06); }
+
+    /* App chrome */
+    .app-topbar { height: 48px; background: var(--sidebar-bg); border-bottom: 0.5px solid var(--sidebar-border); display: flex; align-items: center; padding: 0 16px; gap: 12px; }
+    .topbar-logo { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .topbar-mark { display: flex; flex-direction: column; gap: 3px; transform: skewX(-12deg); }
+    .topbar-wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .topbar-divider { width: 0.5px; height: 20px; background: var(--border); margin: 0 4px; }
+    .ws-selector { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: var(--radius); cursor: pointer; }
+    .ws-selector:hover { background: var(--muted); }
+    .ws-name { font-size: 12px; font-weight: 500; color: var(--foreground); }
+    .topbar-spacer { flex: 1; }
+    .icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); cursor: pointer; color: var(--muted-fg); position: relative; }
+    .icon-btn:hover { background: var(--muted); }
+    .icon-btn svg { width: 15px; height: 15px; }
+    .notif-badge { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); border: 1.5px solid var(--sidebar-bg); }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: oklch(0.488 0.243 264.376 / 0.15); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--primary); margin-left: 4px; }
+
+    .app-body { display: flex; }
+    .sidebar { width: 200px; flex-shrink: 0; background: var(--sidebar-bg); border-right: 0.5px solid var(--sidebar-border); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; }
+    .sidebar-section { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); padding: 10px 8px 4px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: calc(var(--radius) * 0.8); font-size: 13px; color: var(--muted-fg); cursor: pointer; }
+    .nav-item:hover { background: var(--muted); color: var(--foreground); }
+    .nav-item.active { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); font-weight: 500; }
+    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .project-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .sidebar-project { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: calc(var(--radius) * 0.8); font-size: 12px; color: var(--muted-fg); cursor: pointer; }
+    .sidebar-project:hover { background: var(--muted); color: var(--foreground); }
+    .sidebar-project.active { color: var(--foreground); font-weight: 500; }
+
+    .main-content { flex: 1; background: var(--background); padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 480px; }
+    .content-header { display: flex; align-items: center; gap: 12px; }
+    .content-title { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; color: var(--foreground); }
+    .content-spacer { flex: 1; }
+    .new-btn { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: var(--primary); color: var(--primary-fg); border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer; border: none; font-family: 'Inter', sans-serif; }
+    .new-btn:hover { background: var(--primary-hover); }
+    .ghost-btn { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: transparent; color: var(--muted-fg); border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; }
+
+    /* Badges */
+    .badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .badge-todo { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); }
+    .badge-prog { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); }
+    .badge-done { background: var(--green-bg); color: var(--green); border: 0.5px solid var(--green-border); }
+    .badge-active { background: var(--green-bg); color: var(--green); border: 0.5px solid var(--green-border); }
+    .badge-planned { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); }
+
+    /* Project cards grid */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+    .project-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; display: flex; flex-direction: column; gap: 10px; }
+    .project-card:hover { border-color: oklch(0.488 0.243 264.376 / 0.4); box-shadow: 0 0 0 3px oklch(0.488 0.243 264.376 / 0.06); }
+    .project-card-header { display: flex; align-items: flex-start; gap: 10px; }
+    .project-color { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+    .project-name { font-size: 14px; font-weight: 500; color: var(--foreground); flex: 1; }
+    .project-desc { font-size: 12px; color: var(--muted-fg); line-height: 1.5; }
+    .project-meta { display: flex; align-items: center; gap: 8px; }
+    .project-progress { flex: 1; height: 3px; background: var(--muted); border-radius: 2px; overflow: hidden; }
+    .project-progress-fill { height: 100%; border-radius: 2px; background: var(--primary); }
+    .project-pct { font-size: 10px; color: var(--muted-fg); }
+    .project-avatars { display: flex; }
+    .p-av { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--card); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; margin-left: -5px; }
+    .p-av:first-child { margin-left: 0; }
+    .task-count { font-size: 11px; color: var(--muted-fg); }
+
+    /* Task table */
+    .task-table { width: 100%; border-collapse: collapse; }
+    .task-table th { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-fg); text-align: left; padding: 0 10px 10px; border-bottom: 0.5px solid var(--border); }
+    .task-table td { font-size: 13px; color: var(--muted-fg); padding: 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+    .task-table tr:last-child td { border-bottom: none; }
+    .task-table tr:hover td { background: var(--muted); cursor: pointer; }
+    .task-name-cell { color: var(--foreground); display: flex; align-items: center; gap: 8px; }
+    .task-check { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--border); flex-shrink: 0; }
+    .task-check.done { background: oklch(0.488 0.243 264.376 / 0.15); border-color: var(--primary); }
+    .t-av { width: 20px; height: 20px; border-radius: 50%; background: oklch(0.488 0.243 264.376 / 0.15); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; color: var(--primary); }
+
+    /* Modal overlay */
+    .modal-overlay { position: relative; }
+    .modal-overlay .app-body { filter: blur(1px) brightness(0.97); pointer-events: none; }
+    .modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 440px; background: var(--card); border: 0.5px solid var(--border); border-radius: calc(var(--radius) * 1.4); box-shadow: 0 8px 32px oklch(0 0 0 / 0.12); padding: 24px; z-index: 10; display: flex; flex-direction: column; gap: 16px; }
+    .modal-header { display: flex; align-items: center; gap: 8px; }
+    .modal-title { font-size: 15px; font-weight: 600; color: var(--foreground); flex: 1; }
+    .modal-close { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--muted-fg); cursor: pointer; font-size: 14px; }
+    .modal-close:hover { background: var(--muted); }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 500; color: var(--foreground); }
+    .field-hint { font-size: 11px; color: var(--muted-fg); }
+    .mock-input { width: 100%; height: 36px; background: var(--background); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 0 12px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--foreground); }
+    .mock-input::placeholder { color: var(--muted-fg); }
+    .mock-textarea { width: 100%; height: 72px; background: var(--background); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--muted-fg); resize: none; }
+    .color-picker { display: flex; gap: 8px; }
+    .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .color-swatch.selected { border-color: var(--foreground); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    .btn-primary { height: 34px; padding: 0 16px; background: var(--primary); color: var(--primary-fg); border: none; border-radius: var(--radius); font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; }
+    .btn-ghost { height: 34px; padding: 0 16px; background: transparent; color: var(--muted-fg); border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; }
+    .btn-danger { height: 34px; padding: 0 16px; background: transparent; color: oklch(0.577 0.245 27.325); border: 0.5px solid oklch(0.577 0.245 27.325 / 0.4); border-radius: var(--radius); font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; margin-right: auto; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted-fg); }
+    .breadcrumb .sep { color: var(--border); }
+    .breadcrumb .current { color: var(--foreground); font-weight: 500; }
+    .breadcrumb a { color: var(--primary); cursor: pointer; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; align-items: center; gap: 8px; }
+    .filter-chip { display: flex; align-items: center; gap: 4px; height: 28px; padding: 0 10px; background: var(--muted); border: 0.5px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--muted-fg); cursor: pointer; }
+    .filter-chip.active { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border-color: oklch(0.488 0.243 264.376 / 0.3); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-logo">
+    <div class="mark">
+      <div class="stripe" style="width:20px;height:6px;opacity:.25"></div>
+      <div class="stripe" style="width:20px;height:6px;opacity:.55"></div>
+      <div class="stripe" style="width:20px;height:6px;opacity:1"></div>
+    </div>
+    <div class="wordmark"><span class="acc">m</span>omentum</div>
+  </div>
+  <div class="page-divider"></div>
+  <div class="page-label">Projects — Desktop</div>
+</div>
+
+<div class="shells">
+
+  <!-- PROJECT LIST -->
+  <div class="shell-section">
+    <p class="shell-label">01 — Project list</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="icon-btn">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="icon-btn">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          <div class="notif-badge"></div>
+        </div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            Dashboard
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            My tasks
+          </div>
+          <div class="sidebar-section">Projects</div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/><path d="M5 3V1M11 3V1M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            All projects
+          </div>
+          <div class="sidebar-project"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.55 0.15 145)"></div>Frontend MVP</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.6 0.15 55)"></div>Infrastructure</div>
+          <div class="sidebar-section" style="margin-top:auto">Workspace</div>
+          <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Members
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>
+            Settings
+          </div>
+        </div>
+        <div class="main-content">
+          <div class="content-header">
+            <div class="content-title">Projects</div>
+            <div class="content-spacer"></div>
+            <button class="new-btn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              New project
+            </button>
+          </div>
+          <div class="filter-bar">
+            <div class="filter-chip active">All</div>
+            <div class="filter-chip">Active</div>
+            <div class="filter-chip">Planned</div>
+            <div class="filter-chip">Completed</div>
+          </div>
+          <div class="projects-grid">
+            <div class="project-card">
+              <div class="project-card-header">
+                <div class="project-color" style="background:var(--primary)"></div>
+                <div class="project-name">Backend API</div>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="project-desc">Symfony REST API, auth, task management endpoints, Messenger integration.</div>
+              <div class="project-meta">
+                <div class="project-progress"><div class="project-progress-fill" style="width:60%"></div></div>
+                <div class="project-pct">60%</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="project-avatars">
+                  <div class="p-av" style="background:oklch(0.488 0.243 264.376 / 0.15);color:var(--primary)">AJ</div>
+                  <div class="p-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div>
+                </div>
+                <div class="task-count">5 tasks · 2 open</div>
+              </div>
+            </div>
+            <div class="project-card">
+              <div class="project-card-header">
+                <div class="project-color" style="background:oklch(0.55 0.15 145)"></div>
+                <div class="project-name">Frontend MVP</div>
+                <span class="badge badge-active">Active</span>
+              </div>
+              <div class="project-desc">React + TypeScript, routing, shadcn components, auth integration.</div>
+              <div class="project-meta">
+                <div class="project-progress"><div class="project-progress-fill" style="width:30%;background:oklch(0.55 0.15 145)"></div></div>
+                <div class="project-pct">30%</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="project-avatars">
+                  <div class="p-av" style="background:oklch(0.488 0.243 264.376 / 0.15);color:var(--primary)">AJ</div>
+                </div>
+                <div class="task-count">4 tasks · 3 open</div>
+              </div>
+            </div>
+            <div class="project-card">
+              <div class="project-card-header">
+                <div class="project-color" style="background:oklch(0.6 0.15 55)"></div>
+                <div class="project-name">Infrastructure</div>
+                <span class="badge badge-planned">Planned</span>
+              </div>
+              <div class="project-desc">Docker setup, CI/CD pipeline, Railway deployment configuration.</div>
+              <div class="project-meta">
+                <div class="project-progress"><div class="project-progress-fill" style="width:80%;background:oklch(0.6 0.15 55)"></div></div>
+                <div class="project-pct">80%</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="project-avatars">
+                  <div class="p-av" style="background:oklch(0.488 0.243 264.376 / 0.15);color:var(--primary)">AJ</div>
+                </div>
+                <div class="task-count">3 tasks · 1 open</div>
+              </div>
+            </div>
+            <div class="project-card" style="border-style:dashed;cursor:pointer;justify-content:center;align-items:center;min-height:140px;color:var(--muted-fg);">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                <span style="font-size:13px">New project</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT DETAIL -->
+  <div class="shell-section">
+    <p class="shell-label">02 — Project detail</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="icon-btn"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+        <div class="icon-btn"><svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg><div class="notif-badge"></div></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>Dashboard</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>My tasks</div>
+          <div class="sidebar-section">Projects</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/><path d="M5 3V1M11 3V1M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>All projects</div>
+          <div class="sidebar-project active"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.55 0.15 145)"></div>Frontend MVP</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.6 0.15 55)"></div>Infrastructure</div>
+          <div class="sidebar-section" style="margin-top:auto">Workspace</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Members</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>Settings</div>
+        </div>
+        <div class="main-content">
+          <div class="breadcrumb">
+            <a>Projects</a>
+            <span class="sep">/</span>
+            <span class="current">Backend API</span>
+          </div>
+          <div class="content-header">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="project-color" style="background:var(--primary);width:12px;height:12px;border-radius:50%"></div>
+              <div class="content-title">Backend API</div>
+              <span class="badge badge-active">Active</span>
+            </div>
+            <div class="content-spacer"></div>
+            <div class="ghost-btn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5h4M6.5 4.5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Edit
+            </div>
+            <button class="new-btn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              New task
+            </button>
+          </div>
+          <div style="font-size:13px;color:var(--muted-fg)">Symfony REST API, auth, task management endpoints, Messenger integration.</div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="display:flex;align-items:center;gap:8px;flex:1">
+              <div class="project-progress" style="max-width:200px"><div class="project-progress-fill" style="width:60%"></div></div>
+              <div class="project-pct">60% complete</div>
+            </div>
+            <div class="filter-bar">
+              <div class="filter-chip active">All</div>
+              <div class="filter-chip">To do</div>
+              <div class="filter-chip">In progress</div>
+              <div class="filter-chip">Done</div>
+            </div>
+          </div>
+          <table class="task-table">
+            <thead>
+              <tr>
+                <th style="width:40px"></th>
+                <th>Title</th>
+                <th style="width:110px">Status</th>
+                <th style="width:80px">Assignee</th>
+                <th style="width:80px">Due date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="task-check done"></div></td>
+                <td><div class="task-name-cell">Auth endpoint</div></td>
+                <td><span class="badge badge-done">Done</span></td>
+                <td><div style="display:flex;align-items:center;gap:6px"><div class="t-av">AJ</div><span style="font-size:12px">Alex J.</span></div></td>
+                <td style="font-size:12px">May 3</td>
+              </tr>
+              <tr>
+                <td><div class="task-check"></div></td>
+                <td><div class="task-name-cell">Task CRUD endpoints</div></td>
+                <td><span class="badge badge-prog">In progress</span></td>
+                <td><div style="display:flex;align-items:center;gap:6px"><div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div><span style="font-size:12px">Marie L.</span></div></td>
+                <td style="font-size:12px">May 8</td>
+              </tr>
+              <tr>
+                <td><div class="task-check"></div></td>
+                <td><div class="task-name-cell">Permissions layer</div></td>
+                <td><span class="badge badge-todo">To do</span></td>
+                <td><span style="font-size:12px;color:var(--muted-fg)">—</span></td>
+                <td style="font-size:12px">May 15</td>
+              </tr>
+              <tr>
+                <td><div class="task-check"></div></td>
+                <td><div class="task-name-cell">Mercure integration</div></td>
+                <td><span class="badge badge-todo">To do</span></td>
+                <td><span style="font-size:12px;color:var(--muted-fg)">—</span></td>
+                <td style="font-size:12px">May 20</td>
+              </tr>
+              <tr>
+                <td><div class="task-check done"></div></td>
+                <td><div class="task-name-cell">Docker setup</div></td>
+                <td><span class="badge badge-done">Done</span></td>
+                <td><div style="display:flex;align-items:center;gap:6px"><div class="t-av">AJ</div><span style="font-size:12px">Alex J.</span></div></td>
+                <td style="font-size:12px">May 1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE PROJECT MODAL -->
+  <div class="shell-section">
+    <p class="shell-label">03 — Create project</p>
+    <div class="shell-frame" style="position:relative">
+      <div class="app-topbar" style="filter:blur(1px);opacity:.6">
+        <div class="topbar-logo"><div class="topbar-mark"><div class="stripe" style="width:18px;height:5px;opacity:.25"></div><div class="stripe" style="width:18px;height:5px;opacity:.55"></div><div class="stripe" style="width:18px;height:5px;opacity:1"></div></div><div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div></div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body" style="filter:blur(1px);opacity:.6;min-height:360px">
+        <div class="sidebar"></div>
+        <div class="main-content"></div>
+      </div>
+      <div style="position:absolute;inset:0;background:oklch(0 0 0 / 0.3);display:flex;align-items:center;justify-content:center;border-radius:inherit">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">New project</div>
+            <div class="modal-close">✕</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Project name</div>
+            <input class="mock-input" value="Backend API" readonly />
+          </div>
+          <div class="field">
+            <div class="field-label">Description <span style="color:var(--muted-fg);font-weight:400">(optional)</span></div>
+            <textarea class="mock-textarea" readonly>Symfony REST API, auth, task management endpoints...</textarea>
+          </div>
+          <div class="field">
+            <div class="field-label">Colour</div>
+            <div class="color-picker">
+              <div class="color-swatch selected" style="background:var(--primary)"></div>
+              <div class="color-swatch" style="background:oklch(0.55 0.15 145)"></div>
+              <div class="color-swatch" style="background:oklch(0.6 0.15 55)"></div>
+              <div class="color-swatch" style="background:oklch(0.55 0.18 20)"></div>
+              <div class="color-swatch" style="background:oklch(0.55 0.15 300)"></div>
+              <div class="color-swatch" style="background:var(--muted-fg)"></div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-ghost">Cancel</button>
+            <button class="btn-primary">Create project</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT / DELETE PROJECT MODAL -->
+  <div class="shell-section">
+    <p class="shell-label">04 — Edit / delete project</p>
+    <div class="shell-frame" style="position:relative">
+      <div class="app-topbar" style="filter:blur(1px);opacity:.6">
+        <div class="topbar-logo"><div class="topbar-mark"><div class="stripe" style="width:18px;height:5px;opacity:.25"></div><div class="stripe" style="width:18px;height:5px;opacity:.55"></div><div class="stripe" style="width:18px;height:5px;opacity:1"></div></div><div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div></div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body" style="filter:blur(1px);opacity:.6;min-height:360px">
+        <div class="sidebar"></div>
+        <div class="main-content"></div>
+      </div>
+      <div style="position:absolute;inset:0;background:oklch(0 0 0 / 0.3);display:flex;align-items:center;justify-content:center;border-radius:inherit">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">Edit project</div>
+            <div class="modal-close">✕</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Project name</div>
+            <input class="mock-input" value="Backend API" readonly />
+          </div>
+          <div class="field">
+            <div class="field-label">Description</div>
+            <textarea class="mock-textarea" readonly>Symfony REST API, auth, task management endpoints...</textarea>
+          </div>
+          <div class="field">
+            <div class="field-label">Colour</div>
+            <div class="color-picker">
+              <div class="color-swatch selected" style="background:var(--primary)"></div>
+              <div class="color-swatch" style="background:oklch(0.55 0.15 145)"></div>
+              <div class="color-swatch" style="background:oklch(0.6 0.15 55)"></div>
+              <div class="color-swatch" style="background:oklch(0.55 0.18 20)"></div>
+              <div class="color-swatch" style="background:oklch(0.55 0.15 300)"></div>
+              <div class="color-swatch" style="background:var(--muted-fg)"></div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Status</div>
+            <select style="width:100%;height:36px;background:var(--background);border:0.5px solid var(--border);border-radius:var(--radius);padding:0 12px;font-size:13px;font-family:'Inter',sans-serif;color:var(--foreground)">
+              <option>Active</option>
+              <option>Planned</option>
+              <option>Completed</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-danger">Delete project</button>
+            <button class="btn-ghost">Cancel</button>
+            <button class="btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
