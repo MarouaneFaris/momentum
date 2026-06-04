@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Project;
+use App\Entity\User;
+use App\Entity\UserProject;
 use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\ProjectStatus;
@@ -97,6 +99,30 @@ final class ProjectServiceTest extends TestCase
         $this->em->expects($this->once())->method('flush');
 
         $this->service->delete($project);
+    }
+
+    public function testAssignGuestPersistsAndFlushes(): void
+    {
+        $project = $this->makeProject('Project', null, ProjectStatus::Active);
+        $user = new User();
+
+        $this->em->expects($this->once())->method('persist')->with($this->isInstanceOf(UserProject::class));
+        $this->em->expects($this->once())->method('flush');
+
+        $assignment = $this->service->assignGuest($project, $user);
+
+        self::assertSame($project, $assignment->getProject());
+        self::assertSame($user, $assignment->getUser());
+    }
+
+    public function testRemoveGuestRemovesAndFlushes(): void
+    {
+        $assignment = new UserProject();
+
+        $this->em->expects($this->once())->method('remove')->with($assignment);
+        $this->em->expects($this->once())->method('flush');
+
+        $this->service->removeGuest($assignment);
     }
 
     private function makeProject(string $name, ?string $description, ProjectStatus $status): Project

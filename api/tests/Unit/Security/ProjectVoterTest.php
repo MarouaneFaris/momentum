@@ -186,6 +186,64 @@ final class ProjectVoterTest extends TestCase
         self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 
+    public function testOwnerCanManageMembersOnAnyProject(): void
+    {
+        $ownerMembership = $this->makeMembership(WorkspaceRole::Owner, Uuid::v4());
+        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($otherMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($ownerMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testMemberCanManageMembersOnOwnProject(): void
+    {
+        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($memberMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($memberMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testMemberCannotManageMembersOnOtherMembersProject(): void
+    {
+        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
+        $project = $this->makeProject($otherMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($memberMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testGuestIsDeniedManageMembers(): void
+    {
+        $guestMembership = $this->makeMembership(WorkspaceRole::Guest, Uuid::v4());
+        $project = $this->makeProject($guestMembership);
+
+        $this->repository
+            ->method('findOneBy')
+            ->willReturn($guestMembership);
+
+        $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
     public function testNonMemberIsDenied(): void
     {
         $this->repository

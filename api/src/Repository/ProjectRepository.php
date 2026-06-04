@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Project;
+use App\Entity\UserProject;
 use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\ProjectStatus;
@@ -31,7 +32,14 @@ class ProjectRepository extends ServiceEntityRepository
         $role = $callerMembership->getRole();
 
         if ($role === WorkspaceRole::Guest) {
-            return [];
+            return $this->createQueryBuilder('p')
+                ->join(UserProject::class, 'up', 'WITH', 'IDENTITY(up.project) = p.id AND IDENTITY(up.user) = :userId')
+                ->where('IDENTITY(p.workspace) = :workspaceId')
+                ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
+                ->setParameter('userId', $callerMembership->getUser()->getId(), UuidType::NAME)
+                ->orderBy('p.createdAt', 'ASC')
+                ->getQuery()
+                ->getResult();
         }
 
         $qb = $this->createQueryBuilder('p')
