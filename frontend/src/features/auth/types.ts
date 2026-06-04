@@ -6,7 +6,7 @@ export type LoginPayload = {
 export type RegisterPayload = LoginPayload & { name: string }
 
 export type LoginResponse = {
-    id: number
+    id: string
     email: string
     name: string
 }

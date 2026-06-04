@@ -25,12 +25,18 @@ final class WorkspaceFilter extends SQLFilter
 
         $mapping = $targetEntity->getAssociationMapping('workspace');
 
-        if (empty($mapping['joinColumns'])) {
+        if (!($mapping instanceof \Doctrine\ORM\Mapping\ToOneOwningSideMapping) || empty($mapping->joinColumns)) {
             return '';
         }
 
-        $column = $mapping['joinColumns'][0]['name'];
+        $column = $mapping->joinColumns[0]->name;
 
-        return sprintf('%s.%s = %s', $targetTableAlias, $column, $this->getParameter('workspaceId'));
+        // workspace_id is stored as BINARY(16); convert the UUID string parameter before comparing
+        return sprintf(
+            '%s.%s = UNHEX(REPLACE(%s, \'-\', \'\'))',
+            $targetTableAlias,
+            $column,
+            $this->getParameter('workspaceId'),
+        );
     }
 }

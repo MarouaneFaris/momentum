@@ -9,11 +9,14 @@ use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Entity\WorkspaceInvitation;
 use App\Enum\WorkspaceRole;
+use App\Event\ProjectOwnerRemoved;
+use App\Event\UserRemovedFromWorkspace;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Repository\WorkspaceInvitationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -29,6 +32,7 @@ final readonly class MembershipService
         private WorkspaceInvitationRepository $invitationRepository,
         private UserWorkspaceRepository $userWorkspaceRepository,
         private UserRepository $userRepository,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function invite(Workspace $workspace, User $invitedBy, string $email, WorkspaceRole $role): WorkspaceInvitation
@@ -119,6 +123,7 @@ final readonly class MembershipService
         }
 
         $this->em->remove($membership);
+        $this->dispatchRemovalEvent($membership);
         $this->em->flush();
     }
 
@@ -149,6 +154,14 @@ final readonly class MembershipService
         }
 
         $this->em->remove($membership);
+        $this->dispatchRemovalEvent($membership);
         $this->em->flush();
+    }
+
+    private function dispatchRemovalEvent(UserWorkspace $membership): void
+    {
+        $workspace = $membership->getWorkspace();
+        $this->eventDispatcher->dispatch(new ProjectOwnerRemoved($membership, $workspace));
+        $this->eventDispatcher->dispatch(new UserRemovedFromWorkspace($membership->getUser(), $workspace));
     }
 }

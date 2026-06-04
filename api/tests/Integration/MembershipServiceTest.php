@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Integration;
 
 use App\Enum\WorkspaceRole;
+use App\Factory\ProjectFactory;
 use App\Factory\UserFactory;
+use App\Factory\UserProjectFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
 use App\Factory\WorkspaceInvitationFactory;
+use App\Repository\ProjectRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Repository\WorkspaceInvitationRepository;
@@ -16,6 +19,7 @@ use App\Service\MembershipService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -52,7 +56,10 @@ final class MembershipServiceTest extends KernelTestCase
         /** @var UserRepository $userRepo */
         $userRepo = $container->get(UserRepository::class);
 
-        $this->service = new MembershipService($this->clock, $em, $invitationRepo, $uwRepo, $userRepo);
+        /** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = $container->get(EventDispatcherInterface::class);
+
+        $this->service = new MembershipService($this->clock, $em, $invitationRepo, $uwRepo, $userRepo, $dispatcher);
     }
 
     // — invite ————————————————————————————————————————————————————————————————
@@ -316,5 +323,101 @@ final class MembershipServiceTest extends KernelTestCase
 
         $this->expectException(AccessDeniedHttpException::class);
         $this->service->leave($membership->getWorkspace(), $membership->getUser());
+    }
+
+    // — ProjectOwnerRemoved event —————————————————————————————————————————————
+
+    public function testRemoveMemberTransfersProjectOwnershipToWorkspaceOwner(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        $ownerMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $memberMembership]);
+
+        $this->service->removeMember($memberMembership);
+
+        /** @var ProjectRepository $projectRepo */
+        $projectRepo = static::getContainer()->get(ProjectRepository::class);
+        $this->em->clear();
+        $refreshed = $projectRepo->find($project->getId());
+
+        self::assertNotNull($refreshed);
+        self::assertSame((string) $ownerMembership->getId(), (string) $refreshed->getOwner()->getId());
+    }
+
+    public function testLeaveTransfersProjectOwnershipToWorkspaceOwner(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        $ownerMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $memberMembership]);
+
+        $this->service->leave($workspace, $memberMembership->getUser());
+
+        /** @var ProjectRepository $projectRepo */
+        $projectRepo = static::getContainer()->get(ProjectRepository::class);
+        $this->em->clear();
+        $refreshed = $projectRepo->find($project->getId());
+
+        self::assertNotNull($refreshed);
+        self::assertSame((string) $ownerMembership->getId(), (string) $refreshed->getOwner()->getId());
+    }
+
+    public function testRemoveMemberWithNoProjectsIsNoOp(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+
+        $this->service->removeMember($memberMembership);
+
+        /** @var UserWorkspaceRepository $uwRepo */
+        $uwRepo = static::getContainer()->get(UserWorkspaceRepository::class);
+        $found = $uwRepo->findRoleByUserAndWorkspace($memberMembership->getUser(), $workspace);
+        self::assertNull($found);
+    }
+
+    // — UserRemovedFromWorkspace event ————————————————————————————————————————
+
+    public function testRemoveMemberDeletesUserProjectRows(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace]);
+        UserProjectFactory::createOne(['project' => $project, 'user' => $memberMembership->getUser()]);
+
+        $this->service->removeMember($memberMembership);
+
+        $count = (int) $this->em->getConnection()->fetchOne('SELECT COUNT(*) FROM user_project');
+        self::assertSame(0, $count);
+    }
+
+    public function testLeaveDeletesUserProjectRows(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace]);
+        UserProjectFactory::createOne(['project' => $project, 'user' => $memberMembership->getUser()]);
+
+        $this->service->leave($workspace, $memberMembership->getUser());
+
+        $count = (int) $this->em->getConnection()->fetchOne('SELECT COUNT(*) FROM user_project');
+        self::assertSame(0, $count);
+    }
+
+    public function testRemoveMemberWithNoProjectAssignmentsIsNoOp(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+
+        $this->service->removeMember($memberMembership);
+
+        $count = (int) $this->em->getConnection()->fetchOne('SELECT COUNT(*) FROM user_project');
+        self::assertSame(0, $count);
     }
 }

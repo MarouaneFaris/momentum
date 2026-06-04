@@ -14,7 +14,7 @@ const makeWrapper =
     ({ children }: { children: React.ReactNode }) => (
         <AuthContext.Provider
             value={{
-                user: email ? { id: 1, email, name } : null,
+                user: email ? { id: '00000000-0000-0000-0000-000000000001', email, name } : null,
                 isLoading: false,
                 isAuthenticated: email !== null,
             }}
