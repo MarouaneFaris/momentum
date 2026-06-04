@@ -13,4 +13,5 @@ return [
     Zenstruck\Foundry\ZenstruckFoundryBundle::class => ['dev' => true, 'test' => true],
     Nelmio\ApiDocBundle\NelmioApiDocBundle::class => ['dev' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
+    Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
 ];
