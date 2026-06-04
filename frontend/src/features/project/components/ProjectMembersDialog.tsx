@@ -7,11 +7,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { useWorkspaceMembers } from '@/features/membership/queries'
-import { useQueryClient } from '@tanstack/react-query'
 import { UserMinusIcon } from 'lucide-react'
-import { useState } from 'react'
-import { useAssignProjectMember, useProjectMembers, useRemoveProjectMember } from '../queries'
+import { useProjectMembersDialog } from '../hooks/useProjectMembersDialog'
 import type { Project } from '../types'
 
 type Props = {
@@ -22,33 +19,16 @@ type Props = {
 }
 
 export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project }: Props) {
-    const [selectedUserId, setSelectedUserId] = useState('')
-    const queryClient = useQueryClient()
-    const { data: membersData } = useProjectMembers(workspaceId, project.id)
-    const { data: workspaceMembersData } = useWorkspaceMembers(workspaceId)
-    const assignMutation = useAssignProjectMember(workspaceId, project.id)
-    const removeMutation = useRemoveProjectMember(workspaceId, project.id)
-    const membersQueryKey = ['workspaces', workspaceId, 'projects', project.id, 'members']
-
-    const members = membersData ?? []
-    const workspaceMembers = workspaceMembersData ?? []
-    const assignedIds = new Set(members.map((m) => m.id))
-    const availableGuests = workspaceMembers.filter(
-        (m) => m.role === 'guest' && !assignedIds.has(m.id),
-    )
-
-    function handleAssign() {
-        if (!selectedUserId) return
-        assignMutation.mutate(
-            { userId: selectedUserId },
-            {
-                onSuccess: () => {
-                    setSelectedUserId('')
-                    void queryClient.invalidateQueries({ queryKey: membersQueryKey })
-                },
-            },
-        )
-    }
+    const {
+        members,
+        availableGuests,
+        selectedUserId,
+        setSelectedUserId,
+        handleAssign,
+        handleRemove,
+        isAssignPending,
+        isRemovePending,
+    } = useProjectMembersDialog(workspaceId, project)
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -74,15 +54,8 @@ export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project 
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        disabled={removeMutation.isPending}
-                                        onClick={() =>
-                                            removeMutation.mutate(member.id, {
-                                                onSuccess: () =>
-                                                    void queryClient.invalidateQueries({
-                                                        queryKey: membersQueryKey,
-                                                    }),
-                                            })
-                                        }
+                                        disabled={isRemovePending}
+                                        onClick={() => handleRemove(member.id)}
                                         aria-label={`Remove ${member.name}`}
                                     >
                                         <UserMinusIcon className="size-4" />
@@ -110,7 +83,7 @@ export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project 
                             </Select>
                             <Button
                                 type="button"
-                                disabled={!selectedUserId || assignMutation.isPending}
+                                disabled={!selectedUserId || isAssignPending}
                                 onClick={handleAssign}
                             >
                                 Add
