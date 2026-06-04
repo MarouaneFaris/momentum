@@ -54,11 +54,18 @@ class UserProjectRepository extends ServiceEntityRepository
 
     public function deleteByUserAndWorkspace(User $user, Workspace $workspace): void
     {
+        $workspaceId = $workspace->getId();
+        $userId = $user->getId();
+
+        if ($workspaceId === null || $userId === null) {
+            return;
+        }
+
         $conn = $this->getEntityManager()->getConnection();
 
         $projectIds = $conn->fetchFirstColumn(
             'SELECT id FROM project WHERE workspace_id = :workspaceId',
-            ['workspaceId' => $workspace->getId()->toBinary()],
+            ['workspaceId' => $workspaceId->toBinary()],
         );
 
         if ($projectIds === []) {
@@ -67,7 +74,7 @@ class UserProjectRepository extends ServiceEntityRepository
 
         $conn->executeStatement(
             'DELETE FROM user_project WHERE user_id = :userId AND project_id IN (:projectIds)',
-            ['userId' => $user->getId()->toBinary(), 'projectIds' => $projectIds],
+            ['userId' => $userId->toBinary(), 'projectIds' => $projectIds],
             ['projectIds' => ArrayParameterType::BINARY],
         );
     }
