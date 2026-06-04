@@ -21,6 +21,12 @@ export const useUpdateProject = (workspaceId: string, projectId: string) =>
             api.patch<Project>(`/workspaces/${workspaceId}/projects/${projectId}`, data),
     })
 
+export const useChangeProjectStatus = (workspaceId: string) =>
+    useMutation({
+        mutationFn: ({ projectId, status }: { projectId: string; status: string }) =>
+            api.patch<Project>(`/workspaces/${workspaceId}/projects/${projectId}`, { status }),
+    })
+
 export const useDeleteProject = (workspaceId: string, projectId: string) =>
     useMutation({
         mutationFn: () => api.delete(`/workspaces/${workspaceId}/projects/${projectId}`),
