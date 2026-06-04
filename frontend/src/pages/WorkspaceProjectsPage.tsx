@@ -8,8 +8,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
+import { ProjectMembersDialog } from '@/features/project/components/ProjectMembersDialog'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { Project, ProjectStatus } from '@/features/project/types'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { EllipsisVerticalIcon } from 'lucide-react'
 
 const STATUS_TRANSITIONS: Record<ProjectStatus, { value: ProjectStatus; label: string }[]> = {
@@ -50,9 +52,12 @@ export default function WorkspaceProjectsPage() {
         setEditProject,
         deleteProject,
         setDeleteProject,
+        manageMembersProject,
+        setManageMembersProject,
         canCreateProject,
         canManageProject,
         changeStatus,
+        canManageMembers,
     } = useWorkspaceProjectsPage()
 
     if (isLoading) return null
@@ -96,6 +101,32 @@ export default function WorkspaceProjectsPage() {
                                                 >
                                                     Edit
                                                 </DropdownMenuItem>
+                                                {canManageMembers(project) && (
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <span>
+                                                                <DropdownMenuItem
+                                                                    disabled={
+                                                                        project.status === 'draft'
+                                                                    }
+                                                                    onClick={() =>
+                                                                        setManageMembersProject(
+                                                                            project,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Manage members
+                                                                </DropdownMenuItem>
+                                                            </span>
+                                                        </TooltipTrigger>
+                                                        {project.status === 'draft' && (
+                                                            <TooltipContent side="left">
+                                                                Guests can't be assigned to draft
+                                                                projects
+                                                            </TooltipContent>
+                                                        )}
+                                                    </Tooltip>
+                                                )}
                                                 <DropdownMenuSeparator />
                                                 {STATUS_TRANSITIONS[project.status].map(
                                                     ({ value, label }) => (
@@ -149,6 +180,15 @@ export default function WorkspaceProjectsPage() {
                     onOpenChange={(open) => !open && setDeleteProject(null)}
                     workspaceId={workspaceId}
                     project={deleteProject}
+                />
+            )}
+
+            {manageMembersProject && (
+                <ProjectMembersDialog
+                    open={!!manageMembersProject}
+                    onOpenChange={(open) => !open && setManageMembersProject(null)}
+                    workspaceId={workspaceId}
+                    project={manageMembersProject}
                 />
             )}
         </div>

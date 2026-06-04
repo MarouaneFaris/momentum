@@ -10,6 +10,13 @@ export type Project = {
     updatedAt: string
 }
 
+export type ProjectMember = {
+    id: string
+    name: string
+    email: string
+    assignedAt: string
+}
+
 export type UseProjectFormOptions = {
     workspaceId: string
     project?: Project

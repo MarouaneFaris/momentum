@@ -20,6 +20,7 @@ final class ProjectVoter extends Voter
     public const string CREATE = 'project.create';
     public const string EDIT = 'project.edit';
     public const string DELETE = 'project.delete';
+    public const string MANAGE_MEMBERS = 'project.manage_members';
 
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
@@ -29,7 +30,7 @@ final class ProjectVoter extends Voter
     {
         return match (true) {
             \in_array($attribute, [self::VIEW, self::CREATE], true) && $subject instanceof Workspace => true,
-            \in_array($attribute, [self::EDIT, self::DELETE], true) && $subject instanceof Project => true,
+            \in_array($attribute, [self::EDIT, self::DELETE, self::MANAGE_MEMBERS], true) && $subject instanceof Project => true,
             default => false,
         };
     }
@@ -51,9 +52,15 @@ final class ProjectVoter extends Voter
                 return false;
             }
 
-            return $membership->getRole() === WorkspaceRole::Owner
-                || ($membership->getRole() === WorkspaceRole::Member
-                    && (string) $subject->getOwner()->getId() === (string) $membership->getId());
+            if ($membership->getRole() === WorkspaceRole::Guest) {
+                return false;
+            }
+
+            if ($membership->getRole() === WorkspaceRole::Owner) {
+                return true;
+            }
+
+            return (string) $subject->getOwner()->getId() === (string) $membership->getId();
         }
 
         /** @var Workspace $workspace */

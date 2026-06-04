@@ -16,6 +16,7 @@ export function useWorkspaceProjectsPage() {
     const [createOpen, setCreateOpen] = useState(false)
     const [editProject, setEditProject] = useState<Project | null>(null)
     const [deleteProject, setDeleteProject] = useState<Project | null>(null)
+    const [manageMembersProject, setManageMembersProject] = useState<Project | null>(null)
 
     function canCreateProject(): boolean {
         const role = workspace?.role
@@ -23,6 +24,13 @@ export function useWorkspaceProjectsPage() {
     }
 
     function canManageProject(project: Project): boolean {
+        const role = workspace?.role
+        if (!role || role === 'guest') return false
+        if (role === 'owner') return true
+        return project.ownerUserId === currentUser?.id
+    }
+
+    function canManageMembers(project: Project): boolean {
         const role = workspace?.role
         if (!role || role === 'guest') return false
         if (role === 'owner') return true
@@ -65,8 +73,11 @@ export function useWorkspaceProjectsPage() {
         setEditProject,
         deleteProject,
         setDeleteProject,
+        manageMembersProject,
+        setManageMembersProject,
         canCreateProject,
         canManageProject,
+        canManageMembers,
         changeStatus,
     }
 }

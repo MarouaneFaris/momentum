@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Project;
+use App\Entity\User;
+use App\Entity\UserProject;
 use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\ProjectStatus;
@@ -61,6 +63,24 @@ final readonly class ProjectService
             $project->setStatus($status);
         }
 
+        $this->em->flush();
+    }
+
+    public function assignGuest(Project $project, User $user): UserProject
+    {
+        $assignment = new UserProject();
+        $assignment->setProject($project);
+        $assignment->setUser($user);
+
+        $this->em->persist($assignment);
+        $this->em->flush();
+
+        return $assignment;
+    }
+
+    public function removeGuest(UserProject $assignment): void
+    {
+        $this->em->remove($assignment);
         $this->em->flush();
     }
 }

@@ -8,6 +8,7 @@ use App\Enum\ProjectStatus;
 use App\Enum\WorkspaceRole;
 use App\Factory\ProjectFactory;
 use App\Factory\UserFactory;
+use App\Factory\UserProjectFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -104,7 +105,30 @@ final class ProjectListTest extends WebTestCase
         self::assertNotContains('Other Draft', $names);
     }
 
-    public function testGuestSeesEmptyList(): void
+    public function testGuestSeesOnlyAssignedProjects(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $otherMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Guest]);
+
+        $assignedProject = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $otherMembership, 'name' => 'Assigned', 'status' => ProjectStatus::Active]);
+        ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $otherMembership, 'name' => 'Not Assigned', 'status' => ProjectStatus::Active]);
+
+        UserProjectFactory::createOne(['project' => $assignedProject, 'user' => $user]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request('GET', '/api/workspaces/' . $workspace->getId() . '/projects');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        /** @var list<array<string, mixed>> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertCount(1, $data);
+        self::assertSame('Assigned', $data[0]['name']);
+    }
+
+    public function testGuestWithNoAssignmentsSeesEmptyList(): void
     {
         $client = static::createClient();
         $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
