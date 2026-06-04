@@ -30,13 +30,24 @@ export function useWorkspaceProjectsPage() {
     }
 
     function changeStatus(project: Project, status: ProjectStatus) {
+        const key = ['workspaces', id!, 'projects'] as const
+        const previous = queryClient.getQueryData<Project[]>(key)
+
+        queryClient.setQueryData<Project[]>(
+            key,
+            (prev) => prev?.map((p) => (p.id === project.id ? { ...p, status } : p)) ?? [],
+        )
+
         changeStatusMutation.mutate(
             { projectId: project.id, status },
             {
+                onError: () => {
+                    queryClient.setQueryData(key, previous)
+                },
                 onSuccess: (updated) => {
                     if (updated === null) return
                     queryClient.setQueryData<Project[]>(
-                        ['workspaces', id!, 'projects'],
+                        key,
                         (prev) => prev?.map((p) => (p.id === updated.id ? updated : p)) ?? [],
                     )
                 },
