@@ -8,6 +8,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { useWorkspaceMembers } from '@/features/membership/queries'
+import { useQueryClient } from '@tanstack/react-query'
 import { UserMinusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useAssignProjectMember, useProjectMembers, useRemoveProjectMember } from '../queries'
@@ -22,10 +23,12 @@ type Props = {
 
 export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project }: Props) {
     const [selectedUserId, setSelectedUserId] = useState('')
+    const queryClient = useQueryClient()
     const { data: membersData } = useProjectMembers(workspaceId, project.id)
     const { data: workspaceMembersData } = useWorkspaceMembers(workspaceId)
     const assignMutation = useAssignProjectMember(workspaceId, project.id)
     const removeMutation = useRemoveProjectMember(workspaceId, project.id)
+    const membersQueryKey = ['workspaces', workspaceId, 'projects', project.id, 'members']
 
     const members = membersData ?? []
     const workspaceMembers = workspaceMembersData ?? []
@@ -38,7 +41,12 @@ export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project 
         if (!selectedUserId) return
         assignMutation.mutate(
             { userId: selectedUserId },
-            { onSuccess: () => setSelectedUserId('') },
+            {
+                onSuccess: () => {
+                    setSelectedUserId('')
+                    void queryClient.invalidateQueries({ queryKey: membersQueryKey })
+                },
+            },
         )
     }
 
@@ -67,7 +75,14 @@ export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project 
                                         variant="ghost"
                                         size="icon"
                                         disabled={removeMutation.isPending}
-                                        onClick={() => removeMutation.mutate(member.id)}
+                                        onClick={() =>
+                                            removeMutation.mutate(member.id, {
+                                                onSuccess: () =>
+                                                    void queryClient.invalidateQueries({
+                                                        queryKey: membersQueryKey,
+                                                    }),
+                                            })
+                                        }
                                         aria-label={`Remove ${member.name}`}
                                     >
                                         <UserMinusIcon className="size-4" />

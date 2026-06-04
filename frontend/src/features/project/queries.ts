@@ -1,6 +1,6 @@
 import api from '@/lib/api'
 import { useSettledQuery } from '@/lib/useSettledQuery'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import type { Project, ProjectMember } from './types'
 
 export const useProjects = (workspaceId: string) =>
@@ -39,31 +39,17 @@ export const useProjectMembers = (workspaceId: string, projectId: string) =>
             api.get<ProjectMember[]>(`/workspaces/${workspaceId}/projects/${projectId}/members`),
     })
 
-export const useAssignProjectMember = (workspaceId: string, projectId: string) => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useAssignProjectMember = (workspaceId: string, projectId: string) =>
+    useMutation({
         mutationFn: (data: { userId: string }) =>
             api.post<ProjectMember>(
                 `/workspaces/${workspaceId}/projects/${projectId}/members`,
                 data,
             ),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: ['workspaces', workspaceId, 'projects', projectId, 'members'],
-            })
-        },
     })
-}
 
-export const useRemoveProjectMember = (workspaceId: string, projectId: string) => {
-    const queryClient = useQueryClient()
-    return useMutation({
+export const useRemoveProjectMember = (workspaceId: string, projectId: string) =>
+    useMutation({
         mutationFn: (userId: string) =>
             api.delete(`/workspaces/${workspaceId}/projects/${projectId}/members/${userId}`),
-        onSuccess: () => {
-            void queryClient.invalidateQueries({
-                queryKey: ['workspaces', workspaceId, 'projects', projectId, 'members'],
-            })
-        },
     })
-}

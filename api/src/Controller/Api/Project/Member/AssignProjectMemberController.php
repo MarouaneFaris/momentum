@@ -8,6 +8,7 @@ use App\DTO\AssignProjectMemberDTO;
 use App\DTO\Response\ProjectMemberResponse;
 use App\Entity\Project;
 use App\Entity\Workspace;
+use App\Enum\ProjectStatus;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserProjectRepository;
 use App\Repository\UserWorkspaceRepository;
@@ -41,6 +42,10 @@ final class AssignProjectMemberController extends AbstractController
         UserProjectRepository $userProjectRepository,
         ProjectService $projectService,
     ): JsonResponse {
+        if ($project->getStatus() === ProjectStatus::Draft) {
+            throw new UnprocessableEntityHttpException('Guests cannot be assigned to draft projects');
+        }
+
         $targetMembership = $userWorkspaceRepository->findOneByWorkspaceAndUserId($workspace, $dto->userId);
 
         if ($targetMembership === null) {
