@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { UserMenu } from '@/components/UserMenu'
 
@@ -53,25 +52,29 @@ describe('UserMenu', () => {
         expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('AB')
     })
 
-    it('clicking avatar opens dropdown with logout item', async () => {
-        const user = userEvent.setup({ delay: null })
+    it('clicking avatar opens dropdown with logout item', () => {
         render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com') })
 
-        const avatarButton = screen.getByRole('button', { name: /user menu/i })
-        await user.click(avatarButton)
+        const button = screen.getByRole('button', { name: /user menu/i })
+        act(() => {
+            button.dispatchEvent(
+                new MouseEvent('pointerdown', { bubbles: true, button: 0, ctrlKey: false }),
+            )
+        })
 
         expect(screen.getByText('Logout')).toBeInTheDocument()
     })
 
-    it('clicking Logout invokes handleOnLogout', async () => {
-        const user = userEvent.setup({ delay: null })
+    it('clicking Logout invokes handleOnLogout', () => {
         render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com') })
 
-        const avatarButton = screen.getByRole('button', { name: /user menu/i })
-        await user.click(avatarButton)
-
-        const logoutItem = screen.getByText('Logout')
-        await user.click(logoutItem)
+        const button = screen.getByRole('button', { name: /user menu/i })
+        act(() => {
+            button.dispatchEvent(
+                new MouseEvent('pointerdown', { bubbles: true, button: 0, ctrlKey: false }),
+            )
+        })
+        fireEvent.click(screen.getByText('Logout'))
 
         expect(mockLogout).toHaveBeenCalledTimes(1)
     })
