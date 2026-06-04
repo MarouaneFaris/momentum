@@ -9,11 +9,13 @@ use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Entity\WorkspaceInvitation;
 use App\Enum\WorkspaceRole;
+use App\Event\ProjectOwnerRemoved;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Repository\WorkspaceInvitationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -29,6 +31,7 @@ final readonly class MembershipService
         private WorkspaceInvitationRepository $invitationRepository,
         private UserWorkspaceRepository $userWorkspaceRepository,
         private UserRepository $userRepository,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function invite(Workspace $workspace, User $invitedBy, string $email, WorkspaceRole $role): WorkspaceInvitation
@@ -118,7 +121,9 @@ final readonly class MembershipService
             throw new BadRequestHttpException('Cannot remove workspace owner');
         }
 
+        $workspace = $membership->getWorkspace();
         $this->em->remove($membership);
+        $this->eventDispatcher->dispatch(new ProjectOwnerRemoved($membership, $workspace));
         $this->em->flush();
     }
 
@@ -148,7 +153,9 @@ final readonly class MembershipService
             throw new AccessDeniedHttpException('Workspace owner cannot leave; delete the workspace instead');
         }
 
+        $workspace = $membership->getWorkspace();
         $this->em->remove($membership);
+        $this->eventDispatcher->dispatch(new ProjectOwnerRemoved($membership, $workspace));
         $this->em->flush();
     }
 }
