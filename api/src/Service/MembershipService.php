@@ -10,6 +10,7 @@ use App\Entity\Workspace;
 use App\Entity\WorkspaceInvitation;
 use App\Enum\WorkspaceRole;
 use App\Event\ProjectOwnerRemoved;
+use App\Event\UserRemovedFromWorkspace;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Repository\WorkspaceInvitationRepository;
@@ -121,9 +122,8 @@ final readonly class MembershipService
             throw new BadRequestHttpException('Cannot remove workspace owner');
         }
 
-        $workspace = $membership->getWorkspace();
         $this->em->remove($membership);
-        $this->eventDispatcher->dispatch(new ProjectOwnerRemoved($membership, $workspace));
+        $this->dispatchRemovalEvent($membership);
         $this->em->flush();
     }
 
@@ -153,9 +153,15 @@ final readonly class MembershipService
             throw new AccessDeniedHttpException('Workspace owner cannot leave; delete the workspace instead');
         }
 
-        $workspace = $membership->getWorkspace();
         $this->em->remove($membership);
-        $this->eventDispatcher->dispatch(new ProjectOwnerRemoved($membership, $workspace));
+        $this->dispatchRemovalEvent($membership);
         $this->em->flush();
+    }
+
+    private function dispatchRemovalEvent(UserWorkspace $membership): void
+    {
+        $workspace = $membership->getWorkspace();
+        $this->eventDispatcher->dispatch(new ProjectOwnerRemoved($membership, $workspace));
+        $this->eventDispatcher->dispatch(new UserRemovedFromWorkspace($membership->getUser(), $workspace));
     }
 }
