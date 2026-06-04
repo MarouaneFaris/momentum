@@ -3,13 +3,29 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
-import type { Project } from '@/features/project/types'
+import type { Project, ProjectStatus } from '@/features/project/types'
 import { EllipsisVerticalIcon } from 'lucide-react'
+
+const STATUS_TRANSITIONS: Record<ProjectStatus, { value: ProjectStatus; label: string }[]> = {
+    draft: [
+        { value: 'active', label: 'Set as Active' },
+        { value: 'archived', label: 'Set as Archived' },
+    ],
+    active: [
+        { value: 'draft', label: 'Set as Draft' },
+        { value: 'archived', label: 'Set as Archived' },
+    ],
+    archived: [
+        { value: 'draft', label: 'Set as Draft' },
+        { value: 'active', label: 'Set as Active' },
+    ],
+}
 
 function statusLabel(status: Project['status']): string {
     return { draft: 'Draft', active: 'Active', archived: 'Archived' }[status]
@@ -36,6 +52,7 @@ export default function WorkspaceProjectsPage() {
         setDeleteProject,
         canCreateProject,
         canManageProject,
+        changeStatus,
     } = useWorkspaceProjectsPage()
 
     if (isLoading) return null
@@ -79,6 +96,20 @@ export default function WorkspaceProjectsPage() {
                                                 >
                                                     Edit
                                                 </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                {STATUS_TRANSITIONS[project.status].map(
+                                                    ({ value, label }) => (
+                                                        <DropdownMenuItem
+                                                            key={value}
+                                                            onClick={() =>
+                                                                changeStatus(project, value)
+                                                            }
+                                                        >
+                                                            {label}
+                                                        </DropdownMenuItem>
+                                                    ),
+                                                )}
+                                                <DropdownMenuSeparator />
                                                 <DropdownMenuItem
                                                     variant="destructive"
                                                     onClick={() => setDeleteProject(project)}
