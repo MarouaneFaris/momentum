@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration;
 
+use App\Enum\ProjectStatus;
 use App\Enum\WorkspaceRole;
 use App\Factory\ProjectFactory;
 use App\Factory\UserFactory;
@@ -142,7 +143,7 @@ final class ProjectMembersTest extends WebTestCase
         $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
         $workspace = WorkspaceFactory::createOne();
         $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
-        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership, 'status' => ProjectStatus::Active]);
 
         $guest = UserFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $guest, 'workspace' => $workspace, 'role' => WorkspaceRole::Guest]);
@@ -193,7 +194,7 @@ final class ProjectMembersTest extends WebTestCase
         $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
         $workspace = WorkspaceFactory::createOne();
         $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
-        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership, 'status' => ProjectStatus::Active]);
 
         $guest = UserFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $guest, 'workspace' => $workspace, 'role' => WorkspaceRole::Guest]);
