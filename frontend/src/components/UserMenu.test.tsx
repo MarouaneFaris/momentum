@@ -54,7 +54,7 @@ describe('UserMenu', () => {
     })
 
     it('clicking avatar opens dropdown with logout item', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com') })
 
         const avatarButton = screen.getByRole('button', { name: /user menu/i })
@@ -64,7 +64,7 @@ describe('UserMenu', () => {
     })
 
     it('clicking Logout invokes handleOnLogout', async () => {
-        const user = userEvent.setup()
+        const user = userEvent.setup({ delay: null })
         render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com') })
 
         const avatarButton = screen.getByRole('button', { name: /user menu/i })
