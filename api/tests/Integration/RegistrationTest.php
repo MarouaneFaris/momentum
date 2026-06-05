@@ -11,19 +11,12 @@ use App\Enum\WorkspaceRole;
 use App\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class RegistrationTest extends WebTestCase
+final class RegistrationTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
-    private const string EMAIL = 'newuser@example.com';
-    private const string PASSWORD = 'SuperSecurePass123!';
+    protected const string EMAIL = 'newuser@example.com';
     private const string NAME = 'Alex Johnson';
 
     private static int $ipCounter = 10;

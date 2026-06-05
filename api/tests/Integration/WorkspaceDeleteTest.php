@@ -10,20 +10,10 @@ use App\Factory\UserFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class WorkspaceDeleteTest extends WebTestCase
+final class WorkspaceDeleteTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
-    private const string EMAIL = 'user@example.com';
-    private const string PASSWORD = 'SuperSecurePass123!';
-
     public function testUnauthenticatedReturns401(): void
     {
         $client = static::createClient();
@@ -41,7 +31,7 @@ final class WorkspaceDeleteTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $workspaceId = $workspace->getId();
         $client->request('DELETE', '/api/workspaces/' . $workspaceId);
 
@@ -60,7 +50,7 @@ final class WorkspaceDeleteTest extends WebTestCase
         ]);
         $userWorkspaceId = $userWorkspace->getId();
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId());
 
         /** @var EntityManagerInterface $em */
@@ -78,7 +68,7 @@ final class WorkspaceDeleteTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -91,7 +81,7 @@ final class WorkspaceDeleteTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Guest]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -102,21 +92,9 @@ final class WorkspaceDeleteTest extends WebTestCase
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/00000000-0000-0000-0000-000000000000');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
-    }
-
-    private function loginAs(KernelBrowser $client): void
-    {
-        $client->request(
-            'POST',
-            '/api/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
     }
 }

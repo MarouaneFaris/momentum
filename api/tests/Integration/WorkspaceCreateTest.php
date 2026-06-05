@@ -9,30 +9,10 @@ use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class WorkspaceCreateTest extends WebTestCase
+final class WorkspaceCreateTest extends IntegrationTestCase
 {
-    use Factories;
-    use LoginAsTrait;
-    use ResetDatabase;
-
-    private const string EMAIL = 'user@example.com';
-    private const string PASSWORD = 'SuperSecurePass123!';
-
-    protected function tearDown(): void
-    {
-        $apiLimiter = static::getContainer()->get('limiter.api');
-        assert($apiLimiter instanceof RateLimiterFactory);
-        $apiLimiter->create(self::EMAIL)->reset();
-
-        parent::tearDown();
-    }
-
     public function testUnauthenticatedReturns401(): void
     {
         $client = static::createClient();

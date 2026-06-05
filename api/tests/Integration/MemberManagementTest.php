@@ -8,29 +8,11 @@ use App\Enum\WorkspaceRole;
 use App\Factory\UserFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class MemberManagementTest extends WebTestCase
+final class MemberManagementTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
-    private const string EMAIL = 'owner@example.com';
-    private const string PASSWORD = 'SuperSecurePass123!';
-
-    protected function tearDown(): void
-    {
-        $apiLimiter = static::getContainer()->get('limiter.api');
-        assert($apiLimiter instanceof RateLimiterFactory);
-        $apiLimiter->create(self::EMAIL)->reset();
-
-        parent::tearDown();
-    }
+    protected const string EMAIL = 'owner@example.com';
 
     // — GET /api/workspaces/{workspaceId}/members ——————————————————————————————
 
@@ -52,7 +34,7 @@ final class MemberManagementTest extends WebTestCase
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
         UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces/' . $workspace->getId() . '/members');
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -95,7 +77,7 @@ final class MemberManagementTest extends WebTestCase
         $target = UserFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $target, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId() . '/members/' . $target->getId(),
@@ -117,7 +99,7 @@ final class MemberManagementTest extends WebTestCase
         $target = UserFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $target, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId() . '/members/' . $target->getId(),
@@ -137,7 +119,7 @@ final class MemberManagementTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId() . '/members/' . $user->getId(),
@@ -159,7 +141,7 @@ final class MemberManagementTest extends WebTestCase
         $target = UserFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $target, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId() . '/members/' . $target->getId(),
@@ -197,7 +179,7 @@ final class MemberManagementTest extends WebTestCase
         $target = UserFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $target, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId() . '/members/' . $target->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -210,7 +192,7 @@ final class MemberManagementTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId() . '/members/' . $user->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -225,7 +207,7 @@ final class MemberManagementTest extends WebTestCase
         $target = UserFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $target, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId() . '/members/' . $target->getId());
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
@@ -250,7 +232,7 @@ final class MemberManagementTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId() . '/members/me');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -263,21 +245,9 @@ final class MemberManagementTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/workspaces/' . $workspace->getId() . '/members/me');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-    }
-
-    private function loginAs(KernelBrowser $client): void
-    {
-        $client->request(
-            'POST',
-            '/api/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
     }
 }

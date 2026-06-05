@@ -7,20 +7,13 @@ namespace App\Tests\Integration;
 use App\Factory\UserFactory;
 use App\Repository\AuthTokenRepository;
 use App\Service\AuthTokenManager;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
 /**
  * ADR-008 enforcement: the raw auth token must never be persisted — only its SHA-256 hash.
  */
-final class TokenStorageInvariantTest extends WebTestCase
+final class TokenStorageInvariantTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
-    private const string EMAIL = 'user@example.com';
-    private const string PASSWORD = 'secret123';
+    protected const string PASSWORD = 'secret123';
 
     public function testLoginPersistsExactlyOneAuthToken(): void
     {
