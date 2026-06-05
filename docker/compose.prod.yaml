@@ -6,6 +6,27 @@ services:
     build:
       target: frankenphp_prod
     environment:
+      SERVER_NAME: ":${PORT:-8080}"
       APP_SECRET: ${APP_SECRET}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+      CADDY_SECURITY_HEADERS: |
+        header {
+            Strict-Transport-Security "max-age=31536000; includeSubDomains"
+            X-Content-Type-Options "nosniff"
+            Referrer-Policy "strict-origin-when-cross-origin"
+            X-Frame-Options "DENY"
+        }
+      MERCURE_EXTRA_DIRECTIVES: ""
+      MERCURE_PUBLIC_URL: "https://${SERVER_NAME}/.well-known/mercure"
+      CADDY_SPA_FALLBACK: |
+        @spaFallback {
+            not path /api/*
+            not path /.well-known/mercure*
+            not file {path}
+        }
+        rewrite @spaFallback /index.html
+    ports:
+      - target: ${PORT:-8080}
+        published: ${PORT:-8080}
+        protocol: tcp

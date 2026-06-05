@@ -8,6 +8,7 @@ export const useDevUsers = () =>
         queryKey: ['dev-users'],
         queryFn: () => api.get<DevUser[]>('/dev/users'),
         requireAuth: false,
+        enabled: import.meta.env.DEV,
     })
 
 export const useLoginAs = () =>
