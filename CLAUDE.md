@@ -77,6 +77,16 @@ Git hooks live in `scripts/hooks/`:
 
 See `frontend/CONTEXT.md` for stack, folder structure, and architectural rules.
 
+## Production
+
+Hosted on Railway — see [ADR-003](docs/adr/003-stack-and-infrastructure-decisions.md) and [ADR-013](docs/adr/013-production-deployment-architecture-on-railway.md).
+
+Same-origin bundled deploy: Vite `dist/` baked into Symfony `public/` at image build time; Caddy serves both from `/app/public` in one container. No CORS, no cross-site cookies. See ADR-013 and provisioning runbook at `docs/runbooks/railway-production.md`.
+
+Deploy trigger: push to `main` → `ci.yaml` `deploy` job → `railway up --ci`. Pre-deploy command runs Doctrine migrations; `/api/health` gates Railway healthcheck and CI smoke probe.
+
+No `.env.prod` in the repo — all prod values live in Railway. See [ADR-010](docs/adr/010-env-file-architecture.md).
+
 ## Agent skills
 
 ### Issue tracker

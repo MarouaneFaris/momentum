@@ -16,6 +16,8 @@ All routes under `/api/`. Public: `/api/login`, `/api/register`. Everything else
 
 Stateful token-based — tokens are revocable (JWT rejected for this reason). Delivered via cookies: HttpOnly + SameSite=Strict + Secure. JSON login uses `email` + `password` fields. Session storage backend planned: Redis.
 
+In production the SameSite=Strict posture (ADR-008) is preserved by the same-origin bundling decision — API and frontend ship in one container, so no cross-site cookie policy is needed. See [ADR-013](../docs/adr/013-production-deployment-architecture-on-railway.md).
+
 Token implementation: 256-bit random value (`random_bytes(32)`), raw token never stored — only SHA256 hash persisted. SHA256 chosen over bcrypt because tokens are high-entropy random values (bcrypt cost unnecessary). TTL is 30 days (hardcoded gap: should be `AUTH_TOKEN_TTL` env var). See [ADR-008](../docs/adr/008-token-security-design.md).
 
 ## Domain Decisions
