@@ -70,11 +70,11 @@ Create a shared variable group so credentials are defined once and referenced by
 1. Project settings → **Shared Variables** → **New Group**, name it `db-credentials`.
 2. Add:
 
-   | Variable           | Value                                    |
-   |--------------------|------------------------------------------|
-   | `MARIADB_USER`     | `momentum`                               |
-   | `MARIADB_PASSWORD` | _(generate: `openssl rand -hex 32`)_     |
-   | `MARIADB_DATABASE` | `momentum`                               |
+   | Variable           | Value                                |
+   | ------------------ | ------------------------------------ |
+   | `MARIADB_USER`     | `momentum`                           |
+   | `MARIADB_PASSWORD` | _(generate: `openssl rand -hex 32`)_ |
+   | `MARIADB_DATABASE` | `momentum`                           |
 
 3. Reference this group from both the `mariadb` and `app` services.
 
@@ -82,9 +82,9 @@ Create a shared variable group so credentials are defined once and referenced by
 
 Add these directly on the `mariadb` service (in addition to the shared group above):
 
-| Variable               | Value                                |
-|------------------------|--------------------------------------|
-| `MARIADB_ROOT_PASSWORD`| _(generate: `openssl rand -hex 32`)_ |
+| Variable                | Value                                |
+| ----------------------- | ------------------------------------ |
+| `MARIADB_ROOT_PASSWORD` | _(generate: `openssl rand -hex 32`)_ |
 
 ### 4.3 `app` service variables
 
@@ -104,25 +104,26 @@ REDIS_URL=${{Redis.REDIS_URL}}
 
 **Symfony / FrankenPHP:**
 
-| Variable                   | Value                                                  |
-|----------------------------|--------------------------------------------------------|
-| `APP_ENV`                  | `prod`                                                 |
-| `APP_SECRET`               | _(generate: `openssl rand -hex 32`)_                   |
-| `SERVER_NAME`              | `:${{RAILWAY_TCP_PROXY_PORT}}` or leave default `http` — Railway sets `PORT`; set to `:${{PORT}}` so Caddy binds to the correct port. Use the auto-subdomain URL after first deploy if `SERVER_NAME` must be the public domain. |
-| `SYMFONY_TRUSTED_PROXIES`  | `REMOTE_ADDR`                                          |
+| Variable                  | Value                                |
+| ------------------------- | ------------------------------------ |
+| `APP_ENV`                 | `prod`                               |
+| `APP_SECRET`              | _(generate: `openssl rand -hex 32`)_ |
+| `SYMFONY_TRUSTED_PROXIES` | `REMOTE_ADDR`                        |
+
+> **`SERVER_NAME` must be set before the first deploy.** Railway injects `PORT` at runtime; Caddy binds to whatever `SERVER_NAME` is set to. An empty or missing value produces a bare server block that Caddy rejects — FrankenPHP crashes on startup and all healthchecks fail. `:${{PORT}}` (Railway's reference syntax) resolves to the correct port automatically.
 
 > `SYMFONY_TRUSTED_PROXIES=REMOTE_ADDR` is required so the IP-based rate limiter (ADR-007) sees real client IPs, not Railway's internal hop. Safe here because Railway is the sole network layer in front of Caddy. See ADR-013 §Decision 4.
 
 **Caddy env-injected directives:**
 
-| Variable                  | Value                                                                                                                                                                       |
-|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `CADDY_SPA_FALLBACK`      | `try_files {path} /index.html`                                                                                                                                              |
-| `CADDY_SECURITY_HEADERS`  | _(multiline — paste exactly as shown below)_                                                                                                                                |
-| `MERCURE_EXTRA_DIRECTIVES`| _(empty string)_                                                                                                                                                            |
-| `CADDY_MERCURE_JWT_SECRET`| _(generate: `openssl rand -hex 32`)_                                                                                                                                        |
-| `MERCURE_PUBLISHER_JWT_KEY`| _(same value as `CADDY_MERCURE_JWT_SECRET`)_                                                                                                                               |
-| `MERCURE_SUBSCRIBER_JWT_KEY`| _(same value as `CADDY_MERCURE_JWT_SECRET`)_                                                                                                                             |
+| Variable                     | Value                                        |
+| ---------------------------- | -------------------------------------------- |
+| `CADDY_SPA_FALLBACK`         | `try_files {path} /index.html`               |
+| `CADDY_SECURITY_HEADERS`     | _(multiline — paste exactly as shown below)_ |
+| `MERCURE_EXTRA_DIRECTIVES`   | _(empty string)_                             |
+| `CADDY_MERCURE_JWT_SECRET`   | _(generate: `openssl rand -hex 32`)_         |
+| `MERCURE_PUBLISHER_JWT_KEY`  | _(same value as `CADDY_MERCURE_JWT_SECRET`)_ |
+| `MERCURE_SUBSCRIBER_JWT_KEY` | _(same value as `CADDY_MERCURE_JWT_SECRET`)_ |
 
 `CADDY_SECURITY_HEADERS` value (paste as-is — Caddy reads this as a block of directives):
 
@@ -137,31 +138,22 @@ header X-Frame-Options "DENY"
 
 ---
 
-## 5. Pre-deploy command
+## 5. Pre-deploy command and healthcheck
 
-In the `app` service → **Settings** → **Deploy** → **Pre-deploy command**:
+Both are declared in `railway.toml` (committed to repo) — no dashboard configuration needed:
 
+```toml
+[deploy]
+healthcheckPath = "/api/health"
+preDeployCommand = ["php bin/console doctrine:migrations:migrate --no-interaction"]
 ```
-php bin/console doctrine:migrations:migrate --no-interaction
-```
 
-A failed migration aborts the deploy and the previous release keeps serving traffic. See ADR-013 §Decision 3 for rationale.
+- **Pre-deploy:** a failed migration aborts the deploy; previous release keeps serving. See ADR-013 §Decision 3.
+- **Healthcheck:** requires [#311](https://github.com/MarouaneFaris/momentum/issues/311) to land. Railway gates deploy promotion on a 200 response from `/api/health`.
 
 ---
 
-## 6. Healthcheck
-
-In the `app` service → **Settings** → **Deploy** → **Healthcheck path**:
-
-```
-/api/health
-```
-
-> This endpoint will exist once [#311](https://github.com/MarouaneFaris/momentum/issues/311) lands. Railway gates the deploy promotion on a 200 response from this path.
-
----
-
-## 7. Networking
+## 6. Networking
 
 - **`app`**: expose publicly — Railway auto-generates a subdomain. Enable in **Settings** → **Networking** → **Public Networking** → **Generate Domain**.
 - **`mariadb`**: leave private — no public networking, internal Railway DNS only.
@@ -169,21 +161,21 @@ In the `app` service → **Settings** → **Deploy** → **Healthcheck path**:
 
 ---
 
-## 8. CI/CD secrets and variables
+## 7. CI/CD secrets and variables
 
 After the first successful manual deploy, wire up GitHub Actions for continuous deployment.
 
-### 8.1 Railway project token
+### 7.1 Railway project token
 
 1. Railway project → **Settings** → **Tokens** → **New Token**.
 2. Add to GitHub repo as a **secret** named `RAILWAY_TOKEN`.
 
-### 8.2 App service ID
+### 7.2 App service ID
 
 1. `app` service → **Settings** → copy the **Service ID**.
 2. Add to GitHub repo as a **variable** named `RAILWAY_APP_SERVICE_ID`.
 
-### 8.3 Health URL
+### 7.3 Health URL
 
 1. After the first deploy, copy the public subdomain URL (e.g. `https://momentum-prod.up.railway.app`).
 2. Add to GitHub repo as a **variable** named `API_HEALTH_URL` with value `https://<subdomain>/api/health`.
@@ -192,11 +184,11 @@ The CI workflow (`ci.yml`) already consumes these — `RAILWAY_TOKEN` as a secre
 
 ---
 
-## 9. Smoke test after first deploy
+## 8. Smoke test after first deploy
 
 Run these checks in order after the first successful deploy.
 
-### 9.1 Health endpoint
+### 8.1 Health endpoint
 
 ```bash
 curl -i https://<subdomain>/api/health
@@ -204,7 +196,7 @@ curl -i https://<subdomain>/api/health
 
 Expected: `HTTP/2 200` with a JSON body confirming DB and Redis connectivity.
 
-### 9.2 Auth cookie flags
+### 8.2 Auth cookie flags
 
 ```bash
 # Register
@@ -220,11 +212,11 @@ curl -i -c cookies.txt -X POST https://<subdomain>/api/login \
 
 Inspect `cookies.txt` — the auth cookie must carry `HttpOnly`, `Secure`, and `SameSite=Strict` flags.
 
-### 9.3 SPA deep-link reload
+### 8.3 SPA deep-link reload
 
 Open `https://<subdomain>/workspaces/<any-uuid>/dashboard` directly in a browser (paste into address bar to force a full navigation). The SPA shell must render, not a 404.
 
-### 9.4 Security headers
+### 8.4 Security headers
 
 ```bash
 curl -si https://<subdomain>/ | grep -iE 'strict-transport|x-content-type|referrer-policy|x-frame'

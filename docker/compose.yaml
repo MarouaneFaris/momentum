@@ -7,7 +7,7 @@ services:
       target: frankenphp_dev
     restart: unless-stopped
     environment:
-      SERVER_NAME: ${SERVER_NAME}, php:80
+      PORT: ${HTTPS_PORT:-443}
       DEFAULT_URI: https://${SERVER_NAME}:${HTTPS_PORT}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
