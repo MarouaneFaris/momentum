@@ -1,7 +1,6 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "docker/Dockerfile"
-dockerBuildTarget = "frankenphp_prod"
 buildEnvironment = "V3"
 
 [deploy]
