@@ -1,0 +1,40 @@
+name: Security Audit
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  frontend-audit:
+    name: Frontend Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
+      - name: Setup Node app
+        uses: ./.github/actions/setup-node-app
+
+      - name: Run audit
+        working-directory: frontend
+        run: pnpm audit --audit-level=high
+
+  api-audit:
+    name: API Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
+      - name: Setup PHP app
+        uses: ./.github/actions/setup-php-app
+
+      - name: Run audit
+        working-directory: api
+        run: composer audit
