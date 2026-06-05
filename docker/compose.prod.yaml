@@ -17,3 +17,7 @@ services:
             not file {path}
         }
         rewrite @spaFallback /index.html
+    ports:
+      - target: ${PORT:-8080}
+        published: ${PORT:-8080}
+        protocol: tcp
