@@ -12,7 +12,7 @@ PHP = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY = $(PHP) bin/console
 SYMFONY_TEST = $(SYMFONY) -e test
-PNPM = $(NODE_CONT) pnpm
+PNPM = $(NODE_CONT) corepack pnpm
 
 # Frontend
 FRONTEND_DIR = frontend
