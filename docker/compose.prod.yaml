@@ -6,6 +6,18 @@ services:
     build:
       target: frankenphp_prod
     environment:
+      SERVER_NAME: ":${PORT:-8080}"
       APP_SECRET: ${APP_SECRET}
       MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+      CADDY_SPA_FALLBACK: |
+        @spaFallback {
+            not path /api/*
+            not path /.well-known/mercure*
+            not file {path}
+        }
+        rewrite @spaFallback /index.html
+    ports:
+      - target: ${PORT:-8080}
+        published: ${PORT:-8080}
+        protocol: tcp

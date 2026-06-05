@@ -2,6 +2,7 @@
 ENV_FILE_ARGS = --env-file .env $(if $(wildcard .env.local),--env-file .env.local,)
 COMPOSE = DOCKER_UID=$(shell id -u) DOCKER_GID=$(shell id -g) docker compose $(ENV_FILE_ARGS)
 DOCKER_COMP = $(COMPOSE) -f docker/compose.yaml -f docker/compose.override.yaml
+DOCKER_COMP_PROD = $(COMPOSE) -f docker/compose.yaml -f docker/compose.prod.yaml
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
@@ -25,6 +26,7 @@ MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
 .PHONY : help \
 	build rebuild up down nuke logs config sh bash node-sh \
+	prod-build prod-up \
 	test test-unit test-integration test-functional \
 	composer vendor \
 	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db load-fixtures \
@@ -59,6 +61,12 @@ logs: ## Show live logs
 
 config: ## Dump docker compose config
 	@$(DOCKER_COMP) config
+
+prod-build: ## Build the prod Docker image (requires APP_SECRET + CADDY_MERCURE_JWT_SECRET in .env.local)
+	@$(DOCKER_COMP_PROD) build
+
+prod-up: ## Run the prod stack locally for testing (requires APP_SECRET + CADDY_MERCURE_JWT_SECRET in .env.local)
+	@$(DOCKER_COMP_PROD) up --detach --remove-orphans
 
 sh: ## Connect to the FrankenPHP container
 	@$(PHP_CONT) sh
