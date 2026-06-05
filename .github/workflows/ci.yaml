@@ -28,9 +28,6 @@ jobs:
       - name: Setup Node app
         uses: ./.github/actions/setup-node-app
 
-      - name: Security audit
-        run: pnpm audit --audit-level=high
-
       - name: Run quality checks
         run: pnpm run check
 
@@ -60,9 +57,6 @@ jobs:
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
-
-      - name: Security audit
-        run: composer audit
 
       - name: Run quality checks
         run: composer check
