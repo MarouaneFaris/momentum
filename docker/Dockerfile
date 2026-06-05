@@ -86,6 +86,8 @@ CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 # Frontend builder stage
 FROM node:lts-alpine AS frontend_builder
 
+ENV CI=true
+
 WORKDIR /frontend
 
 COPY --link frontend/package.json frontend/pnpm-lock.yaml frontend/.npmrc frontend/pnpm-workspace.yaml ./
