@@ -178,7 +178,7 @@ front-test: ## Run frontend tests
 	@$(PNPM) run test:run
 
 front-check: ## Run all frontend quality checks (type-check + lint + format)
-	@$(PNPM) run check
+	@$(PNPM) run type-check && $(PNPM) run lint && $(PNPM) run format:check
 
 ## —— Quality ✅ ———————————————————————————————————————————————————————————————
 check: front-check back-check ## Run all quality checks
