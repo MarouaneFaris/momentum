@@ -22,6 +22,9 @@ jobs:
         working-directory: ./frontend
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
       - name: Setup Node app
         uses: ./.github/actions/setup-node-app
 
@@ -44,6 +47,9 @@ jobs:
         working-directory: ./api
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
       - name: Setup PHP app
         uses: ./.github/actions/setup-php-app
 
@@ -79,6 +85,9 @@ jobs:
         working-directory: ./frontend
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
       - name: Setup Node app
         uses: ./.github/actions/setup-node-app
 
@@ -97,6 +106,9 @@ jobs:
         working-directory: ./api
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
       - name: Setup PHP app
         uses: ./.github/actions/setup-php-app
 
@@ -146,6 +158,9 @@ jobs:
           - 6379:6379
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
       - name: Setup PHP app
         uses: ./.github/actions/setup-php-app
         with:
