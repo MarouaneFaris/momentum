@@ -8,16 +8,10 @@ use App\Factory\UserFactory;
 use App\Repository\AuthTokenRepository;
 use App\Service\AuthTokenManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class LogoutTest extends WebTestCase
+final class LogoutTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
     public function testLogoutReturns204(): void
     {
         $client = static::createClient();

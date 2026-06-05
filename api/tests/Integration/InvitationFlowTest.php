@@ -9,29 +9,11 @@ use App\Factory\UserFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
 use App\Factory\WorkspaceInvitationFactory;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class InvitationFlowTest extends WebTestCase
+final class InvitationFlowTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
-    private const string EMAIL = 'owner@example.com';
-    private const string PASSWORD = 'SuperSecurePass123!';
-
-    protected function tearDown(): void
-    {
-        $apiLimiter = static::getContainer()->get('limiter.api');
-        assert($apiLimiter instanceof RateLimiterFactory);
-        $apiLimiter->create(self::EMAIL)->reset();
-
-        parent::tearDown();
-    }
+    protected const string EMAIL = 'owner@example.com';
 
     // — POST /api/workspaces/{workspaceId}/invitations ————————————————————————
 
@@ -60,7 +42,7 @@ final class InvitationFlowTest extends WebTestCase
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
         UserFactory::createOne(['email' => 'invitee@example.com']);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'POST',
             '/api/workspaces/' . $workspace->getId() . '/invitations',
@@ -80,7 +62,7 @@ final class InvitationFlowTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'POST',
             '/api/workspaces/' . $workspace->getId() . '/invitations',
@@ -106,7 +88,7 @@ final class InvitationFlowTest extends WebTestCase
             'expiresAt' => (new \DateTimeImmutable())->modify('+7 days'),
         ]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'POST',
             '/api/workspaces/' . $workspace->getId() . '/invitations',
@@ -127,7 +109,7 @@ final class InvitationFlowTest extends WebTestCase
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
         UserFactory::createOne(['email' => 'invitee@example.com']);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'POST',
             '/api/workspaces/' . $workspace->getId() . '/invitations',
@@ -165,7 +147,7 @@ final class InvitationFlowTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces/' . $workspace->getId() . '/invitations');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -186,7 +168,7 @@ final class InvitationFlowTest extends WebTestCase
             'expiresAt' => (new \DateTimeImmutable())->modify('-1 day'),
         ]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/workspaces/' . $workspace->getId() . '/invitations');
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -219,7 +201,7 @@ final class InvitationFlowTest extends WebTestCase
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
         $invitation = WorkspaceInvitationFactory::createOne(['workspace' => $workspace]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'DELETE',
             '/api/workspaces/' . $workspace->getId() . '/invitations/' . $invitation->getId(),
@@ -236,7 +218,7 @@ final class InvitationFlowTest extends WebTestCase
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
         $invitation = WorkspaceInvitationFactory::createOne(['workspace' => $workspace]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'DELETE',
             '/api/workspaces/' . $workspace->getId() . '/invitations/' . $invitation->getId(),
@@ -268,7 +250,7 @@ final class InvitationFlowTest extends WebTestCase
             'expiresAt' => (new \DateTimeImmutable())->modify('+7 days'),
         ]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('GET', '/api/invitations');
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
@@ -299,7 +281,7 @@ final class InvitationFlowTest extends WebTestCase
             'expiresAt' => (new \DateTimeImmutable())->modify('+7 days'),
         ]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('PUT', '/api/invitations/' . $invitation->getId() . '/accept');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -314,7 +296,7 @@ final class InvitationFlowTest extends WebTestCase
             'expiresAt' => (new \DateTimeImmutable())->modify('-1 hour'),
         ]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('PUT', '/api/invitations/' . $invitation->getId() . '/accept');
 
         self::assertResponseStatusCodeSame(Response::HTTP_GONE);
@@ -329,7 +311,7 @@ final class InvitationFlowTest extends WebTestCase
             'expiresAt' => (new \DateTimeImmutable())->modify('+7 days'),
         ]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('PUT', '/api/invitations/' . $invitation->getId() . '/accept');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
@@ -353,7 +335,7 @@ final class InvitationFlowTest extends WebTestCase
         UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
         $invitation = WorkspaceInvitationFactory::createOne();
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/invitations/' . $invitation->getId() . '/decline');
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -368,21 +350,9 @@ final class InvitationFlowTest extends WebTestCase
             'expiresAt' => (new \DateTimeImmutable())->modify('+7 days'),
         ]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request('DELETE', '/api/invitations/' . $invitation->getId() . '/decline');
 
         self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-    }
-
-    private function loginAs(KernelBrowser $client): void
-    {
-        $client->request(
-            'POST',
-            '/api/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
     }
 }

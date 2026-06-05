@@ -7,30 +7,23 @@ namespace App\Tests\Integration;
 use App\Factory\UserFactory;
 use App\Service\AuthTokenManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class LoginTest extends WebTestCase
+final class LoginTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
-    private const string EMAIL = 'user@example.com';
-    private const string PASSWORD = 'secret123';
+    protected const string PASSWORD = 'secret123';
 
     public function testValidCredentialsReturn200(): void
     {
-        $this->loginAs(self::EMAIL, self::PASSWORD);
+        $this->authenticate(self::EMAIL, self::PASSWORD);
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
     public function testSuccessfulLoginSetsAuthTokenCookie(): void
     {
-        $client = $this->loginAs(self::EMAIL, self::PASSWORD);
+        $client = $this->authenticate(self::EMAIL, self::PASSWORD);
 
         $cookie = $this->findAuthCookie($client);
         self::assertNotNull($cookie, sprintf('Expected "%s" cookie in response.', AuthTokenManager::COOKIE_NAME));
@@ -39,7 +32,7 @@ final class LoginTest extends WebTestCase
 
     public function testAuthCookieIsHttpOnly(): void
     {
-        $client = $this->loginAs(self::EMAIL, self::PASSWORD);
+        $client = $this->authenticate(self::EMAIL, self::PASSWORD);
 
         $cookie = $this->findAuthCookie($client);
         self::assertNotNull($cookie, sprintf('Expected "%s" cookie in response.', AuthTokenManager::COOKIE_NAME));
@@ -48,7 +41,7 @@ final class LoginTest extends WebTestCase
 
     public function testAuthCookieIsSecure(): void
     {
-        $client = $this->loginAs(self::EMAIL, self::PASSWORD);
+        $client = $this->authenticate(self::EMAIL, self::PASSWORD);
 
         $cookie = $this->findAuthCookie($client);
         self::assertNotNull($cookie, sprintf('Expected "%s" cookie in response.', AuthTokenManager::COOKIE_NAME));
@@ -57,7 +50,7 @@ final class LoginTest extends WebTestCase
 
     public function testAuthCookieSameSiteIsStrict(): void
     {
-        $client = $this->loginAs(self::EMAIL, self::PASSWORD);
+        $client = $this->authenticate(self::EMAIL, self::PASSWORD);
 
         $cookie = $this->findAuthCookie($client);
         self::assertNotNull($cookie, sprintf('Expected "%s" cookie in response.', AuthTokenManager::COOKIE_NAME));
@@ -97,7 +90,7 @@ final class LoginTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
     }
 
-    private function loginAs(string $email, string $password): KernelBrowser
+    private function authenticate(string $email, string $password): KernelBrowser
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => $email, 'password' => $password]);

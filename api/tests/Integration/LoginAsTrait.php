@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 trait LoginAsTrait
 {
-    private function loginAs(KernelBrowser $client, string $email, string $password): void
+    protected function loginAs(KernelBrowser $client, string $email, string $password): void
     {
         $client->request(
             'POST',

@@ -8,20 +8,10 @@ use App\Enum\WorkspaceRole;
 use App\Factory\UserFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
-final class WorkspaceRenameTest extends WebTestCase
+final class WorkspaceRenameTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
-    private const string EMAIL = 'user@example.com';
-    private const string PASSWORD = 'SuperSecurePass123!';
-
     public function testUnauthenticatedReturns401(): void
     {
         $client = static::createClient();
@@ -46,7 +36,7 @@ final class WorkspaceRenameTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne(['name' => 'Old Name']);
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId(),
@@ -70,7 +60,7 @@ final class WorkspaceRenameTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Member]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId(),
@@ -90,7 +80,7 @@ final class WorkspaceRenameTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Guest]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId(),
@@ -110,7 +100,7 @@ final class WorkspaceRenameTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId(),
@@ -130,7 +120,7 @@ final class WorkspaceRenameTest extends WebTestCase
         $workspace = WorkspaceFactory::createOne();
         UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
 
-        $this->loginAs($client);
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
             'PATCH',
             '/api/workspaces/' . $workspace->getId(),
@@ -141,17 +131,5 @@ final class WorkspaceRenameTest extends WebTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-    }
-
-    private function loginAs(KernelBrowser $client): void
-    {
-        $client->request(
-            'POST',
-            '/api/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => self::EMAIL, 'password' => self::PASSWORD], JSON_THROW_ON_ERROR),
-        );
     }
 }

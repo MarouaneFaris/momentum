@@ -6,10 +6,7 @@ namespace App\Tests\Integration;
 
 use App\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Zenstruck\Foundry\Test\Factories;
-use Zenstruck\Foundry\Test\ResetDatabase;
 
 /**
  * Rate limits in test env (see config/packages/rate_limiter.yaml when@test):
@@ -19,11 +16,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
  * Each test pre-exhausts the limiter via the service and then fires one HTTP
  * request to verify the 429 response — avoiding cross-test Redis pollution.
  */
-final class RateLimitingTest extends WebTestCase
+final class RateLimitingTest extends IntegrationTestCase
 {
-    use Factories;
-    use ResetDatabase;
-
     public function testRegisterRateLimitBlocksRequestOverThreshold(): void
     {
         $client = static::createClient();
