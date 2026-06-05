@@ -6,13 +6,12 @@ namespace App\Controller\Api;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class HealthController extends AbstractController
+final class HealthController
 {
     public function __construct(
         private readonly Connection $connection,
@@ -52,9 +51,9 @@ final class HealthController extends AbstractController
         }
 
         if ($healthy) {
-            return $this->json(['status' => 'ok']);
+            return new JsonResponse(['status' => 'ok']);
         }
 
-        return $this->json(['status' => 'degraded'], JsonResponse::HTTP_SERVICE_UNAVAILABLE);
+        return new JsonResponse(['status' => 'degraded'], JsonResponse::HTTP_SERVICE_UNAVAILABLE);
     }
 }
