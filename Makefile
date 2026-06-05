@@ -66,7 +66,7 @@ prod-build: ## Build the prod Docker image (requires APP_SECRET + CADDY_MERCURE_
 	@$(DOCKER_COMP_PROD) build
 
 prod-up: ## Run the prod stack locally for testing (requires APP_SECRET + CADDY_MERCURE_JWT_SECRET in .env.local)
-	@$(DOCKER_COMP_PROD) up --detach
+	@$(DOCKER_COMP_PROD) up --detach --remove-orphans
 
 sh: ## Connect to the FrankenPHP container
 	@$(PHP_CONT) sh
