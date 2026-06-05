@@ -108,8 +108,10 @@ REDIS_URL=${{Redis.REDIS_URL}}
 |----------------------------|--------------------------------------------------------|
 | `APP_ENV`                  | `prod`                                                 |
 | `APP_SECRET`               | _(generate: `openssl rand -hex 32`)_                   |
-| `SERVER_NAME`              | `:${{RAILWAY_TCP_PROXY_PORT}}` or leave default `http` — Railway sets `PORT`; set to `:${{PORT}}` so Caddy binds to the correct port. Use the auto-subdomain URL after first deploy if `SERVER_NAME` must be the public domain. |
+| `SERVER_NAME`              | `:${{PORT}}`                                           |
 | `SYMFONY_TRUSTED_PROXIES`  | `REMOTE_ADDR`                                          |
+
+> **`SERVER_NAME` must be set before the first deploy.** Railway injects `PORT` at runtime; Caddy binds to whatever `SERVER_NAME` is set to. An empty or missing value produces a bare server block that Caddy rejects — FrankenPHP crashes on startup and all healthchecks fail. `:${{PORT}}` (Railway's reference syntax) resolves to the correct port automatically.
 
 > `SYMFONY_TRUSTED_PROXIES=REMOTE_ADDR` is required so the IP-based rate limiter (ADR-007) sees real client IPs, not Railway's internal hop. Safe here because Railway is the sole network layer in front of Caddy. See ADR-013 §Decision 4.
 
