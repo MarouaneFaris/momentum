@@ -83,6 +83,21 @@ COPY --link docker/frankenphp/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
 
 CMD [ "frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile", "--watch" ]
 
+# Frontend builder stage
+FROM node:lts-alpine AS frontend_builder
+
+WORKDIR /frontend
+
+COPY --link frontend/package.json frontend/pnpm-lock.yaml ./
+
+RUN corepack enable && corepack install
+
+RUN corepack pnpm install --frozen-lockfile
+
+COPY --link frontend/ ./
+
+RUN corepack pnpm run build:prod
+
 # Builder for the prod FrankenPHP image
 FROM frankenphp_base AS frankenphp_prod_builder
 
@@ -111,6 +126,8 @@ RUN <<-EOF
 	chmod -R g=u var
 	sync
 EOF
+
+COPY --from=frontend_builder /frontend/dist/ /app/public/
 
 # Collect shared libraries needed by FrankenPHP and PHP extensions
 # hadolint ignore=DL3008,SC3054,DL4006
