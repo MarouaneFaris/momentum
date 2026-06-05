@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration;
 
+use App\Controller\Api\HealthController;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Psr\Log\NullLogger;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 final class HealthCheckTest extends IntegrationTestCase
@@ -23,7 +26,7 @@ final class HealthCheckTest extends IntegrationTestCase
     {
         $client = static::createClient();
 
-        static::getContainer()->set('app.redis_connection', new \Redis());
+        $this->overrideHealthController(redisUrl: 'redis://localhost:1');
 
         $client->request('GET', '/api/health');
 
@@ -45,7 +48,7 @@ final class HealthCheckTest extends IntegrationTestCase
             'dbname' => 'x',
             'serverVersion' => 'mariadb-11.4.0',
         ]);
-        static::getContainer()->set('doctrine.dbal.default_connection', $badConn);
+        $this->overrideHealthController(dbConnection: $badConn);
 
         $client->request('GET', '/api/health');
 
@@ -75,5 +78,21 @@ final class HealthCheckTest extends IntegrationTestCase
 
         self::assertNotSame(401, $client->getResponse()->getStatusCode());
         self::assertNotSame(403, $client->getResponse()->getStatusCode());
+    }
+
+    private function overrideHealthController(?string $redisUrl = null, ?Connection $dbConnection = null): void
+    {
+        $container = static::getContainer();
+
+        $defaultConn = $container->get('doctrine.dbal.default_connection');
+        assert($defaultConn instanceof Connection);
+
+        $defaultUrl = (string) getenv('REDIS_URL');
+
+        $container->set(HealthController::class, new HealthController(
+            $dbConnection ?? $defaultConn,
+            $redisUrl ?? $defaultUrl,
+            new NullLogger(),
+        ));
     }
 }
