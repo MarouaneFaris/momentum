@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 final readonly class RateLimitSubscriber implements EventSubscriberInterface
 {
-    private const array API_LIMITER_EXCLUDED_PATHS = ['/api/login', '/api/logout'];
+    private const array API_LIMITER_EXCLUDED_PATHS = ['/api/login', '/api/logout', '/api/health'];
 
     public function __construct(
         private RateLimiterFactory $registerLimiter,
