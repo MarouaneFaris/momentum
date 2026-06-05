@@ -31,7 +31,7 @@ ADR-008 mandates `SameSite=Strict` cookies. That posture is only viable when the
 
 ### Consequences
 
-- The Dockerfile gains a `frontend_builder` stage; build times increase by the time it takes to run `npm ci && vite build`.
+- The Dockerfile gains a `frontend_builder` stage; build times increase by the time it takes to run `pnpm install --frozen-lockfile && vite build`.
 - `VITE_API_URL` is not needed in prod — env var absent from the Railway variable set.
 - Frontend routes that are not API paths must be excluded from Symfony's routing — ensured by the `try_files` placement before the PHP rewrite.
 - Deep-link reloads work correctly because Caddy serves `index.html` for any unknown path, not a Symfony 404.
