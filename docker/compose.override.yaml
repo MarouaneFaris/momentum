@@ -53,6 +53,8 @@ services:
         required: true
       - path: ../.env.local
         required: false
+    environment:
+      COREPACK_HOME: /app/.corepack
     volumes:
       - ../frontend:/app
       - ./certs:/certs:ro
