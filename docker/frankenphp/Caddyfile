@@ -42,6 +42,9 @@
 
 	{$CADDY_SECURITY_HEADERS}
 
+	@apiRoute path /api/*
+	rewrite @apiRoute index.php
+
 	{$CADDY_SPA_FALLBACK}
 
 	@phpRoute {
