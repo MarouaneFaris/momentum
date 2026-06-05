@@ -160,6 +160,10 @@ In-app only via Mercure (no email). Triggers:
 
 Two policies via `RateLimitSubscriber`: IP-based fixed window for `/api/register` (10/hr), user-based token bucket for authenticated `/api/*` routes (60/min). `/api/login` and `/api/logout` are excluded — login uses Symfony's built-in `login_throttling` (5 attempts / 15 min). See `docs/adr/007-rate-limiting-strategy.md`.
 
+**Trusted proxy (required in prod):** Set `SYMFONY_TRUSTED_PROXIES=REMOTE_ADDR` in the Railway environment. Without it, `Request::getClientIp()` returns Railway's internal edge IP, making the IP-based limiter bucket every user together. `REMOTE_ADDR` is safe because Railway is the sole hop in front of the app — it trusts the direct peer and reads the real IP from `X-Forwarded-For`. If a CDN is later placed in front of Railway, update this value to chain both the CDN's IP ranges and `REMOTE_ADDR`. See [ADR-013 Decision 4](../docs/adr/013-production-deployment-architecture-on-railway.md).
+
+Note: `api/.env.test` uses `SYMFONY_TRUSTED_PROXIES=10.0.0.0/8` instead of `REMOTE_ADDR`. The `REMOTE_ADDR` token is resolved to `$_SERVER['REMOTE_ADDR']` at kernel boot — empty in CLI/test mode — so a CIDR is used in tests while `REMOTE_ADDR` is correct for the prod web context.
+
 See `docs/adr/` for full decision records.
 
 ## Testing

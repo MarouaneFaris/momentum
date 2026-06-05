@@ -133,6 +133,63 @@ final class RateLimitingTest extends IntegrationTestCase
         self::assertNotSame(429, $client->getResponse()->getStatusCode());
     }
 
+    public function testGetClientIpReturnsForwardedIpWhenTrustedProxyConfigured(): void
+    {
+        $client = static::createClient();
+
+        $registerLimiter = static::getContainer()->get('limiter.register');
+        assert($registerLimiter instanceof RateLimiterFactory);
+        $limiter = $registerLimiter->create('4.4.4.4');
+        $limiter->reset();
+        $limiter->consume(3);
+
+        $client->request(
+            'POST',
+            '/api/register',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'REMOTE_ADDR' => '10.0.0.1',
+                'HTTP_X_FORWARDED_FOR' => '4.4.4.4',
+            ],
+            json_encode(['email' => 'forwarded-ip@example.com', 'password' => 'Password1!StrongPass'], JSON_THROW_ON_ERROR),
+        );
+
+        // 429 proves the limiter used '4.4.4.4' as the key, meaning getClientIp() returned the
+        // X-Forwarded-For value rather than the direct peer (10.0.0.1)
+        self::assertResponseStatusCodeSame(429);
+    }
+
+    public function testRegisterRateLimitBucketsPerForwardedIpNotDirectPeer(): void
+    {
+        $client = static::createClient();
+
+        $registerLimiter = static::getContainer()->get('limiter.register');
+        assert($registerLimiter instanceof RateLimiterFactory);
+
+        $registerLimiter->create('10.0.0.2')->reset();
+        $limiter = $registerLimiter->create('5.5.5.5');
+        $limiter->reset();
+        $limiter->consume(3);
+
+        // Different REMOTE_ADDR (10.0.0.2) but same forwarded IP (5.5.5.5) — still hits the exhausted bucket
+        $client->request(
+            'POST',
+            '/api/register',
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'REMOTE_ADDR' => '10.0.0.2',
+                'HTTP_X_FORWARDED_FOR' => '5.5.5.5',
+            ],
+            json_encode(['email' => 'forwarded-bucket@example.com', 'password' => 'Password1!StrongPass'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(429);
+    }
+
     private function loginUser(KernelBrowser $client, string $email, string $password): void
     {
         UserFactory::createOne(['email' => $email, 'password' => $password]);

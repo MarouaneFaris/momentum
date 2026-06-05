@@ -5,6 +5,12 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    # Required in prod (Railway): SYMFONY_TRUSTED_PROXIES=REMOTE_ADDR
+    # Required in test:          SYMFONY_TRUSTED_PROXIES=10.0.0.0/8  (REMOTE_ADDR token resolves to
+    #                            $_SERVER['REMOTE_ADDR'] at boot — unset in CLI mode, so a CIDR is used instead)
+    # See ADR-013 Decision 4 and api/CONTEXT.md § Rate Limiting.
+    trusted_proxies: '%env(default::SYMFONY_TRUSTED_PROXIES)%'
+
     #esi: true
     #fragments: true
 
