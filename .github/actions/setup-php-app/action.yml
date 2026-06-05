@@ -1,0 +1,32 @@
+name: Setup PHP App
+description: Checkout, setup PHP, and cache/install Composer dependencies
+
+inputs:
+  extensions:
+    description: PHP extensions to install (comma-separated)
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc #v2.37.1
+      with:
+        extensions: ${{ inputs.extensions }}
+
+    - name: Cache vendor directory
+      id: vendor-cache
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae #v5.0.5
+      with:
+        path: api/vendor
+        key: ${{ runner.os }}-vendor-${{ hashFiles('api/composer.lock') }}
+
+    - name: Install dependencies
+      if: steps.vendor-cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: api
+      run: composer install --prefer-dist --no-progress --no-scripts

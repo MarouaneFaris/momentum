@@ -1,0 +1,201 @@
+name: CI
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, "epic/**"]
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Setup Node app
+        uses: ./.github/actions/setup-node-app
+
+      - name: Security audit
+        run: pnpm audit --audit-level=high
+
+      - name: Run quality checks
+        run: pnpm run check
+
+      - name: Build
+        run: pnpm run build
+
+  api-quality:
+    name: API / Quality
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+      - name: Setup PHP app
+        uses: ./.github/actions/setup-php-app
+
+      - name: Load shared env defaults
+        # Exports MARIADB_* from root .env (committed defaults, not secrets)
+        # so Symfony resolves DATABASE_URL without fallback values in api/.env.
+        run: grep -E '^MARIADB_' ../.env >> $GITHUB_ENV
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Security audit
+        run: composer audit
+
+      - name: Run quality checks
+        run: composer check
+
+      - name: Validate Symfony container
+        run: php bin/console lint:container --no-debug
+
+      - name: Validate Twig templates
+        run: php bin/console lint:twig --no-debug
+
+      - name: Validate Doctrine mapping
+        run: php bin/console doctrine:schema:validate --skip-sync
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Setup Node app
+        uses: ./.github/actions/setup-node-app
+
+      - name: Run tests
+        run: pnpm run test:run
+
+  api-test-unit:
+    name: Tests / Unit
+    runs-on: ubuntu-latest
+    needs: api-quality
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
+    env:
+      APP_ENV: test
+    defaults:
+      run:
+        working-directory: ./api
+
+    steps:
+      - name: Setup PHP app
+        uses: ./.github/actions/setup-php-app
+
+      - name: Run unit tests
+        run: php bin/phpunit tests/Unit
+
+  api-tests:
+    name: Tests / ${{ matrix.suite }}
+    runs-on: ubuntu-latest
+    needs: api-quality
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        suite: [Integration, Functional]
+    env:
+      APP_ENV: test
+      DATABASE_URL: "mysql://app:!ChangeMe!@127.0.0.1:3306/app?serverVersion=mariadb-11.8.6&charset=utf8mb4"
+      REDIS_URL: "redis://127.0.0.1:6379"
+    defaults:
+      run:
+        working-directory: ./api
+
+    services:
+      database:
+        image: mariadb:lts
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: app_test
+          MARIADB_PASSWORD: "!ChangeMe!"
+          MARIADB_USER: app
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 3306:3306
+
+      redis:
+        image: redis:alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Setup PHP app
+        uses: ./.github/actions/setup-php-app
+        with:
+          extensions: pdo_mysql
+
+      - name: Run migrations
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: Run ${{ matrix.suite }} tests
+        run: php bin/phpunit tests/${{ matrix.suite }}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [frontend, frontend-tests, api-quality, api-test-unit, api-tests]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 #v6.0.3
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy
+        # Migrations run via Railway's pre-deploy command, not here.
+        # Required: repo secret RAILWAY_TOKEN, repo variable RAILWAY_APP_SERVICE_ID.
+        run: railway up --ci --service "$RAILWAY_APP_SERVICE_ID"
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
+
+      - name: Smoke check health
+        # Required: repo variable API_HEALTH_URL (e.g. https://your-app.railway.app/api/health).
+        # Polls every 10s for up to 5 minutes.
+        run: |
+          for i in $(seq 1 30); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$API_HEALTH_URL")
+            if [ "$status" = "200" ]; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i: status $status, retrying in 10s..."
+            sleep 10
+          done
+          echo "Health check failed after 5 minutes"
+          exit 1
+        env:
+          API_HEALTH_URL: ${{ vars.API_HEALTH_URL }}
