@@ -69,7 +69,7 @@ export default function App() {
                             </Routes>
                         </BrowserRouter>
                         <Toaster position="top-center" />
-                        <DevLoginPanel />
+                        {import.meta.env.DEV && <DevLoginPanel />}
                     </ThemeProvider>
                 </AuthProvider>
             </QueryClientProvider>
