@@ -88,7 +88,7 @@ FROM node:lts-alpine AS frontend_builder
 
 WORKDIR /frontend
 
-COPY --link frontend/package.json frontend/pnpm-lock.yaml frontend/.npmrc ./
+COPY --link frontend/package.json frontend/pnpm-lock.yaml frontend/.npmrc frontend/pnpm-workspace.yaml ./
 
 RUN corepack enable && corepack install
 
