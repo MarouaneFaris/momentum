@@ -65,5 +65,4 @@ services:
       php:
         condition: service_started
 
-volumes:
-  frontend_node_modules:
+volumes: {}

@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 .corepack
+.pnpm-store
 dist
 dist-ssr
 *.local
