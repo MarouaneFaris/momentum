@@ -43,7 +43,7 @@
 	{$CADDY_SECURITY_HEADERS}
 
 	@apiRoute path /api/*
-	rewrite @apiRoute index.php
+	rewrite @apiRoute /index.php
 
 	{$CADDY_SPA_FALLBACK}
 
@@ -51,9 +51,9 @@
 		not path /.well-known/mercure*
 		not file {path}
 	}
-	rewrite @phpRoute index.php
+	rewrite @phpRoute /index.php
 
-	@frontController path index.php
+	@frontController path /index.php
 	php @frontController {
 		{$FRANKENPHP_SITE_CONFIG}
 
