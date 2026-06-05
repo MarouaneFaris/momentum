@@ -29,11 +29,15 @@ Standing up the production stack on Railway from an empty project.
 
 1. Inside the project → **New Service** → **GitHub Repo**.
 2. Connect the `MarouaneFaris/momentum` repository.
-3. In the service settings → **Build**:
-   - **Dockerfile path:** `docker/Dockerfile`
-   - **Build context:** `/` (repo root — Railway defaults to repo root, leave unchanged)
-   - **Build target:** `frankenphp_prod`
-4. Railway will pick up the `Dockerfile` and build the production image.
+3. Railway reads build configuration from `railway.toml` at repo root — no dashboard fields to fill:
+
+   ```toml
+   [build]
+   dockerfilePath = "docker/Dockerfile"
+   dockerBuildTarget = "frankenphp_prod"
+   ```
+
+   This file is committed to the repo, so the build target and Dockerfile path are set automatically.
 
 ### 2.2 `mariadb` service
 
