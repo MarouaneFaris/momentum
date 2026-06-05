@@ -12,7 +12,7 @@ PHP = $(PHP_CONT) php
 COMPOSER = $(PHP_CONT) composer
 SYMFONY = $(PHP) bin/console
 SYMFONY_TEST = $(SYMFONY) -e test
-NPM = $(NODE_CONT) npm
+PNPM = $(NODE_CONT) corepack pnpm
 
 # Frontend
 FRONTEND_DIR = frontend
@@ -30,7 +30,7 @@ MAKEFLAGS += --no-print-directory
 	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db load-fixtures \
 	create-db-test drop-db-test migrate-db-test reset-db-test reset-dbs \
 	back-cs-fix stan back-check \
-	npm front-install front-lint front-lint-fix front-format front-check front-test \
+	pnpm front-install front-lint front-lint-fix front-format front-check front-test \
 	check \
 	install-hooks dev-certs install
 
@@ -150,27 +150,27 @@ back-check: ## Run all backend quality checks (phpstan + cs)
 	@$(COMPOSER) check
 
 ## —— Frontend 🌐 ——————————————————————————————————————————————————————————————
-npm: ## Run npm, pass the parameter "c=" to run a given command, example: make npm c='install zod'
+pnpm: ## Run pnpm, pass the parameter "c=" to run a given command, example: make pnpm c='add zod'
 	@$(eval c ?=)
-	@$(NPM) $(c)
+	@$(PNPM) $(c)
 
 front-install: ## Install frontend dependencies
-	@$(NPM) install
+	@$(PNPM) install
 
 front-lint: ## Lint frontend code
-	@$(NPM) run lint
+	@$(PNPM) run lint
 
 front-lint-fix: ## Lint and auto-fix frontend code (pass f="file1 file2" to target specific files)
-	@$(call with-files,$(NODE_CONT) npx eslint --fix $(f),$(NPM) run lint:fix)
+	@$(call with-files,$(NODE_CONT) pnpm exec eslint --fix $(f),$(PNPM) run lint:fix)
 
 front-format: ## Format frontend code with Prettier (pass f="file1 file2" to target specific files)
-	@$(call with-files,$(NODE_CONT) npx prettier --write $(f),$(NPM) run format)
+	@$(call with-files,$(NODE_CONT) pnpm exec prettier --write $(f),$(PNPM) run format)
 
 front-test: ## Run frontend tests
-	@$(NPM) run test:run
+	@$(PNPM) run test:run
 
 front-check: ## Run all frontend quality checks (type-check + lint + format)
-	@$(NPM) run check
+	@$(PNPM) run check
 
 ## —— Quality ✅ ———————————————————————————————————————————————————————————————
 check: front-check back-check ## Run all quality checks

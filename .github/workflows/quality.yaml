@@ -9,9 +9,9 @@ concurrency:
 
 on:
   push:
-    branches: [main, 'epic/**']
+    branches: [main, "epic/**"]
   pull_request:
-    branches: [main, 'epic/**']
+    branches: [main, "epic/**"]
 
 jobs:
   frontend-checks:
@@ -30,22 +30,26 @@ jobs:
         with:
           node-version: lts/Krypton #v24
 
-      - name: Cache node_modules
-        id: node-modules-cache
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 #v6.0.8
+        with:
+          package_json_file: frontend/package.json
+
+      - name: Cache pnpm store
+        id: pnpm-store-cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae #v5.0.5
         with:
-          path: frontend/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/package-lock.json') }}
+          path: frontend/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('frontend/pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Security audit
-        run: npm audit --audit-level=high
+        run: pnpm audit --audit-level=high
 
       - name: Run quality checks
-        run: npm run check
+        run: pnpm run check
 
   frontend-tests:
     name: Frontend Tests
@@ -64,22 +68,26 @@ jobs:
         with:
           node-version: lts/Krypton #v24
 
-      - name: Cache node_modules
-        id: node-modules-cache
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 #v6.0.8
+        with:
+          package_json_file: frontend/package.json
+
+      - name: Cache pnpm store
+        id: pnpm-store-cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae #v5.0.5
         with:
-          path: frontend/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/package-lock.json') }}
+          path: frontend/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('frontend/pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: npm run test:run
+        run: pnpm run test:run
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
         env:
           VITE_API_URL: https://localhost/api
 
