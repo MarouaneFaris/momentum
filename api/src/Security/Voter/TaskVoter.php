@@ -19,6 +19,7 @@ final class TaskVoter extends Voter
 {
     public const string VIEW = 'task.view';
     public const string CREATE = 'task.create';
+    public const string EDIT = 'task.edit';
 
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
@@ -29,6 +30,10 @@ final class TaskVoter extends Voter
     {
         if ($attribute === self::VIEW) {
             return $subject instanceof Project || $subject instanceof Task;
+        }
+
+        if ($attribute === self::EDIT) {
+            return $subject instanceof Task;
         }
 
         return $attribute === self::CREATE && $subject instanceof Project;
@@ -53,6 +58,11 @@ final class TaskVoter extends Voter
         }
 
         if ($attribute === self::CREATE) {
+            return $membership->getRole() !== WorkspaceRole::Guest;
+        }
+
+        if ($attribute === self::EDIT) {
+            // Guest cannot edit any task
             return $membership->getRole() !== WorkspaceRole::Guest;
         }
 

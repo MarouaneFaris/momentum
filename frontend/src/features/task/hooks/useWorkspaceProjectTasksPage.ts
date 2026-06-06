@@ -34,6 +34,7 @@ export function useWorkspaceProjectTasksPage() {
         tasksByStatus,
         isEmpty: tasks != null && tasks.length === 0,
         isGuest,
+        isOwner: workspace?.role === 'owner',
         projectName,
     }
 }

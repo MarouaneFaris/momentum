@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
-import { useCreateTask } from '../queries'
+import { useCreateTask, useUpdateTask } from '../queries'
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or fewer'),
@@ -18,45 +18,78 @@ export type UseTaskFormOptions = {
     workspaceId: string
     projectId: string
     onSuccess: () => void
-}
+} & (
+    | { mode?: 'create'; taskId?: undefined; initialValues?: undefined }
+    | { mode: 'edit'; taskId: string; initialValues: TaskFormValues }
+)
 
-export function useTaskForm({ workspaceId, projectId, onSuccess }: UseTaskFormOptions) {
+export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseTaskFormOptions) {
     const queryClient = useQueryClient()
     const createMutation = useCreateTask(workspaceId, projectId)
+    const updateMutation = useUpdateTask(
+        workspaceId,
+        projectId,
+        rest.mode === 'edit' ? rest.taskId : '',
+    )
+
+    const isEdit = rest.mode === 'edit'
 
     const form = useForm<TaskFormValues>({
         resolver: zodResolver(schema),
-        defaultValues: {
-            title: '',
-            description: '',
-            assigneeId: '',
-        },
+        defaultValues: isEdit
+            ? rest.initialValues
+            : {
+                  title: '',
+                  description: '',
+                  assigneeId: '',
+              },
     })
 
-    const isPending = createMutation.isPending
+    const isPending = isEdit ? updateMutation.isPending : createMutation.isPending
 
     const onSubmit = (values: TaskFormValues) => {
-        createMutation.mutate(
-            {
-                title: values.title,
-                description: values.description || undefined,
-                assigneeId: values.assigneeId || undefined,
-            },
-            {
-                onSuccess: () => {
-                    void queryClient.invalidateQueries({
-                        queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks'],
-                    })
-                    onSuccess()
-                    form.reset()
+        const invalidateKey = ['workspaces', workspaceId, 'projects', projectId, 'tasks']
+
+        if (isEdit) {
+            updateMutation.mutate(
+                {
+                    title: values.title,
+                    description: values.description || undefined,
+                    assigneeId: values.assigneeId || undefined,
                 },
-                onError: (error: Error) => {
-                    if (error instanceof ApiError) {
-                        toast.error(error.message)
-                    }
+                {
+                    onSuccess: () => {
+                        void queryClient.invalidateQueries({ queryKey: invalidateKey })
+                        onSuccess()
+                    },
+                    onError: (error: Error) => {
+                        if (error instanceof ApiError) {
+                            toast.error(error.message)
+                        }
+                    },
                 },
-            },
-        )
+            )
+        } else {
+            createMutation.mutate(
+                {
+                    title: values.title,
+                    description: values.description || undefined,
+                    assigneeId: values.assigneeId || undefined,
+                },
+                {
+                    onSuccess: () => {
+                        void queryClient.invalidateQueries({ queryKey: invalidateKey })
+                        onSuccess()
+                        form.reset()
+                    },
+                    onError: (error: Error) => {
+                        if (error instanceof ApiError) {
+                            toast.error(error.message)
+                        }
+                    },
+                },
+            )
+        }
     }
 
     return { form, isPending, onSubmit }

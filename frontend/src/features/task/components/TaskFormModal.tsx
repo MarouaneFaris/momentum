@@ -28,6 +28,7 @@ type Props = {
     form: UseFormReturn<TaskFormValues>
     isPending: boolean
     onSubmit: (values: TaskFormValues) => void
+    mode?: 'create' | 'edit'
 }
 
 export function TaskFormModal({
@@ -37,6 +38,7 @@ export function TaskFormModal({
     form,
     isPending,
     onSubmit,
+    mode = 'create',
 }: Props) {
     const { data: members } = useWorkspaceMembers(workspaceId)
     const assignableMembers = members?.filter((m) => m.role !== 'guest') ?? []
@@ -51,6 +53,7 @@ export function TaskFormModal({
     } = form
 
     const formId = 'task-form'
+    const isEdit = mode === 'edit'
 
     return (
         <Dialog
@@ -62,8 +65,10 @@ export function TaskFormModal({
         >
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create task</DialogTitle>
-                    <DialogDescription>Enter details for your new task.</DialogDescription>
+                    <DialogTitle>{isEdit ? 'Edit task' : 'Create task'}</DialogTitle>
+                    <DialogDescription>
+                        {isEdit ? 'Update task details.' : 'Enter details for your new task.'}
+                    </DialogDescription>
                 </DialogHeader>
                 <form id={formId} onSubmit={(e) => void handleSubmit(onSubmit)(e)}>
                     <div className="flex flex-col gap-4">
@@ -122,7 +127,7 @@ export function TaskFormModal({
                         Cancel
                     </Button>
                     <Button type="submit" form={formId} disabled={isPending}>
-                        Create
+                        {isEdit ? 'Save' : 'Create'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

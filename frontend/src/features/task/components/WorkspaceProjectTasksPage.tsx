@@ -1,4 +1,5 @@
-import { ClipboardList, Info, Plus } from 'lucide-react'
+import { useAuth } from '@/features/auth/queries'
+import { ClipboardList, Info, Pencil, Plus } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { Badge } from '@/components/ui/badge'
@@ -11,10 +12,21 @@ import {
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { useCreateTaskModal } from '../hooks/useCreateTaskModal'
+import { useEditTaskModal } from '../hooks/useEditTaskModal'
 import { useTaskDetail } from '../hooks/useTaskDetail'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
+import { useUpdateTask } from '../queries'
 import type { Task, TaskStatus } from '../types'
 import TaskDetailPanel from './TaskDetailPanel'
 import { TaskFormModal } from './TaskFormModal'
@@ -30,6 +42,12 @@ const COLUMN_EMPTY: Record<TaskStatus, string> = {
     'in-progress': 'Nothing in progress yet.',
     done: 'No completed tasks yet.',
 }
+
+const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
+    { value: 'todo', label: 'Todo' },
+    { value: 'in-progress', label: 'In progress' },
+    { value: 'done', label: 'Done' },
+]
 
 function StatusBadge({ status }: { status: TaskStatus }) {
     const className = {
@@ -80,15 +98,39 @@ function Assignee({ assignee }: { assignee: Task['assignee'] }) {
 
 function TaskCard({
     task,
+    workspaceId,
+    projectId,
     isGuest,
+    hasFullEditAccess,
     isSelected,
     onOpen,
+    onEdit,
 }: {
     task: Task
+    workspaceId: string
+    projectId: string
     isGuest: boolean
+    hasFullEditAccess: boolean
     isSelected: boolean
     onOpen: (taskId: string) => void
+    onEdit: (task: Task) => void
 }) {
+    const queryClient = useQueryClient()
+    const updateMutation = useUpdateTask(workspaceId, projectId, task.id)
+
+    const handleStatusChange = (status: TaskStatus) => {
+        updateMutation.mutate(
+            { status },
+            {
+                onSuccess: () => {
+                    void queryClient.invalidateQueries({
+                        queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks'],
+                    })
+                },
+            },
+        )
+    }
+
     return (
         <div
             className={[
@@ -105,9 +147,36 @@ function TaskCard({
                 <div className="flex-1" />
                 <Assignee assignee={task.assignee} />
                 {!isGuest && (
-                    <div className="w-5 h-5 flex items-center justify-center rounded text-muted-foreground text-[13px] hover:bg-muted cursor-pointer">
-                        ⋯
-                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <div
+                                className="w-5 h-5 flex items-center justify-center rounded text-muted-foreground text-[13px] hover:bg-muted cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                ⋯
+                            </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenuLabel className="text-xs">Change status</DropdownMenuLabel>
+                            {STATUS_OPTIONS.filter((o) => o.value !== task.status).map((o) => (
+                                <DropdownMenuItem
+                                    key={o.value}
+                                    onClick={() => handleStatusChange(o.value)}
+                                >
+                                    {o.label}
+                                </DropdownMenuItem>
+                            ))}
+                            {hasFullEditAccess && (
+                                <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => onEdit(task)}>
+                                        <Pencil className="size-3.5 mr-1.5" />
+                                        Edit task
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 )}
             </div>
         </div>
@@ -116,22 +185,30 @@ function TaskCard({
 
 function TaskBoard({
     workspaceId,
+    projectId,
     tasksByStatus,
     isEmpty,
     isGuest,
+    isOwner,
+    currentUserId,
     projectName,
     selectedTaskId,
     onOpen,
     onNewTask,
+    onEdit,
 }: {
     workspaceId: string
+    projectId: string
     tasksByStatus: Record<TaskStatus, Task[]>
     isEmpty: boolean
     isGuest: boolean
+    isOwner: boolean
+    currentUserId: string | undefined
     projectName: string | null
     selectedTaskId: string | null
     onOpen: (taskId: string) => void
     onNewTask: () => void
+    onEdit: (task: Task) => void
 }) {
     return (
         <div className="flex flex-col gap-5">
@@ -202,9 +279,16 @@ function TaskBoard({
                                         <TaskCard
                                             key={task.id}
                                             task={task}
+                                            workspaceId={workspaceId}
+                                            projectId={projectId}
                                             isGuest={isGuest}
+                                            hasFullEditAccess={
+                                                !isGuest &&
+                                                (isOwner || task.creatorId === currentUserId)
+                                            }
                                             isSelected={task.id === selectedTaskId}
                                             onOpen={onOpen}
+                                            onEdit={onEdit}
                                         />
                                     ))
                                 )}
@@ -218,10 +302,20 @@ function TaskBoard({
 }
 
 export default function WorkspaceProjectTasksPage() {
-    const { workspaceId, projectId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
-        useWorkspaceProjectTasksPage()
+    const {
+        workspaceId,
+        projectId,
+        isLoading,
+        tasksByStatus,
+        isEmpty,
+        isGuest,
+        isOwner,
+        projectName,
+    } = useWorkspaceProjectTasksPage()
+    const { data: authUser } = useAuth()
     const detail = useTaskDetail(workspaceId, projectId)
     const modal = useCreateTaskModal(workspaceId, projectId)
+    const editModal = useEditTaskModal(workspaceId, projectId)
 
     if (isLoading) return null
 
@@ -230,13 +324,17 @@ export default function WorkspaceProjectTasksPage() {
     const board = (
         <TaskBoard
             workspaceId={workspaceId}
+            projectId={projectId}
             tasksByStatus={tasksByStatus}
             isEmpty={isEmpty}
             isGuest={isGuest}
+            isOwner={isOwner}
+            currentUserId={authUser?.id}
             projectName={projectName}
             selectedTaskId={detail.selectedTaskId}
             onOpen={detail.open}
             onNewTask={() => modal.setOpen(true)}
+            onEdit={editModal.open}
         />
     )
 
@@ -267,6 +365,17 @@ export default function WorkspaceProjectTasksPage() {
                 form={modal.form}
                 isPending={modal.isPending}
                 onSubmit={modal.onSubmit}
+            />
+            <TaskFormModal
+                open={editModal.task !== null}
+                onOpenChange={(v) => {
+                    if (!v) editModal.close()
+                }}
+                workspaceId={workspaceId}
+                form={editModal.form}
+                isPending={editModal.isPending}
+                onSubmit={editModal.onSubmit}
+                mode="edit"
             />
         </>
     )

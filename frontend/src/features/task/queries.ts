@@ -1,7 +1,7 @@
 import api from '@/lib/api'
 import { useSettledQuery } from '@/lib/useSettledQuery'
 import { useMutation } from '@tanstack/react-query'
-import type { Task, TaskDetail } from './types'
+import type { Task, TaskDetail, TaskStatus } from './types'
 
 export const useWorkspaceProjectTasks = (workspaceId: string, projectId: string) =>
     useSettledQuery({
@@ -21,4 +21,18 @@ export const useCreateTask = (workspaceId: string, projectId: string) =>
     useMutation({
         mutationFn: (data: { title: string; description?: string; assigneeId?: string }) =>
             api.post<Task>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, data),
+    })
+
+export const useUpdateTask = (workspaceId: string, projectId: string, taskId: string) =>
+    useMutation({
+        mutationFn: (data: {
+            title?: string
+            description?: string
+            status?: TaskStatus
+            assigneeId?: string
+        }) =>
+            api.patch<TaskDetail>(
+                `/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`,
+                data,
+            ),
     })

@@ -20,6 +20,8 @@ final readonly class TaskListItemResponse
         public ?AssigneeSummary $assignee,
         #[OA\Property(type: 'string', format: 'date-time')]
         public string $createdAt,
+        #[OA\Property(type: 'string', format: 'uuid')]
+        public string $creatorId,
     ) {}
 
     public static function fromTask(Task $task): self
@@ -35,6 +37,7 @@ final readonly class TaskListItemResponse
                 name: $assignee->getName(),
             ) : null,
             createdAt: $task->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            creatorId: (string) $task->getCreator()->getId(),
         );
     }
 }
