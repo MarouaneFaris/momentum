@@ -62,7 +62,7 @@ type Props = {
 
 export default function TaskDetailPanel({ task, onClose }: Props) {
     return (
-        <div className="w-80 min-w-[20rem] flex flex-col bg-card border-l border-border overflow-hidden h-full">
+        <div className="w-[28rem] min-w-[28rem] flex flex-col bg-card border-l border-border overflow-hidden h-full">
             {task ? (
                 <>
                     <div className="flex items-start gap-2 px-5 py-5 border-b border-border flex-shrink-0">

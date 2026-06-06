@@ -247,7 +247,7 @@ export default function WorkspaceProjectTasksPage() {
             <div
                 className={[
                     'flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
-                    panelOpen ? 'w-80' : 'w-0',
+                    panelOpen ? 'w-[28rem]' : 'w-0',
                 ].join(' ')}
             >
                 <TaskDetailPanel task={detail.task} onClose={detail.close} />
