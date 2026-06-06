@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use App\Entity\Project;
+use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserProjectRepository;
@@ -13,7 +14,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-/** @extends Voter<string, Project> */
+/** @extends Voter<string, Project|Task> */
 final class TaskVoter extends Voter
 {
     public const string VIEW = 'task.view';
@@ -25,7 +26,7 @@ final class TaskVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::VIEW && $subject instanceof Project;
+        return $attribute === self::VIEW && ($subject instanceof Project || $subject instanceof Task);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -35,8 +36,7 @@ final class TaskVoter extends Voter
             return false;
         }
 
-        /** @var Project $project */
-        $project = $subject;
+        $project = $subject instanceof Task ? $subject->getProject() : $subject;
 
         $membership = $this->userWorkspaceRepository->findOneBy([
             'user' => $user,

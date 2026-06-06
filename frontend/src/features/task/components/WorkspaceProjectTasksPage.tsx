@@ -12,8 +12,10 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 
+import { useTaskDetail } from '../hooks/useTaskDetail'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
+import TaskDetailPanel from './TaskDetailPanel'
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
     { status: 'todo', label: 'Todo' },
@@ -74,15 +76,26 @@ function Assignee({ assignee }: { assignee: Task['assignee'] }) {
     )
 }
 
-function TaskCard({ task, isGuest }: { task: Task; isGuest: boolean }) {
+function TaskCard({
+    task,
+    isGuest,
+    isSelected,
+    onOpen,
+}: {
+    task: Task
+    isGuest: boolean
+    isSelected: boolean
+    onOpen: (taskId: string) => void
+}) {
     return (
         <div
             className={[
-                'bg-card border border-border rounded-[var(--radius)] p-3 flex flex-col gap-2 transition-[border-color,box-shadow] duration-150',
-                isGuest
-                    ? 'cursor-default'
-                    : 'cursor-pointer hover:border-primary/40 hover:[box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.06)]',
+                'bg-card border rounded-[var(--radius)] p-3 flex flex-col gap-2 cursor-pointer transition-[border-color,box-shadow] duration-150',
+                isSelected
+                    ? 'border-primary [box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.1)]'
+                    : 'border-border hover:border-primary/40 hover:[box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.06)]',
             ].join(' ')}
+            onClick={() => onOpen(task.id)}
         >
             <div className="text-[13px] font-medium text-foreground leading-snug">{task.title}</div>
             <div className="flex items-center gap-1.5">
@@ -99,14 +112,25 @@ function TaskCard({ task, isGuest }: { task: Task; isGuest: boolean }) {
     )
 }
 
-export default function WorkspaceProjectTasksPage() {
-    const { workspaceId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
-        useWorkspaceProjectTasksPage()
-
-    if (isLoading) return null
-
+function TaskBoard({
+    workspaceId,
+    tasksByStatus,
+    isEmpty,
+    isGuest,
+    projectName,
+    selectedTaskId,
+    onOpen,
+}: {
+    workspaceId: string
+    tasksByStatus: Record<TaskStatus, Task[]>
+    isEmpty: boolean
+    isGuest: boolean
+    projectName: string | null
+    selectedTaskId: string | null
+    onOpen: (taskId: string) => void
+}) {
     return (
-        <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-5">
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
@@ -128,6 +152,7 @@ export default function WorkspaceProjectTasksPage() {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
+
             <div className="flex items-center gap-3">
                 <h1 className="text-base font-semibold tracking-tight">Tasks</h1>
                 <div className="flex-1" />
@@ -170,7 +195,13 @@ export default function WorkspaceProjectTasksPage() {
                                     </div>
                                 ) : (
                                     tasks.map((task) => (
-                                        <TaskCard key={task.id} task={task} isGuest={isGuest} />
+                                        <TaskCard
+                                            key={task.id}
+                                            task={task}
+                                            isGuest={isGuest}
+                                            isSelected={task.id === selectedTaskId}
+                                            onOpen={onOpen}
+                                        />
                                     ))
                                 )}
                             </div>
@@ -178,6 +209,49 @@ export default function WorkspaceProjectTasksPage() {
                     })}
                 </div>
             )}
+        </div>
+    )
+}
+
+export default function WorkspaceProjectTasksPage() {
+    const { workspaceId, projectId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
+        useWorkspaceProjectTasksPage()
+    const detail = useTaskDetail(workspaceId, projectId)
+
+    if (isLoading) return null
+
+    const panelOpen = detail.selectedTaskId !== null
+
+    const board = (
+        <TaskBoard
+            workspaceId={workspaceId}
+            tasksByStatus={tasksByStatus}
+            isEmpty={isEmpty}
+            isGuest={isGuest}
+            projectName={projectName}
+            selectedTaskId={detail.selectedTaskId}
+            onOpen={detail.open}
+        />
+    )
+
+    return (
+        <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
+            <div
+                className={[
+                    'flex-1 flex flex-col p-6 overflow-y-auto min-w-0 gap-5 transition-[border-color] duration-200',
+                    panelOpen ? 'border-r border-border' : 'border-r border-transparent',
+                ].join(' ')}
+            >
+                {board}
+            </div>
+            <div
+                className={[
+                    'flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
+                    panelOpen ? 'w-[28rem]' : 'w-0',
+                ].join(' ')}
+            >
+                <TaskDetailPanel task={detail.task} onClose={detail.close} />
+            </div>
         </div>
     )
 }
