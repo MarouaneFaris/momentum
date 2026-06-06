@@ -36,6 +36,8 @@ class AppFixtures extends Fixture
         $this->makeProject('Internal Dashboard', null, ProjectStatus::Draft, $aliceWs, $aliceOwner, $manager);
         $legacyMigration = $this->makeProject('Legacy Migration', 'Migrate off the old monolith', ProjectStatus::Archived, $aliceWs, $aliceOwner, $manager);
 
+        $designSystem = $this->makeProject('Design System', 'Shared component library', ProjectStatus::Active, $aliceWs, $aliceOwner, $manager);
+
         $personalSite = $this->makeProject('Personal Site', 'Portfolio and blog', ProjectStatus::Active, $bobWs, $bobOwner, $manager);
         $this->makeProject('Side Project', null, ProjectStatus::Draft, $bobWs, $bobOwner, $manager);
 
@@ -54,6 +56,12 @@ class AppFixtures extends Fixture
         $this->makeTask('Integrate with REST API', TaskStatus::InProgress, $mobileApp, $bob, $alice, $manager);
         $this->makeTask('Project kickoff', TaskStatus::Done, $mobileApp, $bob, null, $manager);
         $this->makeTask('Set up Expo project', TaskStatus::Done, $mobileApp, $bob, $bob, $manager);
+
+        // Design System tasks — empty Done column
+        $this->makeTask('Define token naming conventions', TaskStatus::Todo, $designSystem, $alice, $alice, $manager);
+        $this->makeTask('Document colour palette', TaskStatus::Todo, $designSystem, $alice, null, $manager);
+        $this->makeTask('Build Button component', TaskStatus::InProgress, $designSystem, $alice, $alice, $manager);
+        $this->makeTask('Build Input component', TaskStatus::InProgress, $designSystem, $alice, $bob, $manager);
 
         // Legacy Migration tasks (archived project, all done)
         $this->makeTask('Audit existing endpoints', TaskStatus::Done, $legacyMigration, $alice, $alice, $manager);
