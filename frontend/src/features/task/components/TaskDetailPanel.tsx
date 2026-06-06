@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import type { TaskDetail, TaskStatus } from '../types'
 
@@ -69,12 +70,14 @@ export default function TaskDetailPanel({ task, onClose }: Props) {
                         <p className="flex-1 text-sm font-semibold text-foreground leading-snug">
                             {task.title}
                         </p>
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={onClose}
-                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground flex-shrink-0 mt-0.5"
+                            className="h-6 w-6 flex-shrink-0 mt-0.5"
                         >
                             <X size={13} />
-                        </button>
+                        </Button>
                     </div>
 
                     <div className="flex-1 flex flex-col gap-3.5 px-5 py-4 overflow-y-auto">
