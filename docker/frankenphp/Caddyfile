@@ -45,7 +45,12 @@
 	@apiRoute path /api/*
 	rewrite @apiRoute /index.php
 
-	{$CADDY_SPA_FALLBACK}
+	@spaFallback {
+		not path /api/*
+		not path /.well-known/mercure*
+		not file {path}
+	}
+	rewrite @spaFallback /index.html
 
 	@phpRoute {
 		not path /.well-known/mercure*
