@@ -1,39 +1,61 @@
 import { useEffect, useState } from 'react'
-import type { Task } from '../types'
+import type { Task, TaskDetail } from '../types'
 import { useTaskForm } from './useTaskForm'
 
-export function useEditTaskModal(workspaceId: string, projectId: string) {
-    const [task, setTask] = useState<Task | null>(null)
+type EditState = {
+    id: string
+    title: string
+    description: string
+    assigneeId: string
+}
 
-    const open = (t: Task) => setTask(t)
-    const close = () => setTask(null)
+function fromTask(t: Task): EditState {
+    return { id: t.id, title: t.title, description: '', assigneeId: t.assignee?.id ?? '' }
+}
+
+function fromDetail(t: TaskDetail): EditState {
+    return {
+        id: t.id,
+        title: t.title,
+        description: t.description ?? '',
+        assigneeId: t.assignee?.id ?? '',
+    }
+}
+
+export function useEditTaskModal(workspaceId: string, projectId: string) {
+    const [state, setState] = useState<EditState | null>(null)
+
+    const open = (t: Task) => setState(fromTask(t))
+    const openFromDetail = (t: TaskDetail) => setState(fromDetail(t))
+    const close = () => setState(null)
 
     const { form, isPending, onSubmit } = useTaskForm({
         workspaceId,
         projectId,
         mode: 'edit',
-        taskId: task?.id ?? '__placeholder__',
+        taskId: state?.id ?? '__placeholder__',
         initialValues: {
-            title: task?.title ?? '',
-            description: '',
-            assigneeId: task?.assignee?.id ?? '',
+            title: state?.title ?? '',
+            description: state?.description ?? '',
+            assigneeId: state?.assigneeId ?? '',
         },
         onSuccess: close,
     })
 
     useEffect(() => {
-        if (task) {
+        if (state) {
             form.reset({
-                title: task.title,
-                description: '',
-                assigneeId: task.assignee?.id ?? '',
+                title: state.title,
+                description: state.description,
+                assigneeId: state.assigneeId,
             })
         }
-    }, [task, form])
+    }, [state, form])
 
     return {
-        task,
+        isOpen: state !== null,
         open,
+        openFromDetail,
         close,
         form,
         isPending,

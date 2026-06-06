@@ -355,7 +355,18 @@ export default function WorkspaceProjectTasksPage() {
                         panelOpen ? 'w-[28rem]' : 'w-0',
                     ].join(' ')}
                 >
-                    <TaskDetailPanel task={detail.task} onClose={detail.close} />
+                    <TaskDetailPanel
+                        task={detail.task}
+                        onClose={detail.close}
+                        canEdit={
+                            !isGuest &&
+                            detail.task !== null &&
+                            (isOwner || detail.task.creator.id === authUser?.id)
+                        }
+                        onEdit={() => {
+                            if (detail.task) editModal.openFromDetail(detail.task)
+                        }}
+                    />
                 </div>
             </div>
             <TaskFormModal
@@ -367,7 +378,7 @@ export default function WorkspaceProjectTasksPage() {
                 onSubmit={modal.onSubmit}
             />
             <TaskFormModal
-                open={editModal.task !== null}
+                open={editModal.isOpen}
                 onOpenChange={(v) => {
                     if (!v) editModal.close()
                 }}
