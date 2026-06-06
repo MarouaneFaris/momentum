@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum — Tasks (Desktop)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: oklch(0.488 0.243 264.376);
+      --primary-fg: oklch(0.97 0.014 254.604);
+      --primary-hover: oklch(0.44 0.22 264.376);
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-fg: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --radius: 0.625rem;
+      --sidebar-bg: oklch(0.985 0 0);
+      --sidebar-border: oklch(0.92 0.004 286.32);
+      --green: oklch(0.35 0.12 145);
+      --green-bg: oklch(0.3 0.1 145 / 0.1);
+      --green-border: oklch(0.3 0.1 145 / 0.25);
+      --amber: oklch(0.5 0.15 75);
+      --amber-bg: oklch(0.5 0.15 75 / 0.1);
+      --amber-border: oklch(0.5 0.15 75 / 0.25);
+      --red: oklch(0.577 0.245 27.325);
+      --red-bg: oklch(0.577 0.245 27.325 / 0.08);
+      --red-border: oklch(0.577 0.245 27.325 / 0.25);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: oklch(0.624 0.214 259.815);
+        --background: oklch(0.141 0.005 285.823);
+        --foreground: oklch(0.985 0 0);
+        --card: oklch(0.21 0.006 285.885);
+        --muted: oklch(0.274 0.006 286.033);
+        --muted-fg: oklch(0.705 0.015 286.067);
+        --border: oklch(1 0 0 / 10%);
+        --sidebar-bg: oklch(0.21 0.006 285.885);
+        --sidebar-border: oklch(1 0 0 / 10%);
+      }
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--muted); color: var(--foreground); padding: 40px 24px; }
+
+    /* Page header */
+    .page-header { max-width: 1200px; margin: 0 auto 32px; display: flex; align-items: center; gap: 12px; }
+    .page-logo { display: flex; align-items: center; gap: 10px; }
+    .mark { display: flex; flex-direction: column; gap: 4px; transform: skewX(-12deg); }
+    .stripe { border-radius: 2px; background: var(--primary); }
+    .wordmark { font-size: 16px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .wordmark .acc { color: var(--primary); }
+    .page-divider { flex: 1; height: 0.5px; background: var(--border); }
+    .page-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); white-space: nowrap; }
+
+    .shells { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+    .shell-section { display: flex; flex-direction: column; gap: 10px; }
+    .shell-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-fg); padding-left: 2px; }
+    .shell-frame { border-radius: calc(var(--radius) * 1.4); overflow: hidden; border: 0.5px solid var(--border); background: var(--background); box-shadow: 0 1px 3px oklch(0 0 0 / 0.06); }
+
+    /* App chrome */
+    .app-topbar { height: 48px; background: var(--sidebar-bg); border-bottom: 0.5px solid var(--sidebar-border); display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0; }
+    .topbar-logo { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .topbar-mark { display: flex; flex-direction: column; gap: 3px; transform: skewX(-12deg); }
+    .topbar-wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .topbar-divider { width: 0.5px; height: 20px; background: var(--border); margin: 0 4px; }
+    .ws-selector { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: var(--radius); cursor: pointer; }
+    .ws-selector:hover { background: var(--muted); }
+    .ws-name { font-size: 12px; font-weight: 500; color: var(--foreground); }
+    .topbar-spacer { flex: 1; }
+    .icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); cursor: pointer; color: var(--muted-fg); position: relative; }
+    .icon-btn:hover { background: var(--muted); }
+    .icon-btn svg { width: 15px; height: 15px; }
+    .notif-badge { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); border: 1.5px solid var(--sidebar-bg); }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: oklch(0.488 0.243 264.376 / 0.15); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--primary); margin-left: 4px; }
+
+    .app-body { display: flex; }
+    .sidebar { width: 200px; flex-shrink: 0; background: var(--sidebar-bg); border-right: 0.5px solid var(--sidebar-border); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; min-height: 520px; }
+    .sidebar-section { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); padding: 10px 8px 4px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: calc(var(--radius) * 0.8); font-size: 13px; color: var(--muted-fg); cursor: pointer; }
+    .nav-item:hover { background: var(--muted); color: var(--foreground); }
+    .nav-item.active { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); font-weight: 500; }
+    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .project-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .sidebar-project { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: calc(var(--radius) * 0.8); font-size: 12px; color: var(--muted-fg); cursor: pointer; }
+    .sidebar-project:hover { background: var(--muted); color: var(--foreground); }
+    .sidebar-project.active { color: var(--foreground); font-weight: 500; }
+    .sidebar-sub { display: flex; align-items: center; gap: 8px; padding: 4px 8px 4px 22px; border-radius: calc(var(--radius) * 0.8); font-size: 12px; color: var(--muted-fg); cursor: pointer; }
+    .sidebar-sub:hover { background: var(--muted); color: var(--foreground); }
+    .sidebar-sub.active { color: var(--primary); font-weight: 500; }
+
+    .main-content { flex: 1; background: var(--background); padding: 24px; display: flex; flex-direction: column; gap: 20px; overflow: hidden; }
+    .content-header { display: flex; align-items: center; gap: 12px; }
+    .content-title { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; color: var(--foreground); }
+    .content-spacer { flex: 1; }
+    .new-btn { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: var(--primary); color: var(--primary-fg); border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer; border: none; font-family: 'Inter', sans-serif; }
+    .new-btn:hover { background: var(--primary-hover); }
+    .ghost-btn { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; background: transparent; color: var(--muted-fg); border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted-fg); }
+    .breadcrumb .sep { color: var(--border); }
+    .breadcrumb .current { color: var(--foreground); font-weight: 500; }
+    .breadcrumb a { color: var(--primary); cursor: pointer; }
+
+    /* Badges */
+    .badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .badge-todo { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); }
+    .badge-prog { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); }
+    .badge-done { background: var(--green-bg); color: var(--green); border: 0.5px solid var(--green-border); }
+
+    /* Task columns layout */
+    .task-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: start; }
+    .task-col { display: flex; flex-direction: column; gap: 8px; }
+    .col-header { display: flex; align-items: center; gap: 8px; padding: 0 4px 4px; }
+    .col-title { font-size: 12px; font-weight: 600; color: var(--foreground); }
+    .col-count { font-size: 11px; color: var(--muted-fg); background: var(--muted); border: 0.5px solid var(--border); border-radius: 20px; padding: 0 7px; line-height: 18px; }
+
+    /* Task card */
+    .task-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+    .task-card:hover { border-color: oklch(0.488 0.243 264.376 / 0.4); box-shadow: 0 0 0 3px oklch(0.488 0.243 264.376 / 0.06); }
+    .task-card-title { font-size: 13px; font-weight: 500; color: var(--foreground); line-height: 1.4; }
+    .task-card-footer { display: flex; align-items: center; gap: 6px; }
+    .task-card-spacer { flex: 1; }
+    .task-assignee { display: flex; align-items: center; gap: 5px; }
+    .t-av { width: 20px; height: 20px; border-radius: 50%; background: oklch(0.488 0.243 264.376 / 0.15); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; color: var(--primary); flex-shrink: 0; }
+    .t-av-name { font-size: 11px; color: var(--muted-fg); }
+    .task-more { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 4px; color: var(--muted-fg); font-size: 13px; cursor: pointer; }
+    .task-more:hover { background: var(--muted); }
+
+    /* Column empty state */
+    .col-empty { border: 0.5px dashed var(--border); border-radius: var(--radius); padding: 20px 12px; text-align: center; color: var(--muted-fg); font-size: 12px; }
+
+    /* Full-page empty state */
+    .page-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px 24px; text-align: center; }
+    .page-empty-title { font-size: 14px; font-weight: 500; color: var(--foreground); }
+    .page-empty-sub { font-size: 13px; color: var(--muted-fg); }
+
+    /* Side panel */
+    .panel-layout { display: flex; gap: 0; overflow: hidden; }
+    .panel-main { flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 0.5px solid var(--border); min-width: 0; }
+    .side-panel { width: 320px; flex-shrink: 0; background: var(--card); display: flex; flex-direction: column; gap: 0; }
+    .panel-header { display: flex; align-items: flex-start; gap: 8px; padding: 20px; border-bottom: 0.5px solid var(--border); }
+    .panel-title { font-size: 14px; font-weight: 600; color: var(--foreground); flex: 1; line-height: 1.4; }
+    .panel-close { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--muted-fg); cursor: pointer; font-size: 13px; flex-shrink: 0; }
+    .panel-close:hover { background: var(--muted); }
+    .panel-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+    .panel-row { display: flex; align-items: center; gap: 10px; }
+    .panel-row-label { font-size: 11px; font-weight: 500; color: var(--muted-fg); width: 80px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.05em; }
+    .panel-row-value { font-size: 13px; color: var(--foreground); display: flex; align-items: center; gap: 6px; }
+    .panel-desc { font-size: 13px; color: var(--muted-fg); line-height: 1.6; }
+    .panel-divider { height: 0.5px; background: var(--border); margin: 4px 0; }
+    .panel-actions { display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-top: 0.5px solid var(--border); }
+    .status-select { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); border-radius: 20px; font-size: 11px; font-weight: 500; cursor: pointer; }
+
+    /* Modal overlay */
+    .modal-overlay { position: relative; }
+    .modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 460px; background: var(--card); border: 0.5px solid var(--border); border-radius: calc(var(--radius) * 1.4); box-shadow: 0 8px 32px oklch(0 0 0 / 0.12); padding: 24px; z-index: 10; display: flex; flex-direction: column; gap: 16px; }
+    .modal-header { display: flex; align-items: center; gap: 8px; }
+    .modal-title { font-size: 15px; font-weight: 600; color: var(--foreground); flex: 1; }
+    .modal-desc { font-size: 13px; color: var(--muted-fg); margin-top: -8px; }
+    .modal-close { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--muted-fg); cursor: pointer; font-size: 14px; }
+    .modal-close:hover { background: var(--muted); }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field-label { font-size: 12px; font-weight: 500; color: var(--foreground); }
+    .field-opt { font-weight: 400; color: var(--muted-fg); }
+    .mock-input { width: 100%; height: 36px; background: var(--background); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 0 12px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--foreground); outline: none; }
+    .mock-input::placeholder { color: var(--muted-fg); }
+    .mock-input.focused { border-color: var(--primary); box-shadow: 0 0 0 3px oklch(0.488 0.243 264.376 / 0.1); }
+    .mock-textarea { width: 100%; height: 80px; background: var(--background); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--muted-fg); resize: none; outline: none; }
+    .mock-select { width: 100%; height: 36px; background: var(--background); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 0 12px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--foreground); appearance: none; cursor: pointer; }
+    .select-wrap { position: relative; }
+    .select-wrap::after { content: '⌄'; position: absolute; right: 10px; top: 50%; transform: translateY(-52%); font-size: 12px; color: var(--muted-fg); pointer-events: none; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    .btn-primary { height: 34px; padding: 0 16px; background: var(--primary); color: var(--primary-fg); border: none; border-radius: var(--radius); font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; }
+    .btn-ghost { height: 34px; padding: 0 16px; background: transparent; color: var(--muted-fg); border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; }
+    .btn-danger { height: 34px; padding: 0 16px; background: transparent; color: var(--red); border: 0.5px solid var(--red-border); border-radius: var(--radius); font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; }
+    .btn-danger-solid { height: 34px; padding: 0 16px; background: var(--red); color: #fff; border: none; border-radius: var(--radius); font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; }
+
+    /* Helpers */
+    .blurred { filter: blur(1px); opacity: 0.6; pointer-events: none; }
+
+    /* Guest notice */
+    .guest-notice { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--muted); border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 12px; color: var(--muted-fg); }
+    .guest-notice svg { width: 14px; height: 14px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-logo">
+    <div class="mark">
+      <div class="stripe" style="width:20px;height:6px;opacity:.25"></div>
+      <div class="stripe" style="width:20px;height:6px;opacity:.55"></div>
+      <div class="stripe" style="width:20px;height:6px;opacity:1"></div>
+    </div>
+    <div class="wordmark"><span class="acc">m</span>omentum</div>
+  </div>
+  <div class="page-divider"></div>
+  <div class="page-label">Tasks — Desktop</div>
+</div>
+
+<div class="shells">
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 01 — TASK LIST (Owner/Member, populated) -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">01 — Task list (Owner view)</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="icon-btn">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="icon-btn">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          <div class="notif-badge"></div>
+        </div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            Dashboard
+          </div>
+          <div class="sidebar-section">Projects</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/><path d="M5 3V1M11 3V1M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>All projects</div>
+          <div class="sidebar-project active"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-sub active">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M2 6h5M2 9h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Tasks
+          </div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.55 0.15 145)"></div>Frontend MVP</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.6 0.15 55)"></div>Infrastructure</div>
+          <div class="sidebar-section" style="margin-top:auto">Workspace</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Members</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>Settings</div>
+        </div>
+        <div class="main-content">
+          <div class="breadcrumb">
+            <a>Projects</a>
+            <span class="sep">/</span>
+            <a>Backend API</a>
+            <span class="sep">/</span>
+            <span class="current">Tasks</span>
+          </div>
+          <div class="content-header">
+            <div class="content-title">Tasks</div>
+            <div class="content-spacer"></div>
+            <button class="new-btn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              New task
+            </button>
+          </div>
+          <div class="task-columns">
+            <!-- Todo column -->
+            <div class="task-col">
+              <div class="col-header">
+                <div class="col-title">Todo</div>
+                <div class="col-count">3</div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Write API spec for task endpoints</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee">
+                    <div class="t-av">AJ</div>
+                    <div class="t-av-name">Alex J.</div>
+                  </div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Set up Mercure for real-time updates</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee">
+                    <div style="font-size:11px;color:var(--muted-fg)">—</div>
+                  </div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Write unit tests for TaskVoter</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee">
+                    <div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div>
+                    <div class="t-av-name">Marie L.</div>
+                  </div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+            </div>
+            <!-- In Progress column -->
+            <div class="task-col">
+              <div class="col-header">
+                <div class="col-title">In Progress</div>
+                <div class="col-count">2</div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Implement PATCH /tasks/{id} with field-level auth</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-prog">In progress</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee">
+                    <div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div>
+                    <div class="t-av-name">Marie L.</div>
+                  </div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Run Doctrine migrations on staging</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-prog">In progress</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee">
+                    <div class="t-av">AJ</div>
+                    <div class="t-av-name">Alex J.</div>
+                  </div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+            </div>
+            <!-- Done column -->
+            <div class="task-col">
+              <div class="col-header">
+                <div class="col-title">Done</div>
+                <div class="col-count">2</div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Auth cookie endpoints</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-done">Done</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee">
+                    <div class="t-av">AJ</div>
+                    <div class="t-av-name">Alex J.</div>
+                  </div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Docker Compose dev setup</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-done">Done</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee">
+                    <div style="font-size:11px;color:var(--muted-fg)">—</div>
+                  </div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 02 — FULL-PAGE EMPTY STATE -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">02 — Empty state (no tasks at all)</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>Dashboard</div>
+          <div class="sidebar-section">Projects</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><path d="M2 3h12a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2"/><path d="M5 3V1M11 3V1M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>All projects</div>
+          <div class="sidebar-project active"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-sub active"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M2 6h5M2 9h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Tasks</div>
+        </div>
+        <div class="main-content">
+          <div class="breadcrumb"><a>Projects</a><span class="sep">/</span><a>Backend API</a><span class="sep">/</span><span class="current">Tasks</span></div>
+          <div class="content-header">
+            <div class="content-title">Tasks</div>
+            <div class="content-spacer"></div>
+            <button class="new-btn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              New task
+            </button>
+          </div>
+          <div class="page-empty">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="color:var(--border)">
+              <rect x="4" y="8" width="32" height="26" rx="3" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M13 20h14M13 26h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M20 8V4M14 8V5M26 8V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <div class="page-empty-title">No tasks yet</div>
+            <div class="page-empty-sub">Create a task to start tracking work for this project.</div>
+            <button class="new-btn" style="margin-top:4px">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              New task
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 03 — PER-COLUMN EMPTY STATE -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">03 — Empty state (per column — In Progress and Done empty)</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>Dashboard</div>
+          <div class="sidebar-section">Projects</div>
+          <div class="sidebar-project active"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-sub active"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M2 6h5M2 9h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Tasks</div>
+        </div>
+        <div class="main-content">
+          <div class="breadcrumb"><a>Projects</a><span class="sep">/</span><a>Backend API</a><span class="sep">/</span><span class="current">Tasks</span></div>
+          <div class="content-header">
+            <div class="content-title">Tasks</div>
+            <div class="content-spacer"></div>
+            <button class="new-btn">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              New task
+            </button>
+          </div>
+          <div class="task-columns">
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Todo</div><div class="col-count">2</div></div>
+              <div class="task-card">
+                <div class="task-card-title">Write API spec for task endpoints</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div class="t-av">AJ</div><div class="t-av-name">Alex J.</div></div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+              <div class="task-card">
+                <div class="task-card-title">Set up Mercure for real-time updates</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div style="font-size:11px;color:var(--muted-fg)">—</div></div>
+                  <div class="task-more">⋯</div>
+                </div>
+              </div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">In Progress</div><div class="col-count">0</div></div>
+              <div class="col-empty">Nothing in progress yet.</div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Done</div><div class="col-count">0</div></div>
+              <div class="col-empty">No completed tasks yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 04 — TASK DETAIL SIDE PANEL -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">04 — Task detail side panel (Owner view)</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>Dashboard</div>
+          <div class="sidebar-section">Projects</div>
+          <div class="sidebar-project active"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-sub active"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M2 6h5M2 9h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Tasks</div>
+        </div>
+        <div class="panel-layout" style="flex:1">
+          <div class="panel-main">
+            <div class="breadcrumb"><a>Projects</a><span class="sep">/</span><a>Backend API</a><span class="sep">/</span><span class="current">Tasks</span></div>
+            <div class="content-header">
+              <div class="content-title">Tasks</div>
+              <div class="content-spacer"></div>
+              <button class="new-btn">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 2v9M2 6.5h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                New task
+              </button>
+            </div>
+            <div class="task-columns">
+              <div class="task-col">
+                <div class="col-header"><div class="col-title">Todo</div><div class="col-count">2</div></div>
+                <div class="task-card">
+                  <div class="task-card-title">Set up Mercure for real-time updates</div>
+                  <div class="task-card-footer"><span class="badge badge-todo">Todo</span><div class="task-card-spacer"></div><div style="font-size:11px;color:var(--muted-fg)">—</div><div class="task-more">⋯</div></div>
+                </div>
+                <div class="task-card">
+                  <div class="task-card-title">Write unit tests for TaskVoter</div>
+                  <div class="task-card-footer"><span class="badge badge-todo">Todo</span><div class="task-card-spacer"></div><div class="task-assignee"><div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div></div><div class="task-more">⋯</div></div>
+                </div>
+              </div>
+              <div class="task-col">
+                <div class="col-header"><div class="col-title">In Progress</div><div class="col-count">1</div></div>
+                <!-- selected card highlighted -->
+                <div class="task-card" style="border-color:var(--primary);box-shadow:0 0 0 3px oklch(0.488 0.243 264.376 / 0.1)">
+                  <div class="task-card-title">Implement PATCH /tasks/{id} with field-level auth</div>
+                  <div class="task-card-footer"><span class="badge badge-prog">In progress</span><div class="task-card-spacer"></div><div class="task-assignee"><div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div></div><div class="task-more">⋯</div></div>
+                </div>
+              </div>
+              <div class="task-col">
+                <div class="col-header"><div class="col-title">Done</div><div class="col-count">1</div></div>
+                <div class="task-card">
+                  <div class="task-card-title">Auth cookie endpoints</div>
+                  <div class="task-card-footer"><span class="badge badge-done">Done</span><div class="task-card-spacer"></div><div class="task-assignee"><div class="t-av">AJ</div></div><div class="task-more">⋯</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Side panel -->
+          <div class="side-panel">
+            <div class="panel-header">
+              <div class="panel-title">Implement PATCH /tasks/{id} with field-level auth</div>
+              <div class="panel-close">✕</div>
+            </div>
+            <div class="panel-body">
+              <div class="panel-row">
+                <div class="panel-row-label">Status</div>
+                <div class="panel-row-value">
+                  <div class="status-select">◑ In progress <span style="margin-left:2px;font-size:10px;color:var(--primary);opacity:.7">⌄</span></div>
+                </div>
+              </div>
+              <div class="panel-row">
+                <div class="panel-row-label">Assignee</div>
+                <div class="panel-row-value">
+                  <div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div>
+                  Marie L.
+                </div>
+              </div>
+              <div class="panel-row">
+                <div class="panel-row-label">Created by</div>
+                <div class="panel-row-value"><div class="t-av">AJ</div> Alex J.</div>
+              </div>
+              <div class="panel-row">
+                <div class="panel-row-label">Created</div>
+                <div class="panel-row-value" style="color:var(--muted-fg);font-size:12px">Jun 3, 2026</div>
+              </div>
+              <div class="panel-divider"></div>
+              <div>
+                <div style="font-size:11px;font-weight:500;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Description</div>
+                <div class="panel-desc">Voter must gate by caller role: Owner → all fields; task creator (Member) → all fields; assignee who is not creator → status only; other Member → status only.</div>
+              </div>
+            </div>
+            <div class="panel-actions">
+              <button class="btn-danger" style="height:30px;font-size:12px;padding:0 12px">Delete</button>
+              <div style="flex:1"></div>
+              <button class="btn-ghost" style="height:30px;font-size:12px;padding:0 12px">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 05 — CREATE TASK MODAL -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">05 — Create task modal</p>
+    <div class="shell-frame" style="position:relative">
+      <div class="app-topbar blurred">
+        <div class="topbar-logo"><div class="topbar-mark"><div class="stripe" style="width:18px;height:5px;opacity:.25"></div><div class="stripe" style="width:18px;height:5px;opacity:.55"></div><div class="stripe" style="width:18px;height:5px;opacity:1"></div></div><div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div></div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body blurred" style="min-height:400px">
+        <div class="sidebar"></div>
+        <div class="main-content"></div>
+      </div>
+      <div style="position:absolute;inset:0;background:oklch(0 0 0 / 0.3);display:flex;align-items:center;justify-content:center;border-radius:inherit">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">New task</div>
+            <div class="modal-close">✕</div>
+          </div>
+          <div class="modal-desc">Enter details for the new task.</div>
+          <div class="field">
+            <div class="field-label">Title</div>
+            <input class="mock-input focused" value="Implement PATCH endpoint" readonly />
+          </div>
+          <div class="field">
+            <div class="field-label">Description <span class="field-opt">(optional)</span></div>
+            <textarea class="mock-textarea" readonly>Field-level auth: Owner → all fields; Member → own tasks all fields, others → status only.</textarea>
+          </div>
+          <div class="field">
+            <div class="field-label">Assignee</div>
+            <div class="select-wrap">
+              <select class="mock-select">
+                <option>Unassigned</option>
+                <option selected>Marie L. (Member)</option>
+                <option>Alex J. (Owner)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Status</div>
+            <div class="select-wrap">
+              <select class="mock-select">
+                <option selected>Todo</option>
+                <option>In progress</option>
+                <option>Done</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-ghost">Cancel</button>
+            <button class="btn-primary">Create task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 06 — EDIT TASK MODAL -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">06 — Edit task modal</p>
+    <div class="shell-frame" style="position:relative">
+      <div class="app-topbar blurred">
+        <div class="topbar-logo"><div class="topbar-mark"><div class="stripe" style="width:18px;height:5px;opacity:.25"></div><div class="stripe" style="width:18px;height:5px;opacity:.55"></div><div class="stripe" style="width:18px;height:5px;opacity:1"></div></div><div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div></div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body blurred" style="min-height:400px">
+        <div class="sidebar"></div>
+        <div class="main-content"></div>
+      </div>
+      <div style="position:absolute;inset:0;background:oklch(0 0 0 / 0.3);display:flex;align-items:center;justify-content:center;border-radius:inherit">
+        <div class="modal">
+          <div class="modal-header">
+            <div class="modal-title">Edit task</div>
+            <div class="modal-close">✕</div>
+          </div>
+          <div class="modal-desc">Update task details.</div>
+          <div class="field">
+            <div class="field-label">Title</div>
+            <input class="mock-input" value="Implement PATCH /tasks/{id} with field-level auth" readonly />
+          </div>
+          <div class="field">
+            <div class="field-label">Description <span class="field-opt">(optional)</span></div>
+            <textarea class="mock-textarea" readonly>Field-level auth: Owner → all fields; Member → own tasks all fields, others → status only.</textarea>
+          </div>
+          <div class="field">
+            <div class="field-label">Assignee</div>
+            <div class="select-wrap">
+              <select class="mock-select">
+                <option>Unassigned</option>
+                <option selected>Marie L. (Member)</option>
+                <option>Alex J. (Owner)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Status</div>
+            <div class="select-wrap">
+              <select class="mock-select">
+                <option>Todo</option>
+                <option selected>In progress</option>
+                <option>Done</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-ghost">Cancel</button>
+            <button class="btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 07 — DELETE CONFIRMATION DIALOG -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">07 — Delete task confirmation</p>
+    <div class="shell-frame" style="position:relative">
+      <div class="app-topbar blurred">
+        <div class="topbar-logo"><div class="topbar-mark"><div class="stripe" style="width:18px;height:5px;opacity:.25"></div><div class="stripe" style="width:18px;height:5px;opacity:.55"></div><div class="stripe" style="width:18px;height:5px;opacity:1"></div></div><div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div></div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar">AJ</div>
+      </div>
+      <div class="app-body blurred" style="min-height:280px">
+        <div class="sidebar"></div>
+        <div class="main-content"></div>
+      </div>
+      <div style="position:absolute;inset:0;background:oklch(0 0 0 / 0.3);display:flex;align-items:center;justify-content:center;border-radius:inherit">
+        <div class="modal" style="width:400px;gap:20px">
+          <div class="modal-header">
+            <div class="modal-title">Delete task</div>
+            <div class="modal-close">✕</div>
+          </div>
+          <div style="font-size:13px;color:var(--muted-fg);line-height:1.6">
+            Delete <strong style="color:var(--foreground)">"Implement PATCH /tasks/{id} with field-level auth"</strong>? This cannot be undone.
+          </div>
+          <div class="modal-actions">
+            <button class="btn-ghost">Cancel</button>
+            <button class="btn-danger-solid">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 08 — GUEST READ-ONLY VIEW -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">08 — Guest read-only view (no create / edit / delete affordances)</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">C</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="user-avatar" style="font-size:9px">CR</div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>Dashboard</div>
+          <div class="sidebar-section">Projects</div>
+          <div class="sidebar-project active"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-sub active"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M2 6h5M2 9h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Tasks</div>
+        </div>
+        <div class="main-content">
+          <div class="breadcrumb"><a>Projects</a><span class="sep">/</span><a>Backend API</a><span class="sep">/</span><span class="current">Tasks</span></div>
+          <div class="content-header">
+            <div class="content-title">Tasks</div>
+            <!-- no New task button for Guest -->
+          </div>
+          <!-- Guest notice banner -->
+          <div class="guest-notice">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            You're viewing as a Guest — read-only access.
+          </div>
+          <div class="task-columns">
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Todo</div><div class="col-count">3</div></div>
+              <!-- No ⋯ action menu on guest cards -->
+              <div class="task-card" style="cursor:default">
+                <div class="task-card-title">Write API spec for task endpoints</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div class="t-av">AJ</div><div class="t-av-name">Alex J.</div></div>
+                </div>
+              </div>
+              <div class="task-card" style="cursor:default">
+                <div class="task-card-title">Set up Mercure for real-time updates</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div style="font-size:11px;color:var(--muted-fg)">—</div></div>
+                </div>
+              </div>
+              <div class="task-card" style="cursor:default">
+                <div class="task-card-title">Write unit tests for TaskVoter</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-todo">Todo</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div><div class="t-av-name">Marie L.</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">In Progress</div><div class="col-count">2</div></div>
+              <div class="task-card" style="cursor:default">
+                <div class="task-card-title">Implement PATCH /tasks/{id} with field-level auth</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-prog">In progress</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div><div class="t-av-name">Marie L.</div></div>
+                </div>
+              </div>
+              <div class="task-card" style="cursor:default">
+                <div class="task-card-title">Run Doctrine migrations on staging</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-prog">In progress</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div class="t-av">AJ</div><div class="t-av-name">Alex J.</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Done</div><div class="col-count">2</div></div>
+              <div class="task-card" style="cursor:default">
+                <div class="task-card-title">Auth cookie endpoints</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-done">Done</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div class="t-av">AJ</div><div class="t-av-name">Alex J.</div></div>
+                </div>
+              </div>
+              <div class="task-card" style="cursor:default">
+                <div class="task-card-title">Docker Compose dev setup</div>
+                <div class="task-card-footer">
+                  <span class="badge badge-done">Done</span>
+                  <div class="task-card-spacer"></div>
+                  <div class="task-assignee"><div style="font-size:11px;color:var(--muted-fg)">—</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
