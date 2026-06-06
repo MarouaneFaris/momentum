@@ -16,14 +16,14 @@ export default function DevLoginPanel() {
     if (!import.meta.env.DEV) return null
 
     return (
-        <div className="fixed bottom-4 right-4 z-50">
+        <div className="fixed bottom-4 left-4 z-50">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="text-xs">
                         Dev Login
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-auto">
+                <DropdownMenuContent align="start" className="w-auto">
                     {users.map((user) => (
                         <DropdownMenuItem key={user.id} onClick={() => handleLoginAs(user.email)}>
                             {user.email}
