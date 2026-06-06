@@ -19,13 +19,6 @@ services:
         }
       MERCURE_EXTRA_DIRECTIVES: ""
       MERCURE_PUBLIC_URL: "https://${SERVER_NAME}/.well-known/mercure"
-      CADDY_SPA_FALLBACK: |
-        @spaFallback {
-            not path /api/*
-            not path /.well-known/mercure*
-            not file {path}
-        }
-        rewrite @spaFallback /index.html
     ports:
       - target: ${PORT:-8080}
         published: ${PORT:-8080}
