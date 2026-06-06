@@ -315,7 +315,7 @@ export default function WorkspaceProjectTasksPage() {
     const detail = useTaskDetail(workspaceId, projectId)
     const modal = useCreateTaskModal(workspaceId, projectId)
     const editModal = useEditTaskModal(workspaceId, projectId)
-    const deleteDialog = useDeleteTaskDialog(workspaceId, projectId)
+    const deleteDialog = useDeleteTaskDialog(workspaceId, projectId, detail.close)
 
     if (isLoading) return null
 
@@ -366,6 +366,18 @@ export default function WorkspaceProjectTasksPage() {
                         }
                         onEdit={() => {
                             if (detail.task) editModal.openFromDetail(detail.task)
+                        }}
+                        onDelete={() => {
+                            if (detail.task) {
+                                deleteDialog.openDialog({
+                                    id: detail.task.id,
+                                    title: detail.task.title,
+                                    status: detail.task.status,
+                                    assignee: detail.task.assignee,
+                                    createdAt: detail.task.createdAt,
+                                    creatorId: detail.task.creator.id,
+                                })
+                            }
                         }}
                     />
                 </div>

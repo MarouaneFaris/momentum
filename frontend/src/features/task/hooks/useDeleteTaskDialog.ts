@@ -4,7 +4,11 @@ import { toast } from 'sonner'
 import { useDeleteTask } from '../queries'
 import type { Task } from '../types'
 
-export function useDeleteTaskDialog(workspaceId: string, projectId: string) {
+export function useDeleteTaskDialog(
+    workspaceId: string,
+    projectId: string,
+    onSuccess?: () => void,
+) {
     const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
     const queryClient = useQueryClient()
     const mutation = useDeleteTask(workspaceId, projectId)
@@ -20,6 +24,7 @@ export function useDeleteTaskDialog(workspaceId: string, projectId: string) {
                     queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks'],
                 })
                 closeDialog()
+                onSuccess?.()
             },
             onError: () => {
                 toast.error('Failed to delete task.')
