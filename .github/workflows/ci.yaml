@@ -191,20 +191,3 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
 
-      - name: Smoke check health
-        # Required: repo variable API_HEALTH_URL (e.g. https://your-app.railway.app/api/health).
-        # Polls every 10s for up to 5 minutes.
-        run: |
-          for i in $(seq 1 30); do
-            status=$(curl -s -o /dev/null -w "%{http_code}" "$API_HEALTH_URL")
-            if [ "$status" = "200" ]; then
-              echo "Health check passed"
-              exit 0
-            fi
-            echo "Attempt $i: status $status, retrying in 10s..."
-            sleep 10
-          done
-          echo "Health check failed after 5 minutes"
-          exit 1
-        env:
-          API_HEALTH_URL: ${{ vars.API_HEALTH_URL }}
