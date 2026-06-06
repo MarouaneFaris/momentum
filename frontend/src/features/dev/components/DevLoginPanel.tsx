@@ -23,7 +23,7 @@ export default function DevLoginPanel() {
                         Dev Login
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-auto">
+                <DropdownMenuContent align="end" className="w-auto">
                     {users.map((user) => (
                         <DropdownMenuItem key={user.id} onClick={() => handleLoginAs(user.email)}>
                             {user.email}
