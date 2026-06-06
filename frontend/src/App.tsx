@@ -9,6 +9,7 @@ import InvitationsPage from '@/pages/InvitationsPage'
 import LoginPage from '@/pages/LoginPage'
 import WorkspaceMembersPage from '@/pages/WorkspaceMembersPage'
 import WorkspaceProjectsPage from '@/pages/WorkspaceProjectsPage'
+import WorkspaceProjectTasksPage from '@/pages/WorkspaceProjectTasksPage'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
 import { StrictMode } from 'react'
@@ -62,6 +63,10 @@ export default function App() {
                                         <Route
                                             path="/workspaces/:id/projects"
                                             element={<WorkspaceProjectsPage />}
+                                        />
+                                        <Route
+                                            path="/workspaces/:id/projects/:projectId/tasks"
+                                            element={<WorkspaceProjectTasksPage />}
                                         />
                                     </Route>
                                     <Route path="/invitations" element={<InvitationsPage />} />
