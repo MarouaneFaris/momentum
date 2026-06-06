@@ -12,8 +12,10 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 
+import { useTaskDetail } from '../hooks/useTaskDetail'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
+import TaskDetailPanel from './TaskDetailPanel'
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
     { status: 'todo', label: 'Todo' },
@@ -74,15 +76,22 @@ function Assignee({ assignee }: { assignee: Task['assignee'] }) {
     )
 }
 
-function TaskCard({ task, isGuest }: { task: Task; isGuest: boolean }) {
+function TaskCard({
+    task,
+    isGuest,
+    onOpen,
+}: {
+    task: Task
+    isGuest: boolean
+    onOpen: (taskId: string) => void
+}) {
     return (
         <div
             className={[
                 'bg-card border border-border rounded-[var(--radius)] p-3 flex flex-col gap-2 transition-[border-color,box-shadow] duration-150',
-                isGuest
-                    ? 'cursor-default'
-                    : 'cursor-pointer hover:border-primary/40 hover:[box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.06)]',
+                'cursor-pointer hover:border-primary/40 hover:[box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.06)]',
             ].join(' ')}
+            onClick={() => onOpen(task.id)}
         >
             <div className="text-[13px] font-medium text-foreground leading-snug">{task.title}</div>
             <div className="flex items-center gap-1.5">
@@ -100,8 +109,9 @@ function TaskCard({ task, isGuest }: { task: Task; isGuest: boolean }) {
 }
 
 export default function WorkspaceProjectTasksPage() {
-    const { workspaceId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
+    const { workspaceId, projectId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
         useWorkspaceProjectTasksPage()
+    const detail = useTaskDetail(workspaceId, projectId)
 
     if (isLoading) return null
 
@@ -170,7 +180,12 @@ export default function WorkspaceProjectTasksPage() {
                                     </div>
                                 ) : (
                                     tasks.map((task) => (
-                                        <TaskCard key={task.id} task={task} isGuest={isGuest} />
+                                        <TaskCard
+                                            key={task.id}
+                                            task={task}
+                                            isGuest={isGuest}
+                                            onOpen={detail.open}
+                                        />
                                     ))
                                 )}
                             </div>
@@ -178,6 +193,12 @@ export default function WorkspaceProjectTasksPage() {
                     })}
                 </div>
             )}
+
+            <TaskDetailPanel
+                task={detail.task}
+                open={detail.selectedTaskId !== null}
+                onClose={detail.close}
+            />
         </div>
     )
 }

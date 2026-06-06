@@ -12,3 +12,14 @@ export type Task = {
     assignee: TaskAssignee | null
     createdAt: string
 }
+
+export type TaskDetail = {
+    id: string
+    title: string
+    description: string | null
+    status: TaskStatus
+    creator: TaskAssignee
+    assignee: TaskAssignee | null
+    createdAt: string
+    updatedAt: string
+}

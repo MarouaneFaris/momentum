@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Security;
 
 use App\Entity\Project;
+use App\Entity\Task;
 use App\Entity\User;
 use App\Entity\UserProject;
 use App\Entity\UserWorkspace;
@@ -105,6 +106,61 @@ final class TaskVoterTest extends TestCase
         $result = $this->voter->vote($this->createToken(), $this->project, ['wrong.attribute']);
 
         self::assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
+    }
+
+    public function testOwnerGrantedOnTaskSubject(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Owner);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::VIEW]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testNonMemberDeniedOnTaskSubject(): void
+    {
+        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::VIEW]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testGuestWithProjectAssignmentGrantedOnTaskSubject(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Guest);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->projectRepo->method('findOneBy')->willReturn(new UserProject());
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::VIEW]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testGuestWithoutProjectAssignmentDeniedOnTaskSubject(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Guest);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->projectRepo->method('findOneBy')->willReturn(null);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::VIEW]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    private function makeTask(): Task
+    {
+        $task = new Task();
+        $task->setProject($this->project);
+        $task->setCreator($this->user);
+        $task->setTitle('Test task');
+
+        return $task;
     }
 
     private function createToken(): TokenInterface
