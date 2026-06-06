@@ -50,46 +50,34 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
     const onSubmit = (values: TaskFormValues) => {
         const invalidateKey = ['workspaces', workspaceId, 'projects', projectId, 'tasks']
 
-        if (isEdit) {
-            updateMutation.mutate(
-                {
-                    title: values.title,
-                    description: values.description || undefined,
-                    assigneeId: values.assigneeId || undefined,
-                },
-                {
-                    onSuccess: () => {
-                        void queryClient.invalidateQueries({ queryKey: invalidateKey })
-                        onSuccess()
-                    },
-                    onError: (error: Error) => {
-                        if (error instanceof ApiError) {
-                            toast.error(error.message)
-                        }
-                    },
-                },
-            )
-        } else {
-            createMutation.mutate(
-                {
-                    title: values.title,
-                    description: values.description || undefined,
-                    assigneeId: values.assigneeId || undefined,
-                },
-                {
-                    onSuccess: () => {
-                        void queryClient.invalidateQueries({ queryKey: invalidateKey })
-                        onSuccess()
-                        form.reset()
-                    },
-                    onError: (error: Error) => {
-                        if (error instanceof ApiError) {
-                            toast.error(error.message)
-                        }
-                    },
-                },
-            )
+        const payload = {
+            title: values.title,
+            description: values.description || undefined,
+            assigneeId: values.assigneeId || undefined,
         }
+        const onError = (error: Error) => {
+            if (error instanceof ApiError) toast.error(error.message)
+        }
+
+        if (isEdit) {
+            updateMutation.mutate(payload, {
+                onSuccess: () => {
+                    void queryClient.invalidateQueries({ queryKey: invalidateKey })
+                    onSuccess()
+                },
+                onError,
+            })
+            return
+        }
+
+        createMutation.mutate(payload, {
+            onSuccess: () => {
+                void queryClient.invalidateQueries({ queryKey: invalidateKey })
+                onSuccess()
+                form.reset()
+            },
+            onError,
+        })
     }
 
     return { form, isPending, onSubmit }

@@ -21,12 +21,11 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { useQueryClient } from '@tanstack/react-query'
 import { useCreateTaskModal } from '../hooks/useCreateTaskModal'
 import { useEditTaskModal } from '../hooks/useEditTaskModal'
 import { useTaskDetail } from '../hooks/useTaskDetail'
+import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
-import { useUpdateTask } from '../queries'
 import type { Task, TaskStatus } from '../types'
 import TaskDetailPanel from './TaskDetailPanel'
 import { TaskFormModal } from './TaskFormModal'
@@ -115,21 +114,7 @@ function TaskCard({
     onOpen: (taskId: string) => void
     onEdit: (task: Task) => void
 }) {
-    const queryClient = useQueryClient()
-    const updateMutation = useUpdateTask(workspaceId, projectId, task.id)
-
-    const handleStatusChange = (status: TaskStatus) => {
-        updateMutation.mutate(
-            { status },
-            {
-                onSuccess: () => {
-                    void queryClient.invalidateQueries({
-                        queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks'],
-                    })
-                },
-            },
-        )
-    }
+    const { update: handleStatusChange } = useUpdateTaskStatus(workspaceId, projectId, task.id)
 
     return (
         <div
