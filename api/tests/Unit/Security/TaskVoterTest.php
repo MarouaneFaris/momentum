@@ -108,6 +108,36 @@ final class TaskVoterTest extends TestCase
         self::assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
     }
 
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideOwnerMemberRoles')]
+    public function testCreateGrantedForOwnerAndMember(WorkspaceRole $role): void
+    {
+        $membership = $this->makeMembership($role);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+
+        $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::CREATE]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testCreateDeniedForGuest(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Guest);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+
+        $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::CREATE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testCreateDeniedForNonMember(): void
+    {
+        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+
+        $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::CREATE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
     public function testOwnerGrantedOnTaskSubject(): void
     {
         $membership = $this->makeMembership(WorkspaceRole::Owner);
