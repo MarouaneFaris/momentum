@@ -11,11 +11,15 @@ use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\ProjectStatus;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Component\Workflow\WorkflowInterface;
 
 final readonly class ProjectService
 {
     public function __construct(
         private EntityManagerInterface $em,
+        #[Target('project_status')]
+        private WorkflowInterface $workflow,
     ) {}
 
     public function create(
@@ -59,8 +63,20 @@ final readonly class ProjectService
             $project->setDescription($description === '' ? null : $description);
         }
 
-        if ($status !== null) {
-            $project->setStatus($status);
+        if ($status !== null && $status !== $project->getStatus()) {
+            $transition = null;
+            foreach ($this->workflow->getEnabledTransitions($project) as $t) {
+                if (\in_array($status->value, $t->getTos(), true)) {
+                    $transition = $t->getName();
+                    break;
+                }
+            }
+
+            if ($transition === null) {
+                throw new \LogicException(sprintf('Cannot transition project from "%s" to "%s".', $project->getStatus()->value, $status->value));
+            }
+
+            $this->workflow->apply($project, $transition);
         }
 
         $this->em->flush();

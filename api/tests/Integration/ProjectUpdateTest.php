@@ -149,6 +149,102 @@ final class ProjectUpdateTest extends WebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+    public function testInvalidTransitionReturns422(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership, 'status' => ProjectStatus::Draft]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'PATCH',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['status' => 'archived'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        /** @var array<string, mixed> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertArrayHasKey('message', $data);
+    }
+
+    public function testValidTransitionDraftToActiveSucceeds(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership, 'status' => ProjectStatus::Draft]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'PATCH',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['status' => 'active'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        /** @var array<string, mixed> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('active', $data['status']);
+    }
+
+    public function testValidTransitionActiveToArchivedSucceeds(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership, 'status' => ProjectStatus::Active]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'PATCH',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['status' => 'archived'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        /** @var array<string, mixed> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('archived', $data['status']);
+    }
+
+    public function testValidTransitionArchivedToActiveSucceeds(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership, 'status' => ProjectStatus::Archived]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'PATCH',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['status' => 'active'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        /** @var array<string, mixed> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('active', $data['status']);
+    }
+
     public function testProjectNotFoundReturns404(): void
     {
         $client = static::createClient();

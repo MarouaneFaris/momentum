@@ -1,0 +1,24 @@
+framework:
+    workflows:
+        project_status:
+            type: state_machine
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Entity\Project
+            initial_marking: draft
+            places:
+                - draft
+                - active
+                - archived
+            transitions:
+                start:
+                    from: draft
+                    to:   active
+                archive:
+                    from: active
+                    to:   archived
+                unarchive:
+                    from: archived
+                    to:   active

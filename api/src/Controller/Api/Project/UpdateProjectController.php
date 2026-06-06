@@ -17,6 +17,7 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -62,12 +63,16 @@ final class UpdateProjectController extends AbstractController
             throw $this->createNotFoundException('Project not found in this workspace');
         }
 
-        $projectService->update(
-            $project,
-            $dto->name,
-            $dto->description,
-            $dto->status !== null ? ProjectStatus::from($dto->status) : null,
-        );
+        try {
+            $projectService->update(
+                $project,
+                $dto->name,
+                $dto->description,
+                $dto->status !== null ? ProjectStatus::from($dto->status) : null,
+            );
+        } catch (\LogicException $e) {
+            return $this->json(['message' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return $this->json(ProjectListItemResponse::fromProject($project));
     }
