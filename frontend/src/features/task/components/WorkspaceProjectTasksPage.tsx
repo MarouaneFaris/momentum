@@ -234,16 +234,24 @@ export default function WorkspaceProjectTasksPage() {
         />
     )
 
-    if (panelOpen) {
-        return (
-            <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
-                <div className="flex-1 flex flex-col p-6 overflow-y-auto min-w-0 border-r border-border gap-5">
-                    {board}
-                </div>
+    return (
+        <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
+            <div
+                className={[
+                    'flex-1 flex flex-col p-6 overflow-y-auto min-w-0 gap-5 transition-[border-color] duration-200',
+                    panelOpen ? 'border-r border-border' : 'border-r border-transparent',
+                ].join(' ')}
+            >
+                {board}
+            </div>
+            <div
+                className={[
+                    'flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
+                    panelOpen ? 'w-80' : 'w-0',
+                ].join(' ')}
+            >
                 <TaskDetailPanel task={detail.task} onClose={detail.close} />
             </div>
-        )
-    }
-
-    return <div className="flex flex-col gap-5">{board}</div>
+        </div>
+    )
 }
