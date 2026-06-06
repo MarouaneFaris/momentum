@@ -225,6 +225,74 @@ final class TaskVoterTest extends TestCase
         self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 
+    // DELETE tests
+
+    public function testDeleteGrantedForOwner(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Owner);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testDeleteGrantedForCreatorMember(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Member);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $task = $this->makeTask(); // creator === $this->user
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testDeleteDeniedForMemberNonCreator(): void
+    {
+        $otherUser = new User();
+        $membership = $this->makeMembership(WorkspaceRole::Member);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+
+        $task = new Task();
+        $task->setProject($this->project);
+        $task->setCreator($otherUser); // different creator
+        $task->setTitle('Task');
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testDeleteDeniedForGuest(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Guest);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testDeleteDeniedForNonMember(): void
+    {
+        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testDeleteAbstainOnProjectSubject(): void
+    {
+        $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::DELETE]);
+
+        self::assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
+    }
+
     private function makeTask(): Task
     {
         $task = new Task();
