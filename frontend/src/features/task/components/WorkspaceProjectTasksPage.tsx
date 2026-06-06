@@ -1,3 +1,16 @@
+import { ClipboardList, Info, Plus } from 'lucide-react'
+import { Link } from 'react-router'
+
+import { Button } from '@/components/ui/button'
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb'
+
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
 
@@ -79,92 +92,64 @@ function TaskCard({ task, isGuest }: { task: Task; isGuest: boolean }) {
 }
 
 export default function WorkspaceProjectTasksPage() {
-    const { isLoading, tasksByStatus, isEmpty, isGuest } = useWorkspaceProjectTasksPage()
+    const { workspaceId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
+        useWorkspaceProjectTasksPage()
 
     if (isLoading) return null
 
     return (
         <div className="flex flex-col gap-5 p-6">
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink asChild>
+                            <Link to={`/workspaces/${workspaceId}/projects`}>Projects</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    {projectName && (
+                        <>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>{projectName}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </>
+                    )}
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>Tasks</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
             <div className="flex items-center gap-3">
                 <h1 className="text-base font-semibold tracking-tight">Tasks</h1>
                 <div className="flex-1" />
                 {!isGuest && (
-                    <button className="flex items-center gap-1.5 h-8 px-3 bg-primary text-primary-foreground rounded-[var(--radius)] text-xs font-medium">
-                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                            <path
-                                d="M6.5 2v9M2 6.5h9"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                            />
-                        </svg>
+                    <Button size="sm">
+                        <Plus />
                         New task
-                    </button>
+                    </Button>
                 )}
             </div>
 
             {isGuest && (
                 <div className="flex items-center gap-2 px-3 py-2 bg-muted border border-border rounded-[var(--radius)] text-xs text-muted-foreground">
-                    <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 16 16" fill="none">
-                        <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.2" />
-                        <path
-                            d="M8 5v4M8 11v.5"
-                            stroke="currentColor"
-                            strokeWidth="1.2"
-                            strokeLinecap="round"
-                        />
-                    </svg>
+                    <Info className="size-3.5 shrink-0" />
                     You're viewing as a Guest — read-only access.
                 </div>
             )}
 
             {isEmpty ? (
                 <div className="flex flex-col items-center gap-3 py-16 px-6 text-center">
-                    <svg
-                        width="40"
-                        height="40"
-                        viewBox="0 0 40 40"
-                        fill="none"
-                        className="text-border"
-                    >
-                        <rect
-                            x="4"
-                            y="8"
-                            width="32"
-                            height="26"
-                            rx="3"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                        />
-                        <path
-                            d="M13 20h14M13 26h8"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                        />
-                        <path
-                            d="M20 8V4M14 8V5M26 8V5"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                        />
-                    </svg>
+                    <ClipboardList className="size-10 text-border" />
                     <div className="text-sm font-medium text-foreground">No tasks yet</div>
                     <div className="text-[13px] text-muted-foreground">
                         Create a task to start tracking work for this project.
                     </div>
                     {!isGuest && (
-                        <button className="mt-1 flex items-center gap-1.5 h-8 px-3 bg-primary text-primary-foreground rounded-[var(--radius)] text-xs font-medium">
-                            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                                <path
-                                    d="M6.5 2v9M2 6.5h9"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                />
-                            </svg>
+                        <Button size="sm" className="mt-1">
+                            <Plus />
                             New task
-                        </button>
+                        </Button>
                     )}
                 </div>
             ) : (
