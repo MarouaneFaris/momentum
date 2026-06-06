@@ -12,10 +12,12 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 
+import { useCreateTaskModal } from '../hooks/useCreateTaskModal'
 import { useTaskDetail } from '../hooks/useTaskDetail'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
 import TaskDetailPanel from './TaskDetailPanel'
+import { TaskFormModal } from './TaskFormModal'
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
     { status: 'todo', label: 'Todo' },
@@ -45,9 +47,9 @@ function StatusBadge({ status }: { status: TaskStatus }) {
     )
 }
 
-function NewTaskButton({ className }: { className?: string }) {
+function NewTaskButton({ className, onClick }: { className?: string; onClick: () => void }) {
     return (
-        <Button className={className} size="lg">
+        <Button className={className} size="lg" onClick={onClick}>
             <Plus />
             New task
         </Button>
@@ -120,6 +122,7 @@ function TaskBoard({
     projectName,
     selectedTaskId,
     onOpen,
+    onNewTask,
 }: {
     workspaceId: string
     tasksByStatus: Record<TaskStatus, Task[]>
@@ -128,6 +131,7 @@ function TaskBoard({
     projectName: string | null
     selectedTaskId: string | null
     onOpen: (taskId: string) => void
+    onNewTask: () => void
 }) {
     return (
         <div className="flex flex-col gap-5">
@@ -156,7 +160,7 @@ function TaskBoard({
             <div className="flex items-center gap-3">
                 <h1 className="text-base font-semibold tracking-tight">Tasks</h1>
                 <div className="flex-1" />
-                {!isGuest && <NewTaskButton />}
+                {!isGuest && <NewTaskButton onClick={onNewTask} />}
             </div>
 
             {isGuest && (
@@ -173,7 +177,7 @@ function TaskBoard({
                     <div className="text-[13px] text-muted-foreground">
                         Create a task to start tracking work for this project.
                     </div>
-                    {!isGuest && <NewTaskButton className="mt-1" />}
+                    {!isGuest && <NewTaskButton className="mt-1" onClick={onNewTask} />}
                 </div>
             ) : (
                 <div className="grid grid-cols-3 gap-3 items-start">
@@ -217,6 +221,7 @@ export default function WorkspaceProjectTasksPage() {
     const { workspaceId, projectId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
         useWorkspaceProjectTasksPage()
     const detail = useTaskDetail(workspaceId, projectId)
+    const modal = useCreateTaskModal(workspaceId, projectId)
 
     if (isLoading) return null
 
@@ -231,27 +236,38 @@ export default function WorkspaceProjectTasksPage() {
             projectName={projectName}
             selectedTaskId={detail.selectedTaskId}
             onOpen={detail.open}
+            onNewTask={() => modal.setOpen(true)}
         />
     )
 
     return (
-        <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
-            <div
-                className={[
-                    'flex-1 flex flex-col p-6 overflow-y-auto min-w-0 gap-5 transition-[border-color] duration-200',
-                    panelOpen ? 'border-r border-border' : 'border-r border-transparent',
-                ].join(' ')}
-            >
-                {board}
+        <>
+            <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
+                <div
+                    className={[
+                        'flex-1 flex flex-col p-6 overflow-y-auto min-w-0 gap-5 transition-[border-color] duration-200',
+                        panelOpen ? 'border-r border-border' : 'border-r border-transparent',
+                    ].join(' ')}
+                >
+                    {board}
+                </div>
+                <div
+                    className={[
+                        'flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
+                        panelOpen ? 'w-[28rem]' : 'w-0',
+                    ].join(' ')}
+                >
+                    <TaskDetailPanel task={detail.task} onClose={detail.close} />
+                </div>
             </div>
-            <div
-                className={[
-                    'flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
-                    panelOpen ? 'w-[28rem]' : 'w-0',
-                ].join(' ')}
-            >
-                <TaskDetailPanel task={detail.task} onClose={detail.close} />
-            </div>
-        </div>
+            <TaskFormModal
+                open={modal.open}
+                onOpenChange={modal.setOpen}
+                workspaceId={workspaceId}
+                form={modal.form}
+                isPending={modal.isPending}
+                onSubmit={modal.onSubmit}
+            />
+        </>
     )
 }

@@ -18,6 +18,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 final class TaskVoter extends Voter
 {
     public const string VIEW = 'task.view';
+    public const string CREATE = 'task.create';
 
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
@@ -26,7 +27,11 @@ final class TaskVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::VIEW && ($subject instanceof Project || $subject instanceof Task);
+        if ($attribute === self::VIEW) {
+            return $subject instanceof Project || $subject instanceof Task;
+        }
+
+        return $attribute === self::CREATE && $subject instanceof Project;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -47,6 +52,11 @@ final class TaskVoter extends Voter
             return false;
         }
 
+        if ($attribute === self::CREATE) {
+            return $membership->getRole() !== WorkspaceRole::Guest;
+        }
+
+        // VIEW: Owner and Member always granted; Guest needs project assignment
         if ($membership->getRole() !== WorkspaceRole::Guest) {
             return true;
         }
