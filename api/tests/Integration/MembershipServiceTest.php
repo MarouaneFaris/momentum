@@ -6,12 +6,14 @@ namespace App\Tests\Integration;
 
 use App\Enum\WorkspaceRole;
 use App\Factory\ProjectFactory;
+use App\Factory\TaskFactory;
 use App\Factory\UserFactory;
 use App\Factory\UserProjectFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
 use App\Factory\WorkspaceInvitationFactory;
 use App\Repository\ProjectRepository;
+use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Repository\WorkspaceInvitationRepository;
@@ -419,5 +421,65 @@ final class MembershipServiceTest extends KernelTestCase
 
         $count = (int) $this->em->getConnection()->fetchOne('SELECT COUNT(*) FROM user_project');
         self::assertSame(0, $count);
+    }
+
+    // — ProjectMemberRemoved event ————————————————————————————————————————————
+
+    public function testRemoveMemberNullifiesTaskAssignee(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace]);
+        $task = TaskFactory::createOne(['project' => $project, 'assignee' => $memberMembership->getUser()]);
+
+        $this->service->removeMember($memberMembership);
+
+        /** @var TaskRepository $taskRepo */
+        $taskRepo = static::getContainer()->get(TaskRepository::class);
+        $this->em->clear();
+        $refreshed = $taskRepo->find($task->getId());
+
+        self::assertNotNull($refreshed);
+        self::assertNull($refreshed->getAssignee());
+    }
+
+    public function testLeaveNullifiesTaskAssignee(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace]);
+        $task = TaskFactory::createOne(['project' => $project, 'assignee' => $memberMembership->getUser()]);
+
+        $this->service->leave($workspace, $memberMembership->getUser());
+
+        /** @var TaskRepository $taskRepo */
+        $taskRepo = static::getContainer()->get(TaskRepository::class);
+        $this->em->clear();
+        $refreshed = $taskRepo->find($task->getId());
+
+        self::assertNotNull($refreshed);
+        self::assertNull($refreshed->getAssignee());
+    }
+
+    public function testRemoveMemberDoesNotNullifyCreatorOnTasks(): void
+    {
+        $workspace = WorkspaceFactory::createOne();
+        UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $memberMembership = UserWorkspaceFactory::createOne(['workspace' => $workspace, 'role' => WorkspaceRole::Member]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace]);
+        $otherUser = UserFactory::createOne();
+        $task = TaskFactory::createOne(['project' => $project, 'creator' => $memberMembership->getUser(), 'assignee' => $otherUser]);
+
+        $this->service->removeMember($memberMembership);
+
+        /** @var TaskRepository $taskRepo */
+        $taskRepo = static::getContainer()->get(TaskRepository::class);
+        $this->em->clear();
+        $refreshed = $taskRepo->find($task->getId());
+
+        self::assertNotNull($refreshed);
+        self::assertSame((string) $otherUser->getId(), (string) $refreshed->getAssignee()?->getId());
     }
 }
