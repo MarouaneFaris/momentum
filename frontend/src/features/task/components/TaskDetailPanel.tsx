@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { X } from 'lucide-react'
 import type { TaskDetail, TaskStatus } from '../types'
 
 function StatusBadge({ status }: { status: TaskStatus }) {
@@ -28,21 +28,21 @@ function UserSummary({ user }: { user: { id: string; name: string } }) {
 
     return (
         <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[9px] font-semibold text-primary flex-shrink-0">
+            <div className="w-5 h-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[8px] font-semibold text-primary flex-shrink-0">
                 {initials}
             </div>
-            <span className="text-sm text-foreground">{user.name}</span>
+            <span className="text-[13px] text-foreground">{user.name}</span>
         </div>
     )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function PanelRow({ label, children }: { label: string; children: React.ReactNode }) {
     return (
-        <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+        <div className="flex items-center gap-2.5">
+            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.05em] w-20 flex-shrink-0">
                 {label}
             </span>
-            {children}
+            <div className="flex items-center gap-1.5 text-[13px] text-foreground">{children}</div>
         </div>
     )
 }
@@ -52,72 +52,74 @@ function formatDate(iso: string): string {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
     })
 }
 
 type Props = {
     task: TaskDetail | null
-    open: boolean
     onClose: () => void
 }
 
-export default function TaskDetailPanel({ task, open, onClose }: Props) {
+export default function TaskDetailPanel({ task, onClose }: Props) {
     return (
-        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-            <DialogContent className="max-w-lg">
-                {task ? (
-                    <>
-                        <DialogHeader>
-                            <DialogTitle className="text-base font-semibold leading-snug pr-6">
-                                {task.title}
-                            </DialogTitle>
-                        </DialogHeader>
+        <div className="w-80 flex-shrink-0 flex flex-col bg-card border-l border-border overflow-hidden">
+            {task ? (
+                <>
+                    <div className="flex items-start gap-2 px-5 py-5 border-b border-border flex-shrink-0">
+                        <p className="flex-1 text-sm font-semibold text-foreground leading-snug">
+                            {task.title}
+                        </p>
+                        <button
+                            onClick={onClose}
+                            className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-muted-foreground flex-shrink-0 mt-0.5"
+                        >
+                            <X size={13} />
+                        </button>
+                    </div>
 
-                        <div className="flex flex-col gap-4 mt-1">
-                            <Field label="Status">
-                                <StatusBadge status={task.status} />
-                            </Field>
+                    <div className="flex-1 flex flex-col gap-3.5 px-5 py-4 overflow-y-auto">
+                        <PanelRow label="Status">
+                            <StatusBadge status={task.status} />
+                        </PanelRow>
 
-                            {task.description && (
-                                <Field label="Description">
-                                    <p className="text-sm text-foreground whitespace-pre-wrap">
+                        <PanelRow label="Assignee">
+                            {task.assignee ? (
+                                <UserSummary user={task.assignee} />
+                            ) : (
+                                <span className="text-[13px] text-muted-foreground">—</span>
+                            )}
+                        </PanelRow>
+
+                        <PanelRow label="Created by">
+                            <UserSummary user={task.creator} />
+                        </PanelRow>
+
+                        <PanelRow label="Created">
+                            <span className="text-[12px] text-muted-foreground">
+                                {formatDate(task.createdAt)}
+                            </span>
+                        </PanelRow>
+
+                        {task.description && (
+                            <>
+                                <div className="h-px bg-border my-1" />
+                                <div className="flex flex-col gap-1.5">
+                                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.05em]">
+                                        Description
+                                    </span>
+                                    <p className="text-[13px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
                                         {task.description}
                                     </p>
-                                </Field>
-                            )}
-
-                            <Field label="Creator">
-                                <UserSummary user={task.creator} />
-                            </Field>
-
-                            <Field label="Assignee">
-                                {task.assignee ? (
-                                    <UserSummary user={task.assignee} />
-                                ) : (
-                                    <span className="text-sm text-muted-foreground">—</span>
-                                )}
-                            </Field>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <Field label="Created">
-                                    <span className="text-sm text-foreground">
-                                        {formatDate(task.createdAt)}
-                                    </span>
-                                </Field>
-                                <Field label="Updated">
-                                    <span className="text-sm text-foreground">
-                                        {formatDate(task.updatedAt)}
-                                    </span>
-                                </Field>
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <div className="h-40" />
-                )}
-            </DialogContent>
-        </Dialog>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </>
+            ) : (
+                <div className="flex-1 flex items-center justify-center">
+                    <span className="text-xs text-muted-foreground">Loading…</span>
+                </div>
+            )}
+        </div>
     )
 }

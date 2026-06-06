@@ -79,17 +79,21 @@ function Assignee({ assignee }: { assignee: Task['assignee'] }) {
 function TaskCard({
     task,
     isGuest,
+    isSelected,
     onOpen,
 }: {
     task: Task
     isGuest: boolean
+    isSelected: boolean
     onOpen: (taskId: string) => void
 }) {
     return (
         <div
             className={[
-                'bg-card border border-border rounded-[var(--radius)] p-3 flex flex-col gap-2 transition-[border-color,box-shadow] duration-150',
-                'cursor-pointer hover:border-primary/40 hover:[box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.06)]',
+                'bg-card border rounded-[var(--radius)] p-3 flex flex-col gap-2 cursor-pointer transition-[border-color,box-shadow] duration-150',
+                isSelected
+                    ? 'border-primary [box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.1)]'
+                    : 'border-border hover:border-primary/40 hover:[box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.06)]',
             ].join(' ')}
             onClick={() => onOpen(task.id)}
         >
@@ -108,15 +112,25 @@ function TaskCard({
     )
 }
 
-export default function WorkspaceProjectTasksPage() {
-    const { workspaceId, projectId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
-        useWorkspaceProjectTasksPage()
-    const detail = useTaskDetail(workspaceId, projectId)
-
-    if (isLoading) return null
-
+function TaskBoard({
+    workspaceId,
+    tasksByStatus,
+    isEmpty,
+    isGuest,
+    projectName,
+    selectedTaskId,
+    onOpen,
+}: {
+    workspaceId: string
+    tasksByStatus: Record<TaskStatus, Task[]>
+    isEmpty: boolean
+    isGuest: boolean
+    projectName: string | null
+    selectedTaskId: string | null
+    onOpen: (taskId: string) => void
+}) {
     return (
-        <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-5">
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
@@ -138,6 +152,7 @@ export default function WorkspaceProjectTasksPage() {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
+
             <div className="flex items-center gap-3">
                 <h1 className="text-base font-semibold tracking-tight">Tasks</h1>
                 <div className="flex-1" />
@@ -184,7 +199,8 @@ export default function WorkspaceProjectTasksPage() {
                                             key={task.id}
                                             task={task}
                                             isGuest={isGuest}
-                                            onOpen={detail.open}
+                                            isSelected={task.id === selectedTaskId}
+                                            onOpen={onOpen}
                                         />
                                     ))
                                 )}
@@ -193,12 +209,41 @@ export default function WorkspaceProjectTasksPage() {
                     })}
                 </div>
             )}
-
-            <TaskDetailPanel
-                task={detail.task}
-                open={detail.selectedTaskId !== null}
-                onClose={detail.close}
-            />
         </div>
     )
+}
+
+export default function WorkspaceProjectTasksPage() {
+    const { workspaceId, projectId, isLoading, tasksByStatus, isEmpty, isGuest, projectName } =
+        useWorkspaceProjectTasksPage()
+    const detail = useTaskDetail(workspaceId, projectId)
+
+    if (isLoading) return null
+
+    const panelOpen = detail.selectedTaskId !== null
+
+    const board = (
+        <TaskBoard
+            workspaceId={workspaceId}
+            tasksByStatus={tasksByStatus}
+            isEmpty={isEmpty}
+            isGuest={isGuest}
+            projectName={projectName}
+            selectedTaskId={detail.selectedTaskId}
+            onOpen={detail.open}
+        />
+    )
+
+    if (panelOpen) {
+        return (
+            <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
+                <div className="flex-1 flex flex-col p-6 overflow-y-auto min-w-0 border-r border-border gap-5">
+                    {board}
+                </div>
+                <TaskDetailPanel task={detail.task} onClose={detail.close} />
+            </div>
+        )
+    }
+
+    return <div className="flex flex-col gap-5">{board}</div>
 }
