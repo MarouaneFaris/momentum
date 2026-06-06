@@ -159,6 +159,48 @@ final class TaskVoterTest extends TestCase
         self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 
+    // EDIT tests
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideOwnerMemberRoles')]
+    public function testEditGrantedForOwnerAndMember(WorkspaceRole $role): void
+    {
+        $membership = $this->makeMembership($role);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    public function testEditDeniedForGuest(): void
+    {
+        $membership = $this->makeMembership(WorkspaceRole::Guest);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testEditDeniedForNonMember(): void
+    {
+        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $task = $this->makeTask();
+
+        $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    public function testEditAbstainOnProjectSubject(): void
+    {
+        $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::EDIT]);
+
+        self::assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
+    }
+
     public function testGuestWithProjectAssignmentGrantedOnTaskSubject(): void
     {
         $membership = $this->makeMembership(WorkspaceRole::Guest);

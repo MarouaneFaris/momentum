@@ -11,6 +11,7 @@ export type Task = {
     status: TaskStatus
     assignee: TaskAssignee | null
     createdAt: string
+    creatorId: string
 }
 
 export type TaskDetail = {

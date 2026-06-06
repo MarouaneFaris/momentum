@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
+use App\DTO\UpdateTaskDTO;
 use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
+use App\Enum\TaskStatus;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
 use App\Service\TaskService;
@@ -17,6 +19,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class TaskServiceTest extends TestCase
 {
@@ -111,6 +114,161 @@ final class TaskServiceTest extends TestCase
         $this->expectExceptionMessage('Guests cannot be assigned tasks');
 
         $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+    }
+
+    // update() tests
+
+    public function testOwnerCanUpdateAllFields(): void
+    {
+        $owner = new User();
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Owner, $owner);
+        $dto = new UpdateTaskDTO(title: 'New title', description: 'New desc', status: 'in-progress');
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $owner, $membership, $dto, null);
+
+        self::assertSame('New title', $updated->getTitle());
+        self::assertSame('New desc', $updated->getDescription());
+        self::assertSame(TaskStatus::InProgress, $updated->getStatus());
+    }
+
+    public function testCreatorCanUpdateAllFields(): void
+    {
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $this->creator);
+        $dto = new UpdateTaskDTO(title: 'Creator update', status: 'done');
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $this->creator, $membership, $dto, null);
+
+        self::assertSame('Creator update', $updated->getTitle());
+        self::assertSame(TaskStatus::Done, $updated->getStatus());
+    }
+
+    public function testAssigneeNonCreatorCanUpdateStatusOnly(): void
+    {
+        $assignee = new User();
+        $task = $this->makeTask($this->creator);
+        $task->setAssignee($assignee);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $assignee);
+        $dto = new UpdateTaskDTO(status: 'in-progress');
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $assignee, $membership, $dto, null);
+
+        self::assertSame(TaskStatus::InProgress, $updated->getStatus());
+    }
+
+    public function testMemberNonCreatorNonAssigneeCanUpdateStatusOnly(): void
+    {
+        $member = new User();
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $member);
+        $dto = new UpdateTaskDTO(status: 'done');
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $member, $membership, $dto, null);
+
+        self::assertSame(TaskStatus::Done, $updated->getStatus());
+    }
+
+    public function testMemberNonCreatorCannotUpdateTitle(): void
+    {
+        $member = new User();
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $member);
+        $dto = new UpdateTaskDTO(title: 'Forbidden');
+
+        $this->expectException(AccessDeniedException::class);
+
+        $this->service->update($task, $member, $membership, $dto, null);
+    }
+
+    public function testMemberNonCreatorCannotUpdateDescription(): void
+    {
+        $member = new User();
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $member);
+        $dto = new UpdateTaskDTO(description: 'Forbidden');
+
+        $this->expectException(AccessDeniedException::class);
+
+        $this->service->update($task, $member, $membership, $dto, null);
+    }
+
+    public function testMemberNonCreatorCannotUpdateAssignee(): void
+    {
+        $member = new User();
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $member);
+        $dto = new UpdateTaskDTO(assigneeId: 'some-uuid');
+
+        $this->expectException(AccessDeniedException::class);
+
+        $this->service->update($task, $member, $membership, $dto, null);
+    }
+
+    public function testOwnerCanUpdateAssignee(): void
+    {
+        $owner = new User();
+        $newAssignee = new User();
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Owner, $owner);
+        $assigneeMembership = $this->makeMembership(WorkspaceRole::Member, $newAssignee);
+        $this->workspaceRepo->method('findOneBy')->willReturn($assigneeMembership);
+
+        $dto = new UpdateTaskDTO(assigneeId: 'some-uuid');
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $owner, $membership, $dto, $newAssignee);
+
+        self::assertSame($newAssignee, $updated->getAssignee());
+    }
+
+    public function testDescriptionEmptyStringClearsIt(): void
+    {
+        $task = $this->makeTask($this->creator);
+        $task->setDescription('Existing desc');
+        $membership = $this->makeMembership(WorkspaceRole::Member, $this->creator);
+        $dto = new UpdateTaskDTO(description: '');
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $this->creator, $membership, $dto, null);
+
+        self::assertNull($updated->getDescription());
+    }
+
+    public function testNullFieldsAreNotUpdated(): void
+    {
+        $task = $this->makeTask($this->creator);
+        $task->setTitle('Original');
+        $task->setStatus(TaskStatus::Todo);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $this->creator);
+        $dto = new UpdateTaskDTO();
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $this->creator, $membership, $dto, null);
+
+        self::assertSame('Original', $updated->getTitle());
+        self::assertSame(TaskStatus::Todo, $updated->getStatus());
+    }
+
+    private function makeTask(User $creator): Task
+    {
+        $task = new Task();
+        $task->setProject($this->project);
+        $task->setCreator($creator);
+        $task->setTitle('Task');
+
+        return $task;
     }
 
     private function makeMembership(WorkspaceRole $role, User $user): UserWorkspace

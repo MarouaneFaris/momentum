@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { X } from 'lucide-react'
+import { Pencil, X } from 'lucide-react'
 import type { TaskDetail, TaskStatus } from '../types'
 
 function StatusBadge({ status }: { status: TaskStatus }) {
@@ -59,9 +59,11 @@ function formatDate(iso: string): string {
 type Props = {
     task: TaskDetail | null
     onClose: () => void
+    canEdit?: boolean
+    onEdit?: () => void
 }
 
-export default function TaskDetailPanel({ task, onClose }: Props) {
+export default function TaskDetailPanel({ task, onClose, canEdit, onEdit }: Props) {
     return (
         <div className="w-[28rem] min-w-[28rem] flex flex-col bg-card border-l border-border overflow-hidden h-full">
             {task ? (
@@ -117,6 +119,15 @@ export default function TaskDetailPanel({ task, onClose }: Props) {
                             </>
                         )}
                     </div>
+
+                    {canEdit && onEdit && (
+                        <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-border flex-shrink-0">
+                            <Button variant="outline" size="sm" onClick={onEdit}>
+                                <Pencil className="size-3.5 mr-1.5" />
+                                Edit
+                            </Button>
+                        </div>
+                    )}
                 </>
             ) : (
                 <div className="flex-1 flex items-center justify-center">
