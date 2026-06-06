@@ -20,6 +20,7 @@ final class TaskVoter extends Voter
     public const string VIEW = 'task.view';
     public const string CREATE = 'task.create';
     public const string EDIT = 'task.edit';
+    public const string DELETE = 'task.delete';
 
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
@@ -33,6 +34,10 @@ final class TaskVoter extends Voter
         }
 
         if ($attribute === self::EDIT) {
+            return $subject instanceof Task;
+        }
+
+        if ($attribute === self::DELETE) {
             return $subject instanceof Task;
         }
 
@@ -64,6 +69,23 @@ final class TaskVoter extends Voter
         if ($attribute === self::EDIT) {
             // Guest cannot edit any task
             return $membership->getRole() !== WorkspaceRole::Guest;
+        }
+
+        if ($attribute === self::DELETE) {
+            assert($subject instanceof Task);
+            if ($membership->getRole() === WorkspaceRole::Owner) {
+                return true;
+            }
+            if ($membership->getRole() === WorkspaceRole::Guest) {
+                return false;
+            }
+            // Member: only creator may delete
+            $creator = $subject->getCreator();
+            $creatorId = $creator->getId();
+            $callerId = $user->getId();
+
+            return $creator === $user
+                || ($creatorId !== null && $callerId !== null && $creatorId->equals($callerId));
         }
 
         // VIEW: Owner and Member always granted; Guest needs project assignment

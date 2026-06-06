@@ -1,5 +1,5 @@
 import { useAuth } from '@/features/auth/queries'
-import { ClipboardList, Info, Pencil, Plus } from 'lucide-react'
+import { ClipboardList, Info, Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { Badge } from '@/components/ui/badge'
@@ -22,11 +22,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 import { useCreateTaskModal } from '../hooks/useCreateTaskModal'
+import { useDeleteTaskDialog } from '../hooks/useDeleteTaskDialog'
 import { useEditTaskModal } from '../hooks/useEditTaskModal'
 import { useTaskDetail } from '../hooks/useTaskDetail'
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
+import { DeleteTaskDialog } from './DeleteTaskDialog'
 import TaskDetailPanel from './TaskDetailPanel'
 import { TaskFormModal } from './TaskFormModal'
 
@@ -104,6 +106,7 @@ function TaskCard({
     isSelected,
     onOpen,
     onEdit,
+    onDelete,
 }: {
     task: Task
     workspaceId: string
@@ -113,6 +116,7 @@ function TaskCard({
     isSelected: boolean
     onOpen: (taskId: string) => void
     onEdit: (task: Task) => void
+    onDelete: (task: Task) => void
 }) {
     const { update: handleStatusChange } = useUpdateTaskStatus(workspaceId, projectId, task.id)
 
@@ -158,6 +162,13 @@ function TaskCard({
                                         <Pencil className="size-3.5 mr-1.5" />
                                         Edit task
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        onClick={() => onDelete(task)}
+                                        className="text-destructive focus:text-destructive"
+                                    >
+                                        <Trash2 className="size-3.5 mr-1.5" />
+                                        Delete task
+                                    </DropdownMenuItem>
                                 </>
                             )}
                         </DropdownMenuContent>
@@ -181,6 +192,7 @@ function TaskBoard({
     onOpen,
     onNewTask,
     onEdit,
+    onDelete,
 }: {
     workspaceId: string
     projectId: string
@@ -194,6 +206,7 @@ function TaskBoard({
     onOpen: (taskId: string) => void
     onNewTask: () => void
     onEdit: (task: Task) => void
+    onDelete: (task: Task) => void
 }) {
     return (
         <div className="flex flex-col gap-5">
@@ -274,6 +287,7 @@ function TaskBoard({
                                             isSelected={task.id === selectedTaskId}
                                             onOpen={onOpen}
                                             onEdit={onEdit}
+                                            onDelete={onDelete}
                                         />
                                     ))
                                 )}
@@ -301,6 +315,7 @@ export default function WorkspaceProjectTasksPage() {
     const detail = useTaskDetail(workspaceId, projectId)
     const modal = useCreateTaskModal(workspaceId, projectId)
     const editModal = useEditTaskModal(workspaceId, projectId)
+    const deleteDialog = useDeleteTaskDialog(workspaceId, projectId, detail.close)
 
     if (isLoading) return null
 
@@ -320,6 +335,7 @@ export default function WorkspaceProjectTasksPage() {
             onOpen={detail.open}
             onNewTask={() => modal.setOpen(true)}
             onEdit={editModal.open}
+            onDelete={deleteDialog.openDialog}
         />
     )
 
@@ -351,6 +367,18 @@ export default function WorkspaceProjectTasksPage() {
                         onEdit={() => {
                             if (detail.task) editModal.openFromDetail(detail.task)
                         }}
+                        onDelete={() => {
+                            if (detail.task) {
+                                deleteDialog.openDialog({
+                                    id: detail.task.id,
+                                    title: detail.task.title,
+                                    status: detail.task.status,
+                                    assignee: detail.task.assignee,
+                                    createdAt: detail.task.createdAt,
+                                    creatorId: detail.task.creator.id,
+                                })
+                            }
+                        }}
                     />
                 </div>
             </div>
@@ -372,6 +400,15 @@ export default function WorkspaceProjectTasksPage() {
                 isPending={editModal.isPending}
                 onSubmit={editModal.onSubmit}
                 mode="edit"
+            />
+            <DeleteTaskDialog
+                open={deleteDialog.isOpen}
+                onOpenChange={(v) => {
+                    if (!v) deleteDialog.closeDialog()
+                }}
+                task={deleteDialog.taskToDelete}
+                isPending={deleteDialog.isPending}
+                onConfirm={deleteDialog.confirmDelete}
             />
         </>
     )

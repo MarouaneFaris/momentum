@@ -36,3 +36,9 @@ export const useUpdateTask = (workspaceId: string, projectId: string, taskId: st
                 data,
             ),
     })
+
+export const useDeleteTask = (workspaceId: string, projectId: string) =>
+    useMutation({
+        mutationFn: (taskId: string) =>
+            api.delete(`/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`),
+    })

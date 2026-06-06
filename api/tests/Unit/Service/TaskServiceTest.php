@@ -261,6 +261,18 @@ final class TaskServiceTest extends TestCase
         self::assertSame(TaskStatus::Todo, $updated->getStatus());
     }
 
+    // delete() tests
+
+    public function testDeleteRemovesAndFlushes(): void
+    {
+        $task = $this->makeTask($this->creator);
+
+        $this->em->expects($this->once())->method('remove')->with($task);
+        $this->em->expects($this->once())->method('flush');
+
+        $this->service->delete($task);
+    }
+
     private function makeTask(User $creator): Task
     {
         $task = new Task();

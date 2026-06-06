@@ -89,6 +89,12 @@ final readonly class TaskService
         return $task;
     }
 
+    public function delete(Task $task): void
+    {
+        $this->em->remove($task);
+        $this->em->flush();
+    }
+
     private function validateAssignee(Project $project, User $assignee): void
     {
         $membership = $this->userWorkspaceRepository->findOneBy([

@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Pencil, X } from 'lucide-react'
+import { Pencil, Trash2, X } from 'lucide-react'
 import type { TaskDetail, TaskStatus } from '../types'
 
 function StatusBadge({ status }: { status: TaskStatus }) {
@@ -61,9 +61,10 @@ type Props = {
     onClose: () => void
     canEdit?: boolean
     onEdit?: () => void
+    onDelete?: () => void
 }
 
-export default function TaskDetailPanel({ task, onClose, canEdit, onEdit }: Props) {
+export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDelete }: Props) {
     return (
         <div className="w-[28rem] min-w-[28rem] flex flex-col bg-card border-l border-border overflow-hidden h-full">
             {task ? (
@@ -120,12 +121,26 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit }: Prop
                         )}
                     </div>
 
-                    {canEdit && onEdit && (
-                        <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-border flex-shrink-0">
-                            <Button variant="outline" size="sm" onClick={onEdit}>
-                                <Pencil className="size-3.5 mr-1.5" />
-                                Edit
-                            </Button>
+                    {canEdit && (
+                        <div className="flex items-center gap-2 px-5 py-3 border-t border-border flex-shrink-0">
+                            {onDelete && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={onDelete}
+                                    className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                    <Trash2 className="size-3.5 mr-1.5" />
+                                    Delete
+                                </Button>
+                            )}
+                            <div className="flex-1" />
+                            {onEdit && (
+                                <Button variant="outline" size="sm" onClick={onEdit}>
+                                    <Pencil className="size-3.5 mr-1.5" />
+                                    Edit
+                                </Button>
+                            )}
                         </div>
                     )}
                 </>
