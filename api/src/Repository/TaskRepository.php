@@ -56,6 +56,8 @@ class TaskRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('t')
             ->leftJoin('t.assignee', 'a')
             ->addSelect('a')
+            ->leftJoin('t.creator', 'c')
+            ->addSelect('c')
             ->where('IDENTITY(t.project) = :projectId')
             ->setParameter('projectId', $project->getId(), UuidType::NAME)
             ->orderBy('t.createdAt', 'ASC')

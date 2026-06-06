@@ -27,5 +27,8 @@ final readonly class UpdateTaskDTO
         #[Assert\Uuid]
         #[OA\Property(type: 'string', format: 'uuid', nullable: true)]
         public ?string $assigneeId = null,
+
+        #[OA\Property(type: 'boolean', default: false, description: 'Set to true to remove the current assignee')]
+        public bool $removeAssignee = false,
     ) {}
 }

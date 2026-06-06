@@ -50,10 +50,15 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
     const onSubmit = (values: TaskFormValues) => {
         const invalidateKey = ['workspaces', workspaceId, 'projects', projectId, 'tasks']
 
+        const assigneePayload: { assigneeId?: string; removeAssignee?: boolean } =
+            isEdit && values.assigneeId === ''
+                ? { removeAssignee: true }
+                : { assigneeId: values.assigneeId || undefined }
+
         const payload = {
             title: values.title,
             description: values.description || undefined,
-            assigneeId: values.assigneeId || undefined,
+            ...assigneePayload,
         }
         const onError = (error: Error) => {
             if (error instanceof ApiError) toast.error(error.message)

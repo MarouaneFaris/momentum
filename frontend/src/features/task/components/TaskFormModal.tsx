@@ -97,13 +97,16 @@ export function TaskFormModal({
                             <div className="grid gap-2">
                                 <Label htmlFor="task-assignee">Assignee</Label>
                                 <Select
-                                    value={watch('assigneeId') ?? ''}
-                                    onValueChange={(v) => setValue('assigneeId', v)}
+                                    value={watch('assigneeId') || '__none__'}
+                                    onValueChange={(v) =>
+                                        setValue('assigneeId', v === '__none__' ? '' : v)
+                                    }
                                 >
                                     <SelectTrigger id="task-assignee">
                                         <SelectValue placeholder="Unassigned" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="__none__">Unassigned</SelectItem>
                                         {assignableMembers.map((m) => (
                                             <SelectItem key={m.id} value={m.id}>
                                                 {m.name}

@@ -144,11 +144,7 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                         </div>
                     )}
                 </>
-            ) : (
-                <div className="flex-1 flex items-center justify-center">
-                    <span className="text-xs text-muted-foreground">Loading…</span>
-                </div>
-            )}
+            ) : null}
         </div>
     )
 }

@@ -48,8 +48,8 @@ final class CreateTaskController extends AbstractController
             new OA\Response(response: 400, description: 'Validation error'),
             new OA\Response(response: 401, description: 'Not authenticated'),
             new OA\Response(response: 403, description: 'Access denied'),
-            new OA\Response(response: 404, description: 'Workspace, project, or assignee not found'),
-            new OA\Response(response: 422, description: 'Invalid assignee'),
+            new OA\Response(response: 404, description: 'Workspace or project not found'),
+            new OA\Response(response: 422, description: 'Assignee not found or not eligible'),
         ]
     )]
     #[Route(

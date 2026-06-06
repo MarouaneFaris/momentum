@@ -8,7 +8,7 @@ use App\DTO\UpdateTaskDTO;
 use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
-use App\Entity\UserWorkspace;
+use App\Entity\Workspace;
 use App\Enum\TaskStatus;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
@@ -38,7 +38,7 @@ final readonly class TaskService
         $task->setProject($project);
         $task->setCreator($creator);
         $task->setTitle($title);
-        $task->setDescription($description);
+        $task->setDescription($description === '' ? null : $description);
         $task->setAssignee($assignee);
 
         $this->em->persist($task);
@@ -50,10 +50,19 @@ final readonly class TaskService
     public function update(
         Task $task,
         User $caller,
-        UserWorkspace $membership,
+        Workspace $workspace,
         UpdateTaskDTO $dto,
         ?User $newAssignee,
     ): Task {
+        $membership = $this->userWorkspaceRepository->findOneBy([
+            'user' => $caller,
+            'workspace' => $workspace,
+        ]);
+
+        if ($membership === null) {
+            throw new AccessDeniedException();
+        }
+
         $isOwner = $membership->getRole() === WorkspaceRole::Owner;
         $creatorId = $task->getCreator()->getId();
         $callerId = $caller->getId();
@@ -61,7 +70,7 @@ final readonly class TaskService
             || ($creatorId !== null && $callerId !== null && $creatorId->equals($callerId));
         $hasFullAccess = $isOwner || $isCreator;
 
-        if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null)) {
+        if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee)) {
             throw new AccessDeniedException('Only status updates are allowed for this role');
         }
 
@@ -77,11 +86,15 @@ final readonly class TaskService
             $task->setStatus(TaskStatus::from($dto->status));
         }
 
-        if ($dto->assigneeId !== null && $hasFullAccess) {
-            if ($newAssignee !== null) {
-                $this->validateAssignee($task->getProject(), $newAssignee);
+        if ($hasFullAccess) {
+            if ($dto->removeAssignee) {
+                $task->setAssignee(null);
+            } elseif ($dto->assigneeId !== null) {
+                if ($newAssignee !== null) {
+                    $this->validateAssignee($task->getProject(), $newAssignee);
+                }
+                $task->setAssignee($newAssignee);
             }
-            $task->setAssignee($newAssignee);
         }
 
         $this->em->flush();

@@ -15,6 +15,7 @@ use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
 use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -93,6 +94,7 @@ final class TaskServiceTest extends TestCase
         self::assertSame($assignee, $task->getAssignee());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCreateThrowsWhenAssigneeNotWorkspaceMember(): void
     {
         $assignee = new User();
@@ -104,6 +106,7 @@ final class TaskServiceTest extends TestCase
         $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testCreateThrowsWhenAssigneeIsGuest(): void
     {
         $assignee = new User();
@@ -124,10 +127,11 @@ final class TaskServiceTest extends TestCase
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Owner, $owner);
         $dto = new UpdateTaskDTO(title: 'New title', description: 'New desc', status: 'in-progress');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $owner, $membership, $dto, null);
+        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto, null);
 
         self::assertSame('New title', $updated->getTitle());
         self::assertSame('New desc', $updated->getDescription());
@@ -139,10 +143,11 @@ final class TaskServiceTest extends TestCase
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Member, $this->creator);
         $dto = new UpdateTaskDTO(title: 'Creator update', status: 'done');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $this->creator, $membership, $dto, null);
+        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto, null);
 
         self::assertSame('Creator update', $updated->getTitle());
         self::assertSame(TaskStatus::Done, $updated->getStatus());
@@ -155,10 +160,11 @@ final class TaskServiceTest extends TestCase
         $task->setAssignee($assignee);
         $membership = $this->makeMembership(WorkspaceRole::Member, $assignee);
         $dto = new UpdateTaskDTO(status: 'in-progress');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $assignee, $membership, $dto, null);
+        $updated = $this->service->update($task, $assignee, $this->project->getWorkspace(), $dto, null);
 
         self::assertSame(TaskStatus::InProgress, $updated->getStatus());
     }
@@ -169,48 +175,55 @@ final class TaskServiceTest extends TestCase
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Member, $member);
         $dto = new UpdateTaskDTO(status: 'done');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $member, $membership, $dto, null);
+        $updated = $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
 
         self::assertSame(TaskStatus::Done, $updated->getStatus());
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testMemberNonCreatorCannotUpdateTitle(): void
     {
         $member = new User();
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Member, $member);
         $dto = new UpdateTaskDTO(title: 'Forbidden');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->expectException(AccessDeniedException::class);
 
-        $this->service->update($task, $member, $membership, $dto, null);
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testMemberNonCreatorCannotUpdateDescription(): void
     {
         $member = new User();
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Member, $member);
         $dto = new UpdateTaskDTO(description: 'Forbidden');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->expectException(AccessDeniedException::class);
 
-        $this->service->update($task, $member, $membership, $dto, null);
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testMemberNonCreatorCannotUpdateAssignee(): void
     {
         $member = new User();
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Member, $member);
         $dto = new UpdateTaskDTO(assigneeId: 'some-uuid');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->expectException(AccessDeniedException::class);
 
-        $this->service->update($task, $member, $membership, $dto, null);
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }
 
     public function testOwnerCanUpdateAssignee(): void
@@ -220,15 +233,45 @@ final class TaskServiceTest extends TestCase
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Owner, $owner);
         $assigneeMembership = $this->makeMembership(WorkspaceRole::Member, $newAssignee);
-        $this->workspaceRepo->method('findOneBy')->willReturn($assigneeMembership);
+        $this->workspaceRepo->method('findOneBy')->willReturnOnConsecutiveCalls($membership, $assigneeMembership);
 
         $dto = new UpdateTaskDTO(assigneeId: 'some-uuid');
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $owner, $membership, $dto, $newAssignee);
+        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto, $newAssignee);
 
         self::assertSame($newAssignee, $updated->getAssignee());
+    }
+
+    public function testOwnerCanRemoveAssignee(): void
+    {
+        $owner = new User();
+        $task = $this->makeTask($this->creator);
+        $task->setAssignee(new User());
+        $membership = $this->makeMembership(WorkspaceRole::Owner, $owner);
+        $dto = new UpdateTaskDTO(removeAssignee: true);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+
+        $this->em->expects($this->once())->method('flush');
+
+        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto, null);
+
+        self::assertNull($updated->getAssignee());
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testMemberNonCreatorCannotRemoveAssignee(): void
+    {
+        $member = new User();
+        $task = $this->makeTask($this->creator);
+        $membership = $this->makeMembership(WorkspaceRole::Member, $member);
+        $dto = new UpdateTaskDTO(removeAssignee: true);
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+
+        $this->expectException(AccessDeniedException::class);
+
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }
 
     public function testDescriptionEmptyStringClearsIt(): void
@@ -237,10 +280,11 @@ final class TaskServiceTest extends TestCase
         $task->setDescription('Existing desc');
         $membership = $this->makeMembership(WorkspaceRole::Member, $this->creator);
         $dto = new UpdateTaskDTO(description: '');
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $this->creator, $membership, $dto, null);
+        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto, null);
 
         self::assertNull($updated->getDescription());
     }
@@ -252,10 +296,11 @@ final class TaskServiceTest extends TestCase
         $task->setStatus(TaskStatus::Todo);
         $membership = $this->makeMembership(WorkspaceRole::Member, $this->creator);
         $dto = new UpdateTaskDTO();
+        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $this->creator, $membership, $dto, null);
+        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto, null);
 
         self::assertSame('Original', $updated->getTitle());
         self::assertSame(TaskStatus::Todo, $updated->getStatus());

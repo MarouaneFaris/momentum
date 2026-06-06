@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { CreateWorkspaceModal } from '@/features/workspace/components/CreateWorkspaceModal'
 import { useWorkspaces } from '@/features/workspace/queries'
 import { workspaceStorage } from '@/features/workspace/workspaceStorage'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Navigate } from 'react-router'
 
@@ -28,7 +29,10 @@ export default function LandingPage() {
             <div className="flex flex-col items-center gap-4 text-center">
                 <h1 className="text-2xl font-semibold">Welcome to Momentum</h1>
                 <p className="text-muted-foreground">You don&apos;t have any workspaces yet.</p>
-                <Button onClick={() => setIsModalOpen(true)}>Create workspace</Button>
+                <Button size="lg" onClick={() => setIsModalOpen(true)}>
+                    <Plus />
+                    Create workspace
+                </Button>
             </div>
             <CreateWorkspaceModal open={isModalOpen} onOpenChange={setIsModalOpen} />
         </>

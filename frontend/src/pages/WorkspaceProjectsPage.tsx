@@ -12,7 +12,7 @@ import { ProjectFormModal } from '@/features/project/components/ProjectFormModal
 import { ProjectMembersDialog } from '@/features/project/components/ProjectMembersDialog'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { Project, ProjectStatus } from '@/features/project/types'
-import { EllipsisVerticalIcon } from 'lucide-react'
+import { EllipsisVerticalIcon, Plus } from 'lucide-react'
 import { Link } from 'react-router'
 
 const STATUS_TRANSITIONS: Record<ProjectStatus, { value: ProjectStatus; label: string }[]> = {
@@ -68,7 +68,8 @@ export default function WorkspaceProjectsPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold">Projects</h1>
                 {canCreateProject() && (
-                    <Button size="sm" onClick={() => setCreateOpen(true)}>
+                    <Button size="lg" onClick={() => setCreateOpen(true)}>
+                        <Plus />
                         New project
                     </Button>
                 )}
