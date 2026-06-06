@@ -54,7 +54,9 @@ final class ListTasksController extends AbstractController
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
         TaskRepository $taskRepository,
     ): JsonResponse {
-        if (!$project->getWorkspace()->getId()->equals($workspace->getId())) {
+        $projectWorkspaceId = $project->getWorkspace()->getId();
+        $workspaceId = $workspace->getId();
+        if ($projectWorkspaceId === null || $workspaceId === null || !$projectWorkspaceId->equals($workspaceId)) {
             throw new NotFoundHttpException();
         }
 
