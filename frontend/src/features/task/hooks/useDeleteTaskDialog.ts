@@ -18,13 +18,18 @@ export function useDeleteTaskDialog(
 
     const confirmDelete = () => {
         if (!taskToDelete) return
-        mutation.mutate(taskToDelete.id, {
+        const taskId = taskToDelete.id
+        mutation.mutate(taskId, {
             onSuccess: () => {
-                void queryClient.invalidateQueries({
-                    queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks'],
-                })
                 closeDialog()
                 onSuccess?.()
+                queryClient.removeQueries({
+                    queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks', taskId],
+                })
+                void queryClient.invalidateQueries({
+                    queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks'],
+                    exact: true,
+                })
             },
             onError: () => {
                 toast.error('Failed to delete task.')
