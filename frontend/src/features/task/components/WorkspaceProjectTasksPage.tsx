@@ -1,7 +1,7 @@
 import { ClipboardList, Info, Plus } from 'lucide-react'
 import { Link } from 'react-router'
 
-import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -10,6 +10,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
 
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
@@ -27,20 +28,27 @@ const COLUMN_EMPTY: Record<TaskStatus, string> = {
 }
 
 function StatusBadge({ status }: { status: TaskStatus }) {
-    const classes = {
-        todo: 'bg-muted text-muted-foreground border border-border',
-        'in-progress': 'bg-primary/10 text-primary border border-primary/25',
-        done: 'bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30',
+    const className = {
+        todo: 'bg-muted text-muted-foreground border-border',
+        'in-progress': 'bg-primary/10 text-primary border-primary/25',
+        done: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30',
     }[status]
 
     const label = { todo: 'Todo', 'in-progress': 'In progress', done: 'Done' }[status]
 
     return (
-        <span
-            className={`inline-flex items-center text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${classes}`}
-        >
+        <Badge variant="outline" className={className}>
             {label}
-        </span>
+        </Badge>
+    )
+}
+
+function NewTaskButton({ className }: { className?: string }) {
+    return (
+        <Button className={className} size="lg">
+            <Plus />
+            New task
+        </Button>
     )
 }
 
@@ -123,12 +131,7 @@ export default function WorkspaceProjectTasksPage() {
             <div className="flex items-center gap-3">
                 <h1 className="text-base font-semibold tracking-tight">Tasks</h1>
                 <div className="flex-1" />
-                {!isGuest && (
-                    <Button size="sm">
-                        <Plus />
-                        New task
-                    </Button>
-                )}
+                {!isGuest && <NewTaskButton />}
             </div>
 
             {isGuest && (
@@ -145,12 +148,7 @@ export default function WorkspaceProjectTasksPage() {
                     <div className="text-[13px] text-muted-foreground">
                         Create a task to start tracking work for this project.
                     </div>
-                    {!isGuest && (
-                        <Button size="sm" className="mt-1">
-                            <Plus />
-                            New task
-                        </Button>
-                    )}
+                    {!isGuest && <NewTaskButton className="mt-1" />}
                 </div>
             ) : (
                 <div className="grid grid-cols-3 gap-3 items-start">
