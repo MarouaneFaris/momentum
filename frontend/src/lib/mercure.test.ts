@@ -39,7 +39,8 @@ describe('mercure', () => {
 
     it('throws when VITE_MERCURE_PUBLIC_URL is not set', async () => {
         vi.stubEnv('VITE_MERCURE_PUBLIC_URL', '')
-        await expect(import('./mercure')).rejects.toThrow('VITE_MERCURE_PUBLIC_URL')
+        const { subscribe } = await import('./mercure')
+        expect(() => subscribe('/notifications/test', vi.fn())).toThrow('VITE_MERCURE_PUBLIC_URL')
     })
 
     it('subscribe opens EventSource with withCredentials and correct topic', async () => {
