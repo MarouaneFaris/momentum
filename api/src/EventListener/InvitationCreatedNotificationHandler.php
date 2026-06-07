@@ -9,6 +9,7 @@ use App\Enum\NotificationType;
 use App\Event\WorkspaceInvitationCreated;
 use App\Service\NotificationPublisher;
 use App\Service\NotificationServiceInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
@@ -17,6 +18,7 @@ final readonly class InvitationCreatedNotificationHandler
     public function __construct(
         private NotificationServiceInterface $notificationService,
         private NotificationPublisher $notificationPublisher,
+        private LoggerInterface $logger,
     ) {}
 
     public function __invoke(WorkspaceInvitationCreated $event): void
@@ -42,7 +44,12 @@ final readonly class InvitationCreatedNotificationHandler
     {
         try {
             $this->notificationPublisher->publish($notification);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            $this->logger->warning('Mercure publish failed', [
+                'notification_id' => (string) $notification->getId(),
+                'recipient_id' => (string) $notification->getRecipient()->getId(),
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }

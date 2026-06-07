@@ -18,6 +18,7 @@ use App\Service\NotificationServiceInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 final class TaskStatusChangedNotificationHandlerTest extends TestCase
 {
@@ -32,6 +33,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
         $this->handler = new TaskStatusChangedNotificationHandler(
             $this->notificationService,
             $this->notificationPublisher,
+            new NullLogger(),
         );
     }
 
@@ -172,7 +174,9 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
         $assignee = new User();
         $task = $this->makeTask($creator, $assignee);
 
-        $this->notificationService->method('create')->willReturn(new Notification());
+        $notification = new Notification();
+        $notification->setRecipient($creator);
+        $this->notificationService->method('create')->willReturn($notification);
         $this->notificationPublisher->method('publish')->willThrowException(new \RuntimeException('hub down'));
 
         ($this->handler)(new TaskStatusChanged($task, $creator, TaskStatus::Todo, TaskStatus::InProgress));

@@ -21,6 +21,7 @@ use App\Service\NotificationServiceInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 final class InvitationNotificationHandlerTest extends TestCase
 {
@@ -51,7 +52,7 @@ final class InvitationNotificationHandlerTest extends TestCase
             ->method('publish')
             ->with($notification);
 
-        $handler = new InvitationCreatedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationCreatedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationCreated($invitation));
     }
 
@@ -74,7 +75,7 @@ final class InvitationNotificationHandlerTest extends TestCase
             ->method('publish')
             ->with($notification);
 
-        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationAccepted($invitation, $actor));
     }
 
@@ -86,7 +87,7 @@ final class InvitationNotificationHandlerTest extends TestCase
         $this->notificationService->expects($this->never())->method('create');
         $this->notificationPublisher->expects($this->never())->method('publish');
 
-        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationAccepted($invitation, $actor));
     }
 
@@ -109,7 +110,7 @@ final class InvitationNotificationHandlerTest extends TestCase
             ->method('publish')
             ->with($notification);
 
-        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationDeclined($invitation, $actor));
     }
 
@@ -121,7 +122,7 @@ final class InvitationNotificationHandlerTest extends TestCase
         $this->notificationService->expects($this->never())->method('create');
         $this->notificationPublisher->expects($this->never())->method('publish');
 
-        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationDeclined($invitation, $actor));
     }
 
@@ -130,12 +131,15 @@ final class InvitationNotificationHandlerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $invitation = $this->makeInvitation();
+        $invitee = new User();
+        $invitation = $this->makeInvitation(invitee: $invitee);
 
-        $this->notificationService->method('create')->willReturn(new Notification());
+        $notification = new Notification();
+        $notification->setRecipient($invitee);
+        $this->notificationService->method('create')->willReturn($notification);
         $this->notificationPublisher->method('publish')->willThrowException(new \RuntimeException('hub down'));
 
-        $handler = new InvitationCreatedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationCreatedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationCreated($invitation));
     }
 
@@ -147,10 +151,12 @@ final class InvitationNotificationHandlerTest extends TestCase
         $inviter = new User();
         $invitation = $this->makeInvitation(invitedBy: $inviter);
 
-        $this->notificationService->method('create')->willReturn(new Notification());
+        $notification = new Notification();
+        $notification->setRecipient($inviter);
+        $this->notificationService->method('create')->willReturn($notification);
         $this->notificationPublisher->method('publish')->willThrowException(new \RuntimeException('hub down'));
 
-        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationAccepted($invitation, new User()));
     }
 
@@ -162,10 +168,12 @@ final class InvitationNotificationHandlerTest extends TestCase
         $inviter = new User();
         $invitation = $this->makeInvitation(invitedBy: $inviter);
 
-        $this->notificationService->method('create')->willReturn(new Notification());
+        $notification = new Notification();
+        $notification->setRecipient($inviter);
+        $this->notificationService->method('create')->willReturn($notification);
         $this->notificationPublisher->method('publish')->willThrowException(new \RuntimeException('hub down'));
 
-        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher, new NullLogger());
         ($handler)(new WorkspaceInvitationDeclined($invitation, new User()));
     }
 
