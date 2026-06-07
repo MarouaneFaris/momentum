@@ -23,6 +23,7 @@
         "symfony/expression-language": "^8.1",
         "symfony/flex": "^2.10",
         "symfony/framework-bundle": "8.1.*",
+        "symfony/mercure-bundle": "^0.4.2",
         "symfony/monolog-bundle": "^4.0",
         "symfony/rate-limiter": "8.1.*",
         "symfony/runtime": "8.1.*",
