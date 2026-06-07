@@ -11,6 +11,11 @@ when@dev:
                 level: debug
                 max_files: 7
                 channels: ["!event"]
+            stderr:
+                type: stream
+                path: php://stderr
+                level: debug
+                channels: ["!event"]
             console:
                 type: console
                 process_psr_3_messages: false
