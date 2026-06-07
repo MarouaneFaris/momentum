@@ -22,7 +22,7 @@ export default function AppLayout() {
 
     return (
         <div className="flex h-screen flex-col">
-            <header className="bg-sidebar flex h-12 flex-shrink-0 items-center gap-3 border-b px-4">
+            <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4">
                 <MomentumLogo size="sm" />
                 <span className="text-sm font-semibold tracking-tight">
                     <span className="text-primary">m</span>omentum
@@ -37,8 +37,8 @@ export default function AppLayout() {
                 <UserMenu />
             </header>
             <div className="flex flex-1 overflow-hidden">
-                <aside className="bg-sidebar flex w-[200px] flex-shrink-0 flex-col overflow-y-auto border-r px-2 py-3">
-                    <p className="text-muted-foreground px-2 pt-1 pb-1 text-[10px] font-medium tracking-[0.08em] uppercase">
+                <aside className="bg-sidebar flex w-[200px] shrink-0 flex-col overflow-y-auto border-r px-2 py-3">
+                    <p className="text-muted-foreground px-2 py-1 text-[10px] font-medium tracking-[0.08em] uppercase">
                         Main
                     </p>
                     {workspaceId && (
@@ -53,7 +53,7 @@ export default function AppLayout() {
                                     }`
                                 }
                             >
-                                <LayoutDashboard className="h-4 w-4 flex-shrink-0" />
+                                <LayoutDashboard className="h-4 w-4 shrink-0" />
                                 Dashboard
                             </NavLink>
                             <NavLink
@@ -66,7 +66,7 @@ export default function AppLayout() {
                                     }`
                                 }
                             >
-                                <FolderOpen className="h-4 w-4 flex-shrink-0" />
+                                <FolderOpen className="h-4 w-4 shrink-0" />
                                 Projects
                             </NavLink>
                         </>
@@ -81,7 +81,7 @@ export default function AppLayout() {
                             }`
                         }
                     >
-                        <Mail className="h-4 w-4 flex-shrink-0" />
+                        <Mail className="h-4 w-4 shrink-0" />
                         Invitations
                         {pendingCount > 0 && (
                             <Badge className="ml-auto h-4 min-w-4 px-2 text-[10px]">
@@ -104,7 +104,7 @@ export default function AppLayout() {
                                     }`
                                 }
                             >
-                                <Users className="h-4 w-4 flex-shrink-0" />
+                                <Users className="h-4 w-4 shrink-0" />
                                 Members
                             </NavLink>
                             <NavLink
@@ -117,7 +117,7 @@ export default function AppLayout() {
                                     }`
                                 }
                             >
-                                <Settings className="h-4 w-4 flex-shrink-0" />
+                                <Settings className="h-4 w-4 shrink-0" />
                                 Settings
                             </NavLink>
                         </div>

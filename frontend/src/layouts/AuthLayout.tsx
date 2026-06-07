@@ -39,7 +39,7 @@ export default function AuthLayout() {
                 <ul className="mt-2 flex w-full max-w-[260px] flex-col gap-2">
                     {bullets.map((text) => (
                         <li key={text} className="flex items-center gap-2">
-                            <span className="bg-primary h-1 w-1 flex-shrink-0 rounded-full" />
+                            <span className="bg-primary h-1 w-1 shrink-0 rounded-full" />
                             <span className="text-muted-foreground text-xs">{text}</span>
                         </li>
                     ))}

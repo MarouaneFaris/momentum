@@ -26,7 +26,7 @@ export function WorkspaceSwitcher() {
                         className="h-auto gap-1.5 px-2 py-1 text-sm font-normal"
                     >
                         <span
-                            className="text-primary flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded text-[9px] font-semibold"
+                            className="text-primary flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded text-[9px] font-semibold"
                             style={{ background: 'oklch(0.488 0.243 264.376 / 0.15)' }}
                         >
                             {(current?.name?.[0] ?? 'W').toUpperCase()}

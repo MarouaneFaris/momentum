@@ -89,7 +89,7 @@ function Assignee({ assignee }: { assignee: Task['assignee'] }) {
 
     return (
         <div className="flex items-center gap-1">
-            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
+            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
                 {initials}
             </div>
             <span className="text-muted-foreground text-[11px]">{assignee.name.split(' ')[0]}</span>
@@ -352,7 +352,7 @@ export default function WorkspaceProjectTasksPage() {
                 </div>
                 <div
                     className={[
-                        'flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
+                        'shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
                         panelOpen ? 'w-[28rem]' : 'w-0',
                     ].join(' ')}
                 >

@@ -29,7 +29,7 @@ function UserSummary({ user }: { user: { id: string; name: string } }) {
 
     return (
         <div className="flex items-center gap-1.5">
-            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
+            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
                 {initials}
             </div>
             <span className="text-foreground text-[13px]">{user.name}</span>
@@ -40,7 +40,7 @@ function UserSummary({ user }: { user: { id: string; name: string } }) {
 function PanelRow({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex items-center gap-2.5">
-            <span className="text-muted-foreground w-20 flex-shrink-0 text-[11px] font-medium tracking-[0.05em] uppercase">
+            <span className="text-muted-foreground w-20 shrink-0 text-[11px] font-medium tracking-[0.05em] uppercase">
                 {label}
             </span>
             <div className="text-foreground flex items-center gap-1.5 text-[13px]">{children}</div>
@@ -69,7 +69,7 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
         <div className="bg-card border-border flex h-full w-[28rem] min-w-[28rem] flex-col overflow-hidden border-l">
             {task ? (
                 <>
-                    <div className="border-border flex flex-shrink-0 items-start gap-2 border-b px-5 py-5">
+                    <div className="border-border flex shrink-0 items-start gap-2 border-b px-5 py-5">
                         <p className="text-foreground flex-1 text-sm leading-snug font-semibold">
                             {task.title}
                         </p>
@@ -77,7 +77,7 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                             variant="ghost"
                             size="icon"
                             onClick={onClose}
-                            className="mt-0.5 h-6 w-6 flex-shrink-0"
+                            className="mt-0.5 h-6 w-6 shrink-0"
                         >
                             <X size={13} />
                         </Button>
@@ -122,7 +122,7 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                     </div>
 
                     {canEdit && (
-                        <div className="border-border flex flex-shrink-0 items-center gap-2 border-t px-5 py-3">
+                        <div className="border-border flex shrink-0 items-center gap-2 border-t px-5 py-3">
                             {onDelete && (
                                 <Button
                                     variant="outline"
