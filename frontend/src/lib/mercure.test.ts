@@ -79,6 +79,17 @@ describe('mercure', () => {
         expect(es.close).toHaveBeenCalledOnce()
     })
 
+    it('subscribe resolves relative VITE_MERCURE_PUBLIC_URL against window.location.origin', async () => {
+        vi.stubEnv('VITE_MERCURE_PUBLIC_URL', '/.well-known/mercure')
+        const { subscribe } = await import('./mercure')
+
+        subscribe('/notifications/abc', vi.fn())
+
+        const es = MockEventSource.instances[0]
+        expect(es.url).toContain(window.location.origin)
+        expect(es.url).toContain('/.well-known/mercure')
+    })
+
     it('malformed payload triggers onError and does not crash', async () => {
         vi.stubEnv('VITE_MERCURE_PUBLIC_URL', MERCURE_URL)
         const { subscribe } = await import('./mercure')

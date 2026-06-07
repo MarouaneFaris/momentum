@@ -11,7 +11,7 @@ export const subscribe = <T>(
         throw new Error('[mercure] VITE_MERCURE_PUBLIC_URL is not defined')
     }
 
-    const url = new URL(MERCURE_URL)
+    const url = new URL(MERCURE_URL, window.location.origin)
     url.searchParams.append('topic', topic)
 
     const handleError = opts?.onError ?? ((e: Event) => console.warn('[mercure] error', e))

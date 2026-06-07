@@ -8,6 +8,7 @@ use App\Repository\AuthTokenRepository;
 use App\Service\AuthTokenManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
@@ -43,6 +44,7 @@ final readonly class LogoutSubscriber implements EventSubscriberInterface
 
         $response = new JsonResponse(status: Response::HTTP_NO_CONTENT);
         $response->headers->setCookie(AuthTokenManager::createClearCookie());
+        $response->headers->clearCookie('mercureAuthorization', '/.well-known/mercure', null, true, false, Cookie::SAMESITE_STRICT);
         $event->setResponse($response);
     }
 }
