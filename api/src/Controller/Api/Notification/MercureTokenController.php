@@ -7,6 +7,7 @@ namespace App\Controller\Api\Notification;
 use App\Entity\User;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mercure\HubInterface;
@@ -17,17 +18,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class MercureTokenController extends AbstractController
 {
+    private const JWT_TTL = 3600;
+
     public function __construct(private readonly HubInterface $hub) {}
 
     #[OA\Get(
         path: '/api/notifications/mercure-token',
-        summary: 'Get a Mercure subscriber JWT scoped to the caller\'s notification topic',
+        summary: 'Issue a Mercure subscriber cookie scoped to the caller\'s notification topic',
         responses: [
             new OA\Response(
                 response: 200,
-                description: 'Subscriber JWT',
+                description: 'Cookie set; body contains TTL in seconds',
                 content: new OA\JsonContent(
-                    properties: [new OA\Property(property: 'token', type: 'string')],
+                    properties: [new OA\Property(property: 'expiresIn', type: 'integer', example: 3600)],
                     type: 'object'
                 )
             ),
@@ -47,8 +50,20 @@ final class MercureTokenController extends AbstractController
         $token = $factory->create(
             subscribe: ["/notifications/{$user->getId()}"],
             publish: [],
+            additionalClaims: ['exp' => new \DateTimeImmutable('+' . self::JWT_TTL . ' seconds')],
         );
 
-        return $this->json(['token' => $token]);
+        $response = $this->json(['expiresIn' => self::JWT_TTL]);
+        $response->headers->setCookie(Cookie::create(
+            name: 'mercureAuthorization',
+            value: $token,
+            expire: time() + self::JWT_TTL,
+            path: '/.well-known/mercure',
+            secure: true,
+            httpOnly: true,
+            sameSite: Cookie::SAMESITE_STRICT,
+        ));
+
+        return $response;
     }
 }

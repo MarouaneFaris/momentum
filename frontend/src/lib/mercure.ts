@@ -3,7 +3,7 @@ export type MercureTopic = `/notifications/${string}`
 export const subscribe = <T>(
     topic: MercureTopic,
     onMessage: (data: T) => void,
-    opts?: { onError?: (e: Event) => void; token?: string },
+    opts?: { onError?: (e: Event) => void },
 ): (() => void) => {
     const MERCURE_URL = import.meta.env.VITE_MERCURE_PUBLIC_URL as string | undefined
 
@@ -13,10 +13,6 @@ export const subscribe = <T>(
 
     const url = new URL(MERCURE_URL)
     url.searchParams.append('topic', topic)
-
-    if (opts?.token) {
-        url.searchParams.append('authorization', opts.token)
-    }
 
     const handleError = opts?.onError ?? ((e: Event) => console.warn('[mercure] error', e))
 

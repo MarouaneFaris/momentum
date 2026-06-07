@@ -20,12 +20,6 @@ vi.mock('@/lib/api', () => ({
 
 import api from '@/lib/api'
 
-const makeFakeJwt = (expiresInSeconds = 3600) => {
-    const exp = Math.floor(Date.now() / 1000) + expiresInSeconds
-    const payload = btoa(JSON.stringify({ exp }))
-    return `header.${payload}.signature`
-}
-
 let capturedOnMessage: ((event: MessageEvent) => void) | null = null
 const mockEsClose = vi.fn()
 
@@ -68,7 +62,7 @@ describe('useNotifications envelope dispatch', () => {
         vi.stubGlobal('EventSource', FakeEventSource)
         vi.stubEnv('VITE_API_URL', 'https://api.example.com/api')
         vi.stubEnv('VITE_MERCURE_PUBLIC_URL', 'http://localhost/.well-known/mercure')
-        vi.mocked(api.get).mockResolvedValue({ token: makeFakeJwt() })
+        vi.mocked(api.get).mockResolvedValue({ expiresIn: 3600 })
 
         queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, [])
