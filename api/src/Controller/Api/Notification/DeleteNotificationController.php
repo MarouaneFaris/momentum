@@ -6,6 +6,7 @@ namespace App\Controller\Api\Notification;
 
 use App\Entity\Notification;
 use App\Security\Voter\NotificationVoter;
+use App\Service\NotificationPublisher;
 use App\Service\NotificationService;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,8 +39,16 @@ final class DeleteNotificationController extends AbstractController
     public function __invoke(
         Notification $notification,
         NotificationService $notificationService,
+        NotificationPublisher $notificationPublisher,
     ): Response {
+        $id = $notification->getId();
+        $recipient = $notification->getRecipient();
+
         $notificationService->delete($notification);
+
+        if ($id !== null) {
+            $notificationPublisher->publishDeleted($id, $recipient);
+        }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

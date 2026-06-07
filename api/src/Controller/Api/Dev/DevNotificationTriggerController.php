@@ -95,7 +95,7 @@ final class DevNotificationTriggerController extends AbstractController
         };
 
         $notification = $notificationService->create($user, $type, $payload);
-        $notificationPublisher->publish($notification);
+        $notificationPublisher->publishCreated($notification);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }

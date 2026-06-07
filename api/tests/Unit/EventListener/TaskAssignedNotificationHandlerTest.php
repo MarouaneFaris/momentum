@@ -49,7 +49,7 @@ final class TaskAssignedNotificationHandlerTest extends TestCase
 
         $this->notificationPublisher
             ->expects($this->once())
-            ->method('publish')
+            ->method('publishCreated')
             ->with($notification);
 
         ($this->handler)(new TaskAssigned($task, $user, $user));
@@ -83,7 +83,7 @@ final class TaskAssignedNotificationHandlerTest extends TestCase
 
         $this->notificationPublisher
             ->expects($this->exactly(2))
-            ->method('publish');
+            ->method('publishCreated');
 
         ($this->handler)(new TaskAssigned($task, $creator, $assignee));
     }

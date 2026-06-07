@@ -7,6 +7,7 @@ namespace App\Controller\Api\Notification;
 use App\DTO\Response\NotificationResponse;
 use App\Entity\Notification;
 use App\Security\Voter\NotificationVoter;
+use App\Service\NotificationPublisher;
 use App\Service\NotificationService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -44,8 +45,11 @@ final class MarkNotificationReadController extends AbstractController
     public function __invoke(
         Notification $notification,
         NotificationService $notificationService,
+        NotificationPublisher $notificationPublisher,
     ): JsonResponse {
         $notificationService->markRead($notification);
+
+        $notificationPublisher->publishUpdated($notification);
 
         return $this->json(NotificationResponse::fromNotification($notification));
     }
