@@ -29,14 +29,14 @@ final class NotificationVoterTest extends TestCase
         $token->method('getUser')->willReturn(null);
         $notification = $this->makeNotification($this->user);
 
-        $result = $this->voter->vote($token, $notification, [NotificationVoter::READ]);
+        $result = $this->voter->vote($token, $notification, [NotificationVoter::UPDATE]);
 
         self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 
     public function testAbstainOnWrongSubject(): void
     {
-        $result = $this->voter->vote($this->createToken(), new \stdClass(), [NotificationVoter::READ]);
+        $result = $this->voter->vote($this->createToken(), new \stdClass(), [NotificationVoter::UPDATE]);
 
         self::assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
     }
@@ -53,7 +53,6 @@ final class NotificationVoterTest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function provideAttributes(): iterable
     {
-        yield 'read' => [NotificationVoter::READ];
         yield 'update' => [NotificationVoter::UPDATE];
         yield 'delete' => [NotificationVoter::DELETE];
     }

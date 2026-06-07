@@ -13,13 +13,12 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /** @extends Voter<string, Notification> */
 final class NotificationVoter extends Voter
 {
-    public const string READ = 'notification.read';
     public const string UPDATE = 'notification.update';
     public const string DELETE = 'notification.delete';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return in_array($attribute, [self::READ, self::UPDATE, self::DELETE], true)
+        return in_array($attribute, [self::UPDATE, self::DELETE], true)
             && $subject instanceof Notification;
     }
 
