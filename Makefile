@@ -25,7 +25,7 @@ with-files = $(if $(f),$(1),$(2))
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL = help
 .PHONY : help \
-	build rebuild up down nuke logs config sh bash node-sh \
+	build rebuild up down nuke logs docker-logs config sh bash node-sh \
 	prod-build prod-up \
 	test test-unit test-integration test-functional \
 	composer vendor \
@@ -56,8 +56,11 @@ down: ## Stop the docker hub
 nuke: ## Stop the docker hub and remove volumes
 	@$(DOCKER_COMP) down --remove-orphans -v
 
-logs: ## Show live logs
-	@$(DOCKER_COMP) logs --tail=0 --follow
+logs: ## Tail the Symfony app log (latest rotating file)
+	@$(PHP_CONT) sh -c 'tail -f $$(ls -t var/log/dev-*.log 2>/dev/null | head -1)'
+
+docker-logs: ## Show live Docker container logs
+	@$(DOCKER_COMP) logs --tail=100 --follow
 
 config: ## Dump docker compose config
 	@$(DOCKER_COMP) config
