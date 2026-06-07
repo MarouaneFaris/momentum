@@ -79,6 +79,16 @@ describe('mercure', () => {
         expect(es.close).toHaveBeenCalledOnce()
     })
 
+    it('subscribe appends authorization query param when token provided', async () => {
+        vi.stubEnv('VITE_MERCURE_PUBLIC_URL', MERCURE_URL)
+        const { subscribe } = await import('./mercure')
+
+        subscribe('/notifications/abc', vi.fn(), { token: 'my-token' })
+
+        const es = MockEventSource.instances[0]
+        expect(es.url).toContain('authorization=my-token')
+    })
+
     it('malformed payload triggers onError and does not crash', async () => {
         vi.stubEnv('VITE_MERCURE_PUBLIC_URL', MERCURE_URL)
         const { subscribe } = await import('./mercure')

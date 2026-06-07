@@ -1,5 +1,5 @@
+import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { renderHook } from '@testing-library/react'
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthContext } from '@/contexts/auth/AuthContext'
@@ -11,6 +11,20 @@ vi.mock('../queries', () => ({
     useNotificationList: vi.fn(() => ({ data: undefined })),
     NOTIFICATIONS_QUERY_KEY: ['notifications'] as const,
 }))
+
+vi.mock('@/lib/api', () => ({
+    default: {
+        get: vi.fn(),
+    },
+}))
+
+import api from '@/lib/api'
+
+const makeFakeJwt = (expiresInSeconds = 3600) => {
+    const exp = Math.floor(Date.now() / 1000) + expiresInSeconds
+    const payload = btoa(JSON.stringify({ exp }))
+    return `header.${payload}.signature`
+}
 
 let capturedOnMessage: ((event: MessageEvent) => void) | null = null
 const mockEsClose = vi.fn()
@@ -54,6 +68,7 @@ describe('useNotifications envelope dispatch', () => {
         vi.stubGlobal('EventSource', FakeEventSource)
         vi.stubEnv('VITE_API_URL', 'https://api.example.com/api')
         vi.stubEnv('VITE_MERCURE_PUBLIC_URL', 'http://localhost/.well-known/mercure')
+        vi.mocked(api.get).mockResolvedValue({ token: makeFakeJwt() })
 
         queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, [])
@@ -72,8 +87,9 @@ describe('useNotifications envelope dispatch', () => {
             React.createElement(QueryClientProvider, { client: queryClient }, children),
         )
 
-    it('created op prepends notification to cache', () => {
+    it('created op prepends notification to cache', async () => {
         renderHook(() => useNotifications(), { wrapper })
+        await waitFor(() => expect(capturedOnMessage).not.toBeNull())
 
         const n = makeNotification({ id: 'n-new' })
         fireMessage({ op: 'created', notification: n })
@@ -82,11 +98,12 @@ describe('useNotifications envelope dispatch', () => {
         expect(cached?.[0]).toEqual(n)
     })
 
-    it('updated op replaces matching notification in cache', () => {
+    it('updated op replaces matching notification in cache', async () => {
         const existing = makeNotification({ id: 'n1', readAt: null })
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, [existing])
 
         renderHook(() => useNotifications(), { wrapper })
+        await waitFor(() => expect(capturedOnMessage).not.toBeNull())
 
         const updated = { ...existing, readAt: '2026-06-07T13:00:00Z' }
         fireMessage({ op: 'updated', notification: updated })
@@ -95,11 +112,12 @@ describe('useNotifications envelope dispatch', () => {
         expect(cached?.[0].readAt).toBe('2026-06-07T13:00:00Z')
     })
 
-    it('deleted op removes notification from cache', () => {
+    it('deleted op removes notification from cache', async () => {
         const n = makeNotification({ id: 'n-to-delete' })
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, [n])
 
         renderHook(() => useNotifications(), { wrapper })
+        await waitFor(() => expect(capturedOnMessage).not.toBeNull())
 
         fireMessage({ op: 'deleted', id: 'n-to-delete' })
 
@@ -107,12 +125,13 @@ describe('useNotifications envelope dispatch', () => {
         expect(cached).toHaveLength(0)
     })
 
-    it('all-read op stamps readAt on unread notifications', () => {
+    it('all-read op stamps readAt on unread notifications', async () => {
         const n1 = makeNotification({ id: 'n1', readAt: null })
         const n2 = makeNotification({ id: 'n2', readAt: '2026-01-01T00:00:00Z' })
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, [n1, n2])
 
         renderHook(() => useNotifications(), { wrapper })
+        await waitFor(() => expect(capturedOnMessage).not.toBeNull())
 
         const readAt = '2026-06-07T14:00:00Z'
         fireMessage({ op: 'all-read', readAt })
@@ -122,20 +141,22 @@ describe('useNotifications envelope dispatch', () => {
         expect(cached?.[1].readAt).toBe('2026-01-01T00:00:00Z')
     })
 
-    it('unknown op falls back to invalidateQueries', () => {
+    it('unknown op falls back to invalidateQueries', async () => {
         const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
         renderHook(() => useNotifications(), { wrapper })
+        await waitFor(() => expect(capturedOnMessage).not.toBeNull())
 
         fireMessage({ op: 'future-unknown-op' })
 
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: NOTIFICATIONS_QUERY_KEY })
     })
 
-    it('malformed JSON falls back to invalidateQueries', () => {
+    it('malformed JSON falls back to invalidateQueries', async () => {
         const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
 
         renderHook(() => useNotifications(), { wrapper })
+        await waitFor(() => expect(capturedOnMessage).not.toBeNull())
 
         capturedOnMessage?.({ data: 'not-json{{{' } as MessageEvent)
 

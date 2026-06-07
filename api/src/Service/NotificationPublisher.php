@@ -80,7 +80,7 @@ readonly class NotificationPublisher
             $this->hub->publish(new Update(
                 topics: [$topic],
                 data: json_encode($data, \JSON_THROW_ON_ERROR),
-                private: false,
+                private: true,
             ));
         } catch (\Throwable $e) {
             $this->logger->warning('Mercure publish failed', array_merge($logContext, [
