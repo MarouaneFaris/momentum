@@ -38,6 +38,8 @@ class NotificationRepository extends ServiceEntityRepository
             return;
         }
 
+        // Intentional raw DBAL bulk UPDATE — avoids loading all entities into the UoW
+        // for a single-shot write path. DQL UPDATE would have the same UoW semantics here.
         $this->getEntityManager()->getConnection()->executeStatement(
             'UPDATE notification SET read_at = NOW() WHERE recipient_id = :recipientId AND read_at IS NULL',
             ['recipientId' => $recipientId->toBinary()],
