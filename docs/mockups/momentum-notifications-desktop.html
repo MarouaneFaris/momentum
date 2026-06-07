@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum — Notifications (Desktop)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: oklch(0.488 0.243 264.376);
+      --primary-fg: oklch(0.97 0.014 254.604);
+      --primary-hover: oklch(0.44 0.22 264.376);
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-fg: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --radius: 0.625rem;
+      --sidebar-bg: oklch(0.985 0 0);
+      --sidebar-border: oklch(0.92 0.004 286.32);
+      --green: oklch(0.35 0.12 145);
+      --green-bg: oklch(0.3 0.1 145 / 0.1);
+      --green-border: oklch(0.3 0.1 145 / 0.25);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: oklch(0.624 0.214 259.815);
+        --background: oklch(0.141 0.005 285.823);
+        --foreground: oklch(0.985 0 0);
+        --card: oklch(0.21 0.006 285.885);
+        --muted: oklch(0.274 0.006 286.033);
+        --muted-fg: oklch(0.705 0.015 286.067);
+        --border: oklch(1 0 0 / 10%);
+        --sidebar-bg: oklch(0.21 0.006 285.885);
+        --sidebar-border: oklch(1 0 0 / 10%);
+      }
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--muted); color: var(--foreground); padding: 40px 24px; }
+
+    /* Page header */
+    .page-header { max-width: 1200px; margin: 0 auto 32px; display: flex; align-items: center; gap: 12px; }
+    .page-logo { display: flex; align-items: center; gap: 10px; }
+    .mark { display: flex; flex-direction: column; gap: 4px; transform: skewX(-12deg); }
+    .stripe { border-radius: 2px; background: var(--primary); }
+    .wordmark { font-size: 16px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .wordmark .acc { color: var(--primary); }
+    .page-divider { flex: 1; height: 0.5px; background: var(--border); }
+    .page-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); white-space: nowrap; }
+
+    .shells { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+    .shell-section { display: flex; flex-direction: column; gap: 10px; }
+    .shell-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-fg); padding-left: 2px; }
+    .shell-frame { border-radius: calc(var(--radius) * 1.4); overflow: visible; border: 0.5px solid var(--border); background: var(--background); box-shadow: 0 1px 3px oklch(0 0 0 / 0.06); position: relative; }
+
+    /* App chrome */
+    .app-topbar { height: 48px; background: var(--sidebar-bg); border-bottom: 0.5px solid var(--sidebar-border); display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0; position: relative; border-radius: calc(var(--radius) * 1.4) calc(var(--radius) * 1.4) 0 0; }
+    .topbar-logo { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .topbar-mark { display: flex; flex-direction: column; gap: 3px; transform: skewX(-12deg); }
+    .topbar-wordmark { font-size: 14px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .topbar-divider { width: 0.5px; height: 20px; background: var(--border); margin: 0 4px; }
+    .ws-selector { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: var(--radius); cursor: pointer; }
+    .ws-selector:hover { background: var(--muted); }
+    .ws-name { font-size: 12px; font-weight: 500; color: var(--foreground); }
+    .topbar-spacer { flex: 1; }
+    .topbar-actions { display: flex; align-items: center; gap: 4px; position: relative; }
+    .icon-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); cursor: pointer; color: var(--muted-fg); position: relative; }
+    .icon-btn:hover { background: var(--muted); }
+    .icon-btn svg { width: 15px; height: 15px; }
+    .icon-btn.active { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); }
+    .notif-badge { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); border: 1.5px solid var(--sidebar-bg); }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: oklch(0.488 0.243 264.376 / 0.15); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--primary); margin-left: 4px; }
+
+    .app-body { display: flex; }
+    .sidebar { width: 200px; flex-shrink: 0; background: var(--sidebar-bg); border-right: 0.5px solid var(--sidebar-border); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; min-height: 460px; }
+    .sidebar-section { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); padding: 10px 8px 4px; }
+    .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: calc(var(--radius) * 0.8); font-size: 13px; color: var(--muted-fg); cursor: pointer; }
+    .nav-item:hover { background: var(--muted); color: var(--foreground); }
+    .nav-item.active { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); font-weight: 500; }
+    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .project-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .sidebar-project { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: calc(var(--radius) * 0.8); font-size: 12px; color: var(--muted-fg); cursor: pointer; }
+
+    .main-content { flex: 1; background: var(--background); padding: 24px; display: flex; flex-direction: column; gap: 20px; overflow: hidden; min-height: 460px; }
+    .content-title { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; color: var(--foreground); }
+
+    .task-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: start; }
+    .task-col { display: flex; flex-direction: column; gap: 8px; }
+    .col-header { display: flex; align-items: center; gap: 8px; padding: 0 4px 4px; }
+    .col-title { font-size: 12px; font-weight: 600; color: var(--foreground); }
+    .col-count { font-size: 11px; color: var(--muted-fg); background: var(--muted); border: 0.5px solid var(--border); border-radius: 20px; padding: 0 7px; line-height: 18px; }
+    .task-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .task-card-title { font-size: 13px; font-weight: 500; color: var(--foreground); line-height: 1.4; }
+    .task-card-footer { display: flex; align-items: center; gap: 6px; }
+    .task-card-spacer { flex: 1; }
+    .badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .badge-todo { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); }
+    .badge-prog { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); }
+    .badge-done { background: var(--green-bg); color: var(--green); border: 0.5px solid var(--green-border); }
+    .t-av { width: 20px; height: 20px; border-radius: 50%; background: oklch(0.488 0.243 264.376 / 0.15); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 600; color: var(--primary); flex-shrink: 0; }
+
+    /* Backdrop overlay */
+    .backdrop { position: absolute; inset: 0; background: oklch(0 0 0 / 0.06); z-index: 5; border-radius: calc(var(--radius) * 1.4); pointer-events: none; }
+
+    /* ── POPOVER ── */
+    .notif-popover {
+      position: absolute;
+      top: 52px;
+      right: 48px;
+      width: 320px;
+      background: var(--card);
+      border: 0.5px solid var(--border);
+      border-radius: calc(var(--radius) * 1.2);
+      box-shadow: 0 8px 24px oklch(0 0 0 / 0.12), 0 0 0 0.5px var(--border);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .popover-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px 10px;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .popover-title { font-size: 13px; font-weight: 600; color: var(--foreground); flex: 1; }
+    .popover-count { font-size: 10px; font-weight: 600; background: var(--primary); color: var(--primary-fg); padding: 1px 7px; border-radius: 10px; }
+    .mark-all-btn { font-size: 11px; color: var(--primary); cursor: pointer; font-weight: 500; white-space: nowrap; }
+    .mark-all-btn:hover { text-decoration: underline; }
+
+    .popover-list { display: flex; flex-direction: column; max-height: 360px; overflow-y: auto; }
+
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 0.5px solid var(--border);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item:hover { background: var(--muted); }
+    .notif-item.unread { background: oklch(0.488 0.243 264.376 / 0.03); }
+    .notif-item.unread:hover { background: oklch(0.488 0.243 264.376 / 0.06); }
+
+    .notif-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .notif-dot.unread { background: var(--primary); }
+    .notif-dot.read { background: var(--border); }
+
+    .notif-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .notif-text { font-size: 12px; color: var(--foreground); line-height: 1.45; }
+    .notif-text.read { color: var(--muted-fg); }
+    .notif-text strong { font-weight: 600; color: var(--foreground); }
+    .notif-text.read strong { font-weight: 500; color: var(--muted-fg); }
+    .notif-meta { font-size: 10px; color: var(--muted-fg); margin-top: 1px; }
+
+    .notif-icon {
+      width: 26px; height: 26px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .notif-icon svg { width: 13px; height: 13px; }
+    .notif-icon.task { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); }
+    .notif-icon.invite { background: oklch(0.55 0.15 145 / 0.1); color: oklch(0.35 0.12 145); }
+
+    .popover-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .popover-empty-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--muted); display: flex; align-items: center; justify-content: center; color: var(--muted-fg); }
+    .popover-empty-icon svg { width: 18px; height: 18px; }
+    .popover-empty-title { font-size: 13px; font-weight: 500; color: var(--foreground); }
+    .popover-empty-sub { font-size: 12px; color: var(--muted-fg); line-height: 1.5; }
+
+    /* ── DRAWER ── */
+    .drawer-wrap { position: relative; overflow: hidden; border-radius: calc(var(--radius) * 1.4); }
+    .notif-drawer {
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 360px;
+      background: var(--card);
+      border-left: 0.5px solid var(--border);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -8px 0 24px oklch(0 0 0 / 0.08);
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px 12px;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-title { font-size: 14px; font-weight: 600; color: var(--foreground); flex: 1; }
+    .drawer-close { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--muted-fg); cursor: pointer; font-size: 13px; }
+    .drawer-close:hover { background: var(--muted); }
+    .drawer-subheader { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+    .drawer-count { font-size: 11px; color: var(--muted-fg); flex: 1; }
+    .drawer-mark-all { font-size: 11px; color: var(--primary); cursor: pointer; font-weight: 500; }
+    .drawer-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+    .drawer-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 0.5px solid var(--border);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .drawer-item:last-child { border-bottom: none; }
+    .drawer-item:hover { background: var(--muted); }
+    .drawer-item.unread { background: oklch(0.488 0.243 264.376 / 0.03); }
+    .drawer-item.unread:hover { background: oklch(0.488 0.243 264.376 / 0.06); }
+
+    .blurred { filter: blur(1.5px); opacity: 0.5; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-logo">
+    <div class="mark">
+      <div class="stripe" style="width:20px;height:6px;opacity:.25"></div>
+      <div class="stripe" style="width:20px;height:6px;opacity:.55"></div>
+      <div class="stripe" style="width:20px;height:6px;opacity:1"></div>
+    </div>
+    <div class="wordmark"><span class="acc">m</span>omentum</div>
+  </div>
+  <div class="page-divider"></div>
+  <div class="page-label">Notifications — Desktop</div>
+</div>
+
+<div class="shells">
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 01 — POPOVER: UNREAD NOTIFICATIONS -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">01 — Popover variant: unread notifications</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="icon-btn active">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+            <div class="notif-badge"></div>
+          </div>
+          <div class="user-avatar">AJ</div>
+        </div>
+        <!-- Popover anchored to bell -->
+        <div class="notif-popover">
+          <div class="popover-header">
+            <div class="popover-title">Notifications</div>
+            <div class="popover-count">4 new</div>
+            <div class="mark-all-btn">Mark all read</div>
+          </div>
+          <div class="popover-list">
+            <!-- task_assigned_to_you -->
+            <div class="notif-item unread">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text">You were assigned <strong>Implement Mercure SSE handler</strong></div>
+                <div class="notif-meta">Backend API · 2m ago</div>
+              </div>
+            </div>
+            <!-- task_assigned_member -->
+            <div class="notif-item unread">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text"><strong>Marie L.</strong> was assigned <strong>Write API spec for tasks</strong></div>
+                <div class="notif-meta">Backend API · 15m ago</div>
+              </div>
+            </div>
+            <!-- invitation_received -->
+            <div class="notif-item unread">
+              <div class="notif-icon invite">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M7 1C4 1 1.5 3.5 1.5 6.5S4 12 7 12s5.5-2.5 5.5-5.5S10 1 7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v2l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text">You were invited to <strong>DevCo workspace</strong> as <strong>Member</strong></div>
+                <div class="notif-meta">1h ago</div>
+              </div>
+            </div>
+            <!-- invitation_accepted -->
+            <div class="notif-item unread">
+              <div class="notif-icon invite">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M7 1C4 1 1.5 3.5 1.5 6.5S4 12 7 12s5.5-2.5 5.5-5.5S10 1 7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v2l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text"><strong>alice@acme.com</strong> accepted your invitation to <strong>Acme Inc.</strong></div>
+                <div class="notif-meta">3h ago</div>
+              </div>
+            </div>
+            <!-- task_status_changed_yours (read) -->
+            <div class="notif-item">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>Auth cookie endpoints</strong> was marked <strong>done</strong></div>
+                <div class="notif-meta">Yesterday</div>
+              </div>
+            </div>
+            <!-- task_status_changed_member (read) -->
+            <div class="notif-item">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>Marie L.</strong> updated <strong>Docker Compose setup</strong> to <strong>in progress</strong></div>
+                <div class="notif-meta">Yesterday</div>
+              </div>
+            </div>
+            <!-- invitation_declined (read) -->
+            <div class="notif-item">
+              <div class="notif-icon invite">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M7 1C4 1 1.5 3.5 1.5 6.5S4 12 7 12s5.5-2.5 5.5-5.5S10 1 7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v2l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>bob@startup.io</strong> declined your invitation to <strong>Acme Inc.</strong></div>
+                <div class="notif-meta">2 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar blurred">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            Dashboard
+          </div>
+          <div class="sidebar-section">Projects</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.55 0.15 145)"></div>Frontend MVP</div>
+        </div>
+        <div class="main-content blurred">
+          <div class="content-title">Tasks</div>
+          <div class="task-columns">
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Todo</div><div class="col-count">2</div></div>
+              <div class="task-card"><div class="task-card-title">Write API spec for task endpoints</div><div class="task-card-footer"><span class="badge badge-todo">Todo</span><div class="task-card-spacer"></div><div class="t-av">AJ</div></div></div>
+              <div class="task-card"><div class="task-card-title">Set up Mercure Hub</div><div class="task-card-footer"><span class="badge badge-todo">Todo</span><div class="task-card-spacer"></div><div style="font-size:11px;color:var(--muted-fg)">—</div></div></div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">In Progress</div><div class="col-count">1</div></div>
+              <div class="task-card"><div class="task-card-title">PATCH /tasks with field-level auth</div><div class="task-card-footer"><span class="badge badge-prog">In progress</span><div class="task-card-spacer"></div><div class="t-av" style="background:oklch(0.55 0.15 145 / 0.15);color:oklch(0.35 0.12 145)">ML</div></div></div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Done</div><div class="col-count">1</div></div>
+              <div class="task-card"><div class="task-card-title">Auth cookie endpoints</div><div class="task-card-footer"><span class="badge badge-done">Done</span><div class="task-card-spacer"></div><div class="t-av">AJ</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="backdrop"></div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 02 — POPOVER: ALL READ -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">02 — Popover variant: all notifications read</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <!-- Bell: active, no badge (all read) -->
+          <div class="icon-btn active">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          </div>
+          <div class="user-avatar">AJ</div>
+        </div>
+        <div class="notif-popover">
+          <div class="popover-header">
+            <div class="popover-title">Notifications</div>
+            <!-- No count chip when all read -->
+          </div>
+          <div class="popover-list">
+            <div class="notif-item">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read">You were assigned <strong>Implement Mercure SSE handler</strong></div>
+                <div class="notif-meta">Backend API · 2m ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>Marie L.</strong> was assigned <strong>Write API spec for tasks</strong></div>
+                <div class="notif-meta">Backend API · 15m ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon invite">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M7 1C4 1 1.5 3.5 1.5 6.5S4 12 7 12s5.5-2.5 5.5-5.5S10 1 7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v2l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>alice@acme.com</strong> accepted your invitation to <strong>Acme Inc.</strong></div>
+                <div class="notif-meta">3h ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>Auth cookie endpoints</strong> was marked <strong>done</strong></div>
+                <div class="notif-meta">Yesterday</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar blurred">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            Dashboard
+          </div>
+          <div class="sidebar-section">Projects</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+        </div>
+        <div class="main-content blurred">
+          <div class="content-title">Tasks</div>
+        </div>
+      </div>
+      <div class="backdrop"></div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 03 — POPOVER: EMPTY STATE -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">03 — Popover variant: empty state</p>
+    <div class="shell-frame">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="icon-btn active">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          </div>
+          <div class="user-avatar">AJ</div>
+        </div>
+        <div class="notif-popover">
+          <div class="popover-header">
+            <div class="popover-title">Notifications</div>
+          </div>
+          <div class="popover-empty">
+            <div class="popover-empty-icon">
+              <svg viewBox="0 0 18 18" fill="none"><path d="M9 2C6.8 2 5 3.8 5 6v3.5L3.5 11h11L13 9.5V6c0-2.2-1.8-4-4-4Z" stroke="currentColor" stroke-width="1.2"/><path d="M7.5 12.5C7.5 13.3 8.2 14 9 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+            </div>
+            <div class="popover-empty-title">No notifications</div>
+            <div class="popover-empty-sub">You're all caught up.<br>Activity will appear here.</div>
+          </div>
+        </div>
+      </div>
+      <div class="app-body">
+        <div class="sidebar blurred">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            Dashboard
+          </div>
+        </div>
+        <div class="main-content blurred">
+          <div class="content-title">Tasks</div>
+        </div>
+      </div>
+      <div class="backdrop"></div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- 04 — DRAWER VARIANT: UNREAD NOTIFICATIONS -->
+  <!-- ─────────────────────────────────────────────── -->
+  <div class="shell-section">
+    <p class="shell-label">04 — Drawer variant: unread notifications (alternative to popover)</p>
+    <div class="shell-frame drawer-wrap">
+      <div class="app-topbar">
+        <div class="topbar-logo">
+          <div class="topbar-mark">
+            <div class="stripe" style="width:18px;height:5px;opacity:.25"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:.55"></div>
+            <div class="stripe" style="width:18px;height:5px;opacity:1"></div>
+          </div>
+          <div class="topbar-wordmark"><span style="color:var(--primary)">m</span>omentum</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="ws-selector">
+          <div style="width:18px;height:18px;border-radius:4px;background:oklch(0.488 0.243 264.376 / 0.15);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--primary)">A</div>
+          <div class="ws-name">Acme Inc.</div>
+          <span style="font-size:10px;color:var(--muted-fg)">⌄</span>
+        </div>
+        <div class="topbar-spacer"></div>
+        <div class="topbar-actions">
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="icon-btn active">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2C5.8 2 4 3.8 4 6v3.5L2.5 11h11L12 9.5V6C12 3.8 10.2 2 8 2Z" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 12.5C6.5 13.3 7.2 14 8 14s1.5-.7 1.5-1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+            <div class="notif-badge"></div>
+          </div>
+          <div class="user-avatar">AJ</div>
+        </div>
+      </div>
+      <div class="app-body" style="position:relative;min-height:460px">
+        <div class="sidebar blurred">
+          <div class="sidebar-section">Main</div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+            Dashboard
+          </div>
+          <div class="sidebar-section">Projects</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:var(--primary)"></div>Backend API</div>
+          <div class="sidebar-project"><div class="project-dot" style="background:oklch(0.55 0.15 145)"></div>Frontend MVP</div>
+        </div>
+        <div class="main-content blurred">
+          <div class="content-title">Tasks</div>
+          <div class="task-columns">
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Todo</div><div class="col-count">2</div></div>
+              <div class="task-card"><div class="task-card-title">Write API spec for task endpoints</div><div class="task-card-footer"><span class="badge badge-todo">Todo</span><div class="task-card-spacer"></div><div class="t-av">AJ</div></div></div>
+              <div class="task-card"><div class="task-card-title">Set up Mercure Hub</div><div class="task-card-footer"><span class="badge badge-todo">Todo</span></div></div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">In Progress</div><div class="col-count">1</div></div>
+              <div class="task-card"><div class="task-card-title">PATCH /tasks with field-level auth</div><div class="task-card-footer"><span class="badge badge-prog">In progress</span></div></div>
+            </div>
+            <div class="task-col">
+              <div class="col-header"><div class="col-title">Done</div><div class="col-count">1</div></div>
+              <div class="task-card"><div class="task-card-title">Auth cookie endpoints</div><div class="task-card-footer"><span class="badge badge-done">Done</span></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Drawer -->
+        <div class="notif-drawer">
+          <div class="drawer-header">
+            <div class="drawer-title">Notifications</div>
+            <div class="drawer-close">✕</div>
+          </div>
+          <div class="drawer-subheader">
+            <div class="drawer-count">4 unread</div>
+            <div class="drawer-mark-all">Mark all read</div>
+          </div>
+          <div class="drawer-list">
+            <div class="drawer-item unread">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text">You were assigned <strong>Implement Mercure SSE handler</strong></div>
+                <div class="notif-meta">Backend API · 2m ago</div>
+              </div>
+            </div>
+            <div class="drawer-item unread">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text"><strong>Marie L.</strong> was assigned <strong>Write API spec for tasks</strong></div>
+                <div class="notif-meta">Backend API · 15m ago</div>
+              </div>
+            </div>
+            <div class="drawer-item unread">
+              <div class="notif-icon invite">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M7 1C4 1 1.5 3.5 1.5 6.5S4 12 7 12s5.5-2.5 5.5-5.5S10 1 7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v2l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text">You were invited to <strong>DevCo workspace</strong> as <strong>Member</strong></div>
+                <div class="notif-meta">1h ago</div>
+              </div>
+            </div>
+            <div class="drawer-item unread">
+              <div class="notif-icon invite">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M7 1C4 1 1.5 3.5 1.5 6.5S4 12 7 12s5.5-2.5 5.5-5.5S10 1 7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v2l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot unread"></div>
+              <div class="notif-body">
+                <div class="notif-text"><strong>alice@acme.com</strong> accepted your invitation to <strong>Acme Inc.</strong></div>
+                <div class="notif-meta">3h ago</div>
+              </div>
+            </div>
+            <div class="drawer-item">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>Auth cookie endpoints</strong> was marked <strong>done</strong></div>
+                <div class="notif-meta">Yesterday</div>
+              </div>
+            </div>
+            <div class="drawer-item">
+              <div class="notif-icon task">
+                <svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>Marie L.</strong> updated <strong>Docker Compose setup</strong> to <strong>in progress</strong></div>
+                <div class="notif-meta">Yesterday</div>
+              </div>
+            </div>
+            <div class="drawer-item">
+              <div class="notif-icon invite">
+                <svg viewBox="0 0 14 14" fill="none"><path d="M7 1C4 1 1.5 3.5 1.5 6.5S4 12 7 12s5.5-2.5 5.5-5.5S10 1 7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v2l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text read"><strong>bob@startup.io</strong> declined your invitation to <strong>Acme Inc.</strong></div>
+                <div class="notif-meta">2 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="backdrop" style="inset:0;position:absolute;border-radius:0"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
