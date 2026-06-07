@@ -6,8 +6,14 @@ when@dev:
     monolog:
         handlers:
             main:
-                type: stream
+                type: rotating_file
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+                max_files: 7
+                channels: ["!event"]
+            stderr:
+                type: stream
+                path: php://stderr
                 level: debug
                 channels: ["!event"]
             console:
