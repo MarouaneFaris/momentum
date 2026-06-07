@@ -10,7 +10,7 @@ use App\Enum\NotificationType;
 use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class NotificationService
+final class NotificationService implements NotificationServiceInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $em,

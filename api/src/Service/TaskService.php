@@ -11,8 +11,11 @@ use App\Entity\User;
 use App\Entity\Workspace;
 use App\Enum\TaskStatus;
 use App\Enum\WorkspaceRole;
+use App\Event\TaskAssigned;
+use App\Event\TaskStatusChanged;
 use App\Repository\UserWorkspaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -21,6 +24,7 @@ final readonly class TaskService
     public function __construct(
         private EntityManagerInterface $em,
         private UserWorkspaceRepository $userWorkspaceRepository,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function create(
@@ -43,6 +47,10 @@ final readonly class TaskService
 
         $this->em->persist($task);
         $this->em->flush();
+
+        if ($assignee !== null) {
+            $this->eventDispatcher->dispatch(new TaskAssigned($task, $creator, $assignee));
+        }
 
         return $task;
     }
@@ -74,6 +82,9 @@ final readonly class TaskService
             throw new AccessDeniedException('Only status updates are allowed for this role');
         }
 
+        $oldStatus = $task->getStatus();
+        $oldAssignee = $task->getAssignee();
+
         if ($dto->title !== null) {
             $task->setTitle($dto->title);
         }
@@ -98,6 +109,16 @@ final readonly class TaskService
         }
 
         $this->em->flush();
+
+        $newStatus = $task->getStatus();
+        if ($dto->status !== null && $oldStatus !== $newStatus) {
+            $this->eventDispatcher->dispatch(new TaskStatusChanged($task, $caller, $oldStatus, $newStatus));
+        }
+
+        $currentAssignee = $task->getAssignee();
+        if ($hasFullAccess && $dto->assigneeId !== null && $currentAssignee !== null && $currentAssignee !== $oldAssignee) {
+            $this->eventDispatcher->dispatch(new TaskAssigned($task, $task->getCreator(), $currentAssignee));
+        }
 
         return $task;
     }

@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -27,6 +28,7 @@ final class TaskServiceTest extends TestCase
     private TaskService $service;
     private EntityManagerInterface&MockObject $em;
     private UserWorkspaceRepository&Stub $workspaceRepo;
+    private EventDispatcherInterface&Stub $eventDispatcher;
     private Project $project;
     private User $creator;
 
@@ -34,7 +36,8 @@ final class TaskServiceTest extends TestCase
     {
         $this->em = $this->createMock(EntityManagerInterface::class);
         $this->workspaceRepo = $this->createStub(UserWorkspaceRepository::class);
-        $this->service = new TaskService($this->em, $this->workspaceRepo);
+        $this->eventDispatcher = $this->createStub(EventDispatcherInterface::class);
+        $this->service = new TaskService($this->em, $this->workspaceRepo, $this->eventDispatcher);
 
         $workspace = new Workspace();
         $this->project = new Project();
