@@ -1620,6 +1620,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
  *         monolog?: MonologConfig,
  *         mercure?: MercureConfig,
+ *         debug?: DebugConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
