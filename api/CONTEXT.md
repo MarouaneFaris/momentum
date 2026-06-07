@@ -172,6 +172,14 @@ Hub is built into FrankenPHP via the Caddy Mercure module — no separate contai
 
 **Subscriber JWT issuance**: server-side endpoint TBD — defined when implementing the notification API.
 
+#### Local debugging
+
+Two tools for testing the SSE → bell → panel flow without triggering real domain events:
+
+1. **Dev Notifications Panel** (recommended) — floating "Dev Notify" dropdown in the frontend (visible only when `import.meta.env.DEV`). Click any of the 7 notification types to fire `POST /api/dev/notifications/trigger`, which persists a notification row for the current user and publishes it via Mercure. The bell badge and panel update in real-time via the existing SSE subscription. Endpoint is gated by `DevService::ensureDevEnvironment()` (only available in `dev`/`test` environments).
+
+2. **Mercure demo UI** (lower-level fallback) — raw subscribe/publish UI at `/.well-known/mercure/ui/` (enabled by the `demo` directive in `MERCURE_EXTRA_DIRECTIVES`). Useful for probing hub connectivity or publishing arbitrary payloads without going through the API.
+
 ### Rate Limiting
 
 Two policies via `RateLimitSubscriber`: IP-based fixed window for `/api/register` (10/hr), user-based token bucket for authenticated `/api/*` routes (60/min). `/api/login` and `/api/logout` are excluded — login uses Symfony's built-in `login_throttling` (5 attempts / 15 min). See `docs/adr/007-rate-limiting-strategy.md`.

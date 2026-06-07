@@ -30,3 +30,21 @@ services:
         arguments:
             - '%env(REDIS_URL)%'
             - { lazy: true }
+
+when@test:
+    services:
+        app.tests.null_mercure_publisher:
+            class: App\Tests\Support\NullMercurePublisher
+
+        app.tests.mercure_token_provider:
+            class: Symfony\Component\Mercure\Jwt\StaticTokenProvider
+            arguments:
+                - 'test-mercure-token'
+
+        mercure.hub.default:
+            class: Symfony\Component\Mercure\MockHub
+            arguments:
+                $url: '%env(default::MERCURE_URL)%'
+                $jwtProvider: '@app.tests.mercure_token_provider'
+                $publisher: '@app.tests.null_mercure_publisher'
+                $publicUrl: '%env(default::MERCURE_PUBLIC_URL)%'
