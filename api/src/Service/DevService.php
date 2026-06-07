@@ -19,7 +19,7 @@ final readonly class DevService
 
     public function ensureDevEnvironment(): void
     {
-        if ($this->appEnv !== 'dev') {
+        if (!in_array($this->appEnv, ['dev', 'test'], true)) {
             throw new NotFoundHttpException();
         }
     }

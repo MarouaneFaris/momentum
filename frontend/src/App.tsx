@@ -1,5 +1,6 @@
 import { Toaster } from '@/components/ui/sonner'
 import DevLoginPanel from '@/features/dev/components/DevLoginPanel'
+import DevNotificationsPanel from '@/features/dev/components/DevNotificationsPanel'
 import { WorkspaceGuard } from '@/features/workspace/components/WorkspaceGuard'
 import '@/index.css'
 import AppLayout from '@/layouts/AppLayout'
@@ -75,6 +76,7 @@ export default function App() {
                         </BrowserRouter>
                         <Toaster position="top-center" />
                         {import.meta.env.DEV && <DevLoginPanel />}
+                        {import.meta.env.DEV && <DevNotificationsPanel />}
                     </ThemeProvider>
                 </AuthProvider>
             </QueryClientProvider>
