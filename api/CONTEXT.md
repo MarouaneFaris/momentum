@@ -167,6 +167,7 @@ Hub is built into FrankenPHP via the Caddy Mercure module — no separate contai
 - `MERCURE_JWT_SECRET` — Symfony MercureBundle var, used server-side to sign publish JWTs; must equal `MERCURE_PUBLISHER_JWT_KEY`
 - `MERCURE_URL` — internal Docker URL (`http://php/.well-known/mercure`), used by PHP to publish
 - `MERCURE_PUBLIC_URL` — browser-facing URL (`https://localhost/.well-known/mercure` in dev)
+- `VITE_MERCURE_PUBLIC_URL` — frontend env var (Vite, exposed via `import.meta.env`); read by `src/lib/mercure.ts` at module load. Dev: `https://localhost/.well-known/mercure` (root `.env`). Prod: `/.well-known/mercure` (`frontend/.env.production`). Railway: set on the `app` service (see runbook §4.3).
 
 **Dev extras**: `MERCURE_EXTRA_DIRECTIVES` (compose.override.yaml) enables `anonymous` subscriptions and demo UI at `/.well-known/mercure/ui/`.
 

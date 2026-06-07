@@ -127,6 +127,7 @@ REDIS_URL=${{Redis.REDIS_URL}}
 | `MERCURE_JWT_SECRET`         | _(same value as `CADDY_MERCURE_JWT_SECRET`)_                   |
 | `MERCURE_URL`                | `http://localhost:${{PORT}}/.well-known/mercure`               |
 | `MERCURE_PUBLIC_URL`         | `https://${{RAILWAY_PUBLIC_DOMAIN}}/.well-known/mercure`       |
+| `VITE_MERCURE_PUBLIC_URL`    | `/.well-known/mercure`                                         |
 
 `CADDY_SECURITY_HEADERS` value (paste as-is — Caddy reads this as a block of directives):
 
