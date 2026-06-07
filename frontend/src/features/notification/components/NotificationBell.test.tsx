@@ -16,15 +16,15 @@ const makeNotification = (overrides: Partial<Notification> = {}): Notification =
     id: 'n1',
     type: 'invitation_received',
     payload: { workspace_name: 'Acme', role_name: 'member' },
-    read_at: null,
-    created_at: new Date().toISOString(),
+    readAt: null,
+    createdAt: new Date().toISOString(),
     ...overrides,
 })
 
 describe('NotificationBell', () => {
     it('shows unread dot badge when there are unread notifications', () => {
         vi.mocked(useNotifications).mockReturnValue({
-            data: [makeNotification({ read_at: null })],
+            data: [makeNotification({ readAt: null })],
         } as never)
 
         render(<NotificationBell />)
@@ -33,7 +33,7 @@ describe('NotificationBell', () => {
 
     it('does not show badge when all notifications are read', () => {
         vi.mocked(useNotifications).mockReturnValue({
-            data: [makeNotification({ read_at: new Date().toISOString() })],
+            data: [makeNotification({ readAt: new Date().toISOString() })],
         } as never)
 
         render(<NotificationBell />)

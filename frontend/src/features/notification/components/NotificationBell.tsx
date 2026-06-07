@@ -12,7 +12,7 @@ export function NotificationBell() {
     const notifications = data ?? []
     const { mutate: markAllRead } = useMarkAllNotificationsRead()
 
-    const hasUnread = notifications.some((n) => n.read_at === null)
+    const hasUnread = notifications.some((n) => n.readAt === null)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>

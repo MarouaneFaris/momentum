@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react'
 import { NotificationItem } from './NotificationItem'
 import type { Notification } from '../types'
 
-const base: Pick<Notification, 'id' | 'read_at' | 'created_at'> = {
+const base: Pick<Notification, 'id' | 'readAt' | 'createdAt'> = {
     id: 'notif-1',
-    read_at: null,
-    created_at: new Date().toISOString(),
+    readAt: null,
+    createdAt: new Date().toISOString(),
 }
 
 describe('NotificationItem', () => {
@@ -108,7 +108,7 @@ describe('NotificationItem', () => {
     it('shows muted dot for read', () => {
         const n: Notification = {
             ...base,
-            read_at: new Date().toISOString(),
+            readAt: new Date().toISOString(),
             type: 'invitation_received',
             payload: { workspace_name: 'Acme', role_name: 'member' },
         }

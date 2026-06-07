@@ -83,7 +83,7 @@ type Props = {
 }
 
 export function NotificationItem({ notification }: Props) {
-    const isRead = notification.read_at !== null
+    const isRead = notification.readAt !== null
 
     return (
         <div className="flex items-start gap-3 px-3 py-2.5">
@@ -99,7 +99,7 @@ export function NotificationItem({ notification }: Props) {
                     {renderText(notification.type, notification.payload)}
                 </p>
                 <p className="text-muted-foreground mt-0.5 text-xs">
-                    {relativeTime(notification.created_at)}
+                    {relativeTime(notification.createdAt)}
                 </p>
             </div>
         </div>

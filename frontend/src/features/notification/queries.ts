@@ -18,7 +18,7 @@ export const useMarkAllNotificationsRead = () => {
         onSuccess: () => {
             const readAt = new Date().toISOString()
             queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
-                prev?.map((n) => (n.read_at === null ? { ...n, read_at: readAt } : n)),
+                prev?.map((n) => (n.readAt === null ? { ...n, readAt: readAt } : n)),
             )
         },
     })
