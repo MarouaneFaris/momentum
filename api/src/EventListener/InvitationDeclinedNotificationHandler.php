@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
-use App\Entity\Notification;
 use App\Enum\NotificationType;
 use App\Event\WorkspaceInvitationDeclined;
 use App\Service\NotificationPublisher;
 use App\Service\NotificationServiceInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
@@ -18,7 +16,6 @@ final readonly class InvitationDeclinedNotificationHandler
     public function __construct(
         private NotificationServiceInterface $notificationService,
         private NotificationPublisher $notificationPublisher,
-        private LoggerInterface $logger,
     ) {}
 
     public function __invoke(WorkspaceInvitationDeclined $event): void
@@ -42,19 +39,6 @@ final readonly class InvitationDeclinedNotificationHandler
             ],
         );
 
-        $this->publishNotification($notification);
-    }
-
-    private function publishNotification(Notification $notification): void
-    {
-        try {
-            $this->notificationPublisher->publish($notification);
-        } catch (\Throwable $e) {
-            $this->logger->warning('Mercure publish failed', [
-                'notification_id' => (string) $notification->getId(),
-                'recipient_id' => (string) $notification->getRecipient()->getId(),
-                'error' => $e->getMessage(),
-            ]);
-        }
+        $this->notificationPublisher->publish($notification);
     }
 }
