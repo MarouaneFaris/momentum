@@ -1,13 +1,13 @@
 import { MomentumLogo } from '@/components/MomentumLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useMyInvitations } from '@/features/membership/queries'
+import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
-import { Bell, FolderOpen, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
+import { FolderOpen, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 
@@ -31,9 +31,7 @@ export default function AppLayout() {
                 <WorkspaceSwitcher />
                 <span className="flex-1" />
                 <ThemeToggle />
-                <Button variant="ghost" size="icon" aria-label="Notifications">
-                    <Bell className="h-4 w-4" />
-                </Button>
+                <NotificationBell />
                 <UserMenu />
             </header>
             <div className="flex flex-1 overflow-hidden">

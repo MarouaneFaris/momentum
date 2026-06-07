@@ -12,6 +12,10 @@ use App\Enum\WorkspaceRole;
 use App\Event\ProjectMemberRemoved;
 use App\Event\ProjectOwnerRemoved;
 use App\Event\UserRemovedFromWorkspace;
+use App\Event\WorkspaceInvitationAccepted;
+use App\Event\WorkspaceInvitationCancelled;
+use App\Event\WorkspaceInvitationCreated;
+use App\Event\WorkspaceInvitationDeclined;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Repository\WorkspaceInvitationRepository;
@@ -72,6 +76,8 @@ final readonly class MembershipService
         $this->em->persist($invitation);
         $this->em->flush();
 
+        $this->eventDispatcher->dispatch(new WorkspaceInvitationCreated($invitation));
+
         return $invitation;
     }
 
@@ -95,6 +101,8 @@ final readonly class MembershipService
         $this->em->persist($membership);
         $this->em->remove($invitation);
         $this->em->flush();
+
+        $this->eventDispatcher->dispatch(new WorkspaceInvitationAccepted($invitation, $currentUser));
     }
 
     public function decline(WorkspaceInvitation $invitation, User $currentUser): void
@@ -105,9 +113,11 @@ final readonly class MembershipService
 
         $this->em->remove($invitation);
         $this->em->flush();
+
+        $this->eventDispatcher->dispatch(new WorkspaceInvitationDeclined($invitation, $currentUser));
     }
 
-    public function cancel(Workspace $workspace, WorkspaceInvitation $invitation): void
+    public function cancel(Workspace $workspace, WorkspaceInvitation $invitation, User $actor): void
     {
         if ((string) $invitation->getWorkspace()->getId() !== (string) $workspace->getId()) {
             throw new NotFoundHttpException('Invitation not found in this workspace');
@@ -115,6 +125,8 @@ final readonly class MembershipService
 
         $this->em->remove($invitation);
         $this->em->flush();
+
+        $this->eventDispatcher->dispatch(new WorkspaceInvitationCancelled($invitation, $actor));
     }
 
     public function removeMember(UserWorkspace $membership): void

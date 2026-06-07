@@ -158,6 +158,29 @@ In-app only via Mercure (no email). Triggers:
 - Invitation received
 - Invitation accepted (notifies the owner)
 
+### Mercure (Real-time)
+
+Hub is built into FrankenPHP via the Caddy Mercure module — no separate container. Reachable at `/.well-known/mercure`.
+
+**Env vars** (all derived from `CADDY_MERCURE_JWT_SECRET` in compose.yaml; set directly in Railway):
+- `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` — Caddy vars, sign/verify JWTs at hub level
+- `MERCURE_JWT_SECRET` — Symfony MercureBundle var, used server-side to sign publish JWTs; must equal `MERCURE_PUBLISHER_JWT_KEY`
+- `MERCURE_URL` — internal Docker URL (`http://php/.well-known/mercure`), used by PHP to publish
+- `MERCURE_PUBLIC_URL` — browser-facing URL (`https://localhost/.well-known/mercure` in dev)
+- `VITE_MERCURE_PUBLIC_URL` — frontend env var (Vite, exposed via `import.meta.env`); read by `src/lib/mercure.ts` at module load. Dev: `https://localhost/.well-known/mercure` (root `.env`). Prod: `/.well-known/mercure` (`frontend/.env.production`). Railway: set on the `app` service (see runbook §4.3).
+
+**Dev extras**: `MERCURE_EXTRA_DIRECTIVES` (compose.override.yaml) enables `anonymous` subscriptions and demo UI at `/.well-known/mercure/ui/`.
+
+**Subscriber JWT issuance**: server-side endpoint TBD — defined when implementing the notification API.
+
+#### Local debugging
+
+Two tools for testing the SSE → bell → panel flow without triggering real domain events:
+
+1. **Dev Notifications Panel** (recommended) — floating "Dev Notify" dropdown in the frontend (visible only when `import.meta.env.DEV`). Click any of the 7 notification types to fire `POST /api/dev/notifications/trigger`, which persists a notification row for the current user and publishes it via Mercure. The bell badge and panel update in real-time via the existing SSE subscription. Endpoint is gated by `DevService::ensureDevEnvironment()` (only available in `dev`/`test` environments).
+
+2. **Mercure demo UI** (lower-level fallback) — raw subscribe/publish UI at `/.well-known/mercure/ui/` (enabled by the `demo` directive in `MERCURE_EXTRA_DIRECTIVES`). Useful for probing hub connectivity or publishing arbitrary payloads without going through the API.
+
 ### Rate Limiting
 
 Two policies via `RateLimitSubscriber`: IP-based fixed window for `/api/register` (10/hr), user-based token bucket for authenticated `/api/*` routes (60/min). `/api/login` and `/api/logout` are excluded — login uses Symfony's built-in `login_throttling` (5 attempts / 15 min). See `docs/adr/007-rate-limiting-strategy.md`.

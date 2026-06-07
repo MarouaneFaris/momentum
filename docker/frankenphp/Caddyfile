@@ -48,6 +48,7 @@
 	@spaFallback {
 		not path /api/*
 		not path /.well-known/mercure*
+		not path /_*
 		not file {path}
 	}
 	rewrite @spaFallback /index.html

@@ -11,4 +11,6 @@ export type ApiRoute =
     | `/workspaces/${string}`
     | '/invitations'
     | `/invitations/${string}`
+    | '/notifications'
+    | `/notifications/${string}`
     | `/dev/${string}`
