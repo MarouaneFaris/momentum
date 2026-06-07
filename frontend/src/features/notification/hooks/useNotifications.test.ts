@@ -53,6 +53,7 @@ describe('useNotifications envelope dispatch', () => {
         mockEsClose.mockClear()
         vi.stubGlobal('EventSource', FakeEventSource)
         vi.stubEnv('VITE_API_URL', 'https://api.example.com/api')
+        vi.stubEnv('VITE_MERCURE_PUBLIC_URL', 'http://localhost/.well-known/mercure')
 
         queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, [])
