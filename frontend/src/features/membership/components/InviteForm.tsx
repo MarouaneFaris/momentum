@@ -34,7 +34,7 @@ export function InviteForm({ workspaceId }: Props) {
                     placeholder="member@example.com"
                     {...register('email')}
                 />
-                {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+                {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="invite-role">Role</Label>

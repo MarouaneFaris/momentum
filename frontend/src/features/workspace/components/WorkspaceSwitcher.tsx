@@ -26,15 +26,15 @@ export function WorkspaceSwitcher() {
                         className="h-auto gap-1.5 px-2 py-1 text-sm font-normal"
                     >
                         <span
-                            className="flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded text-[9px] font-semibold text-primary"
+                            className="text-primary flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded text-[9px] font-semibold"
                             style={{ background: 'oklch(0.488 0.243 264.376 / 0.15)' }}
                         >
                             {(current?.name?.[0] ?? 'W').toUpperCase()}
                         </span>
-                        <span className="font-medium text-foreground">
+                        <span className="text-foreground font-medium">
                             {current?.name ?? 'Select workspace'}
                         </span>
-                        <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                        <ChevronDown className="text-muted-foreground h-3 w-3" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
@@ -46,7 +46,7 @@ export function WorkspaceSwitcher() {
                             onClick={() => handleSelect(workspace.id)}
                         >
                             <span className="flex-1">{workspace.name}</span>
-                            <span className="text-xs text-muted-foreground capitalize">
+                            <span className="text-muted-foreground text-xs capitalize">
                                 {workspace.role}
                             </span>
                         </DropdownMenuItem>

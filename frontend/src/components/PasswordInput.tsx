@@ -19,7 +19,7 @@ function PasswordInput({ className, ref, ...props }: React.ComponentProps<'input
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-full px-3"
+                className="absolute top-0 right-0 h-full px-3"
                 onClick={() => setShow((v) => !v)}
                 tabIndex={-1}
             >

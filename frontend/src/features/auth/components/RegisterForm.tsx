@@ -12,7 +12,7 @@ export default function RegisterForm() {
         <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
                 <h1 className="text-lg font-semibold tracking-tight">Create an account</h1>
-                <p className="text-sm text-muted-foreground">Get started with Momentum</p>
+                <p className="text-muted-foreground text-sm">Get started with Momentum</p>
             </div>
 
             <form id="registration-form" onSubmit={handleOnSubmit} className="flex flex-col gap-5">
@@ -20,7 +20,7 @@ export default function RegisterForm() {
                     <Label htmlFor="name">Full name</Label>
                     <Input id="name" type="text" placeholder="Alex Johnson" {...register('name')} />
                     {errors.name && (
-                        <p className="text-sm text-destructive">{errors.name.message}</p>
+                        <p className="text-destructive text-sm">{errors.name.message}</p>
                     )}
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -32,14 +32,14 @@ export default function RegisterForm() {
                         {...register('email')}
                     />
                     {errors.email && (
-                        <p className="text-sm text-destructive">{errors.email.message}</p>
+                        <p className="text-destructive text-sm">{errors.email.message}</p>
                     )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="password">Password</Label>
                     <PasswordInput id="password" {...register('password')} />
                     {errors.password && (
-                        <p className="text-sm text-destructive">{errors.password.message}</p>
+                        <p className="text-destructive text-sm">{errors.password.message}</p>
                     )}
                 </div>
                 <Button type="submit" className="w-full">
@@ -48,9 +48,9 @@ export default function RegisterForm() {
             </form>
 
             <div className="flex items-center gap-2.5">
-                <span className="h-px flex-1 bg-border" />
-                <span className="text-xs text-muted-foreground">already have an account?</span>
-                <span className="h-px flex-1 bg-border" />
+                <span className="bg-border h-px flex-1" />
+                <span className="text-muted-foreground text-xs">already have an account?</span>
+                <span className="bg-border h-px flex-1" />
             </div>
 
             <Button variant="outline" asChild className="w-full">

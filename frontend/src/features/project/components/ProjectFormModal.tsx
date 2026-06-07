@@ -65,7 +65,7 @@ export function ProjectFormModal({ open, onOpenChange, workspaceId, project }: P
                                 {...register('name')}
                             />
                             {errors.name && (
-                                <p className="text-sm text-destructive">{errors.name.message}</p>
+                                <p className="text-destructive text-sm">{errors.name.message}</p>
                             )}
                         </div>
                         <div className="grid gap-2">

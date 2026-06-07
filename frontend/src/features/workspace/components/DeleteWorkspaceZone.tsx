@@ -13,10 +13,10 @@ export function DeleteWorkspaceZone({ workspace }: Props) {
         useDeleteWorkspaceAction(workspace)
 
     return (
-        <div className="flex flex-col gap-4 rounded-lg border border-destructive/50 p-4">
+        <div className="border-destructive/50 flex flex-col gap-4 rounded-lg border p-4">
             <div>
-                <h2 className="font-semibold text-destructive">Delete workspace</h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <h2 className="text-destructive font-semibold">Delete workspace</h2>
+                <p className="text-muted-foreground mt-1 text-sm">
                     This will permanently delete <strong>{workspace.name}</strong> and all of its
                     projects, tasks, memberships, and invitations. This action cannot be undone.
                 </p>

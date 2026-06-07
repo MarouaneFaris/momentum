@@ -12,7 +12,7 @@ export default function LoginForm() {
         <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
                 <h1 className="text-lg font-semibold tracking-tight">Welcome back</h1>
-                <p className="text-sm text-muted-foreground">Sign in to your workspace</p>
+                <p className="text-muted-foreground text-sm">Sign in to your workspace</p>
             </div>
 
             <form id="login-form" onSubmit={handleOnSubmit} className="flex flex-col gap-5">
@@ -35,9 +35,9 @@ export default function LoginForm() {
             </form>
 
             <div className="flex items-center gap-2.5">
-                <span className="h-px flex-1 bg-border" />
-                <span className="text-xs text-muted-foreground">no account yet?</span>
-                <span className="h-px flex-1 bg-border" />
+                <span className="bg-border h-px flex-1" />
+                <span className="text-muted-foreground text-xs">no account yet?</span>
+                <span className="bg-border h-px flex-1" />
             </div>
 
             <Button variant="outline" asChild className="w-full">

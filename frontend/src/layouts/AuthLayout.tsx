@@ -27,25 +27,25 @@ export default function AuthLayout() {
 
     return (
         <div className="grid min-h-screen grid-cols-[1fr_480px]">
-            <div className="flex flex-col items-center justify-center gap-3 border-r bg-muted p-12">
+            <div className="bg-muted flex flex-col items-center justify-center gap-3 border-r p-12">
                 <MomentumLogo size="lg" />
                 <div className="flex w-full max-w-[280px] items-center gap-3">
-                    <span className="h-px flex-1 bg-border" />
-                    <span className="whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    <span className="bg-border h-px flex-1" />
+                    <span className="text-muted-foreground text-[10px] font-medium tracking-[0.18em] whitespace-nowrap uppercase">
                         Task · Project · Team
                     </span>
-                    <span className="h-px flex-1 bg-border" />
+                    <span className="bg-border h-px flex-1" />
                 </div>
                 <ul className="mt-2 flex w-full max-w-[260px] flex-col gap-2">
                     {bullets.map((text) => (
                         <li key={text} className="flex items-center gap-2">
-                            <span className="h-1 w-1 flex-shrink-0 rounded-full bg-primary" />
-                            <span className="text-xs text-muted-foreground">{text}</span>
+                            <span className="bg-primary h-1 w-1 flex-shrink-0 rounded-full" />
+                            <span className="text-muted-foreground text-xs">{text}</span>
                         </li>
                     ))}
                 </ul>
             </div>
-            <div className="flex flex-col bg-card p-12">
+            <div className="bg-card flex flex-col p-12">
                 <div className="flex justify-end">
                     <ThemeToggle />
                 </div>

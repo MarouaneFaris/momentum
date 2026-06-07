@@ -37,7 +37,7 @@ export function WorkspaceSettingsForm({ workspace }: Props) {
             <div className="grid gap-2">
                 <Label htmlFor="workspace-name">Workspace name</Label>
                 <Input id="workspace-name" {...register('name')} />
-                {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+                {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
             </div>
             <Button type="submit" className="w-fit" disabled={isPending}>
                 Save changes

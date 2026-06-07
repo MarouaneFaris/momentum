@@ -22,12 +22,12 @@ export default function AppLayout() {
 
     return (
         <div className="flex h-screen flex-col">
-            <header className="flex h-12 flex-shrink-0 items-center gap-3 border-b bg-sidebar px-4">
+            <header className="bg-sidebar flex h-12 flex-shrink-0 items-center gap-3 border-b px-4">
                 <MomentumLogo size="sm" />
                 <span className="text-sm font-semibold tracking-tight">
                     <span className="text-primary">m</span>omentum
                 </span>
-                <span className="mx-1 h-5 w-px bg-border" />
+                <span className="bg-border mx-1 h-5 w-px" />
                 <WorkspaceSwitcher />
                 <span className="flex-1" />
                 <ThemeToggle />
@@ -37,8 +37,8 @@ export default function AppLayout() {
                 <UserMenu />
             </header>
             <div className="flex flex-1 overflow-hidden">
-                <aside className="flex w-[200px] flex-shrink-0 flex-col overflow-y-auto border-r bg-sidebar px-2 py-3">
-                    <p className="px-2 pb-1 pt-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                <aside className="bg-sidebar flex w-[200px] flex-shrink-0 flex-col overflow-y-auto border-r px-2 py-3">
+                    <p className="text-muted-foreground px-2 pt-1 pb-1 text-[10px] font-medium tracking-[0.08em] uppercase">
                         Main
                     </p>
                     {workspaceId && (
@@ -48,7 +48,7 @@ export default function AppLayout() {
                                 className={({ isActive }) =>
                                     `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
                                         isActive
-                                            ? 'bg-primary/10 font-medium text-primary'
+                                            ? 'bg-primary/10 text-primary font-medium'
                                             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                     }`
                                 }
@@ -61,7 +61,7 @@ export default function AppLayout() {
                                 className={({ isActive }) =>
                                     `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
                                         isActive
-                                            ? 'bg-primary/10 font-medium text-primary'
+                                            ? 'bg-primary/10 text-primary font-medium'
                                             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                     }`
                                 }
@@ -76,7 +76,7 @@ export default function AppLayout() {
                         className={({ isActive }) =>
                             `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
                                 isActive
-                                    ? 'bg-primary/10 font-medium text-primary'
+                                    ? 'bg-primary/10 text-primary font-medium'
                                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                             }`
                         }
@@ -91,7 +91,7 @@ export default function AppLayout() {
                     </NavLink>
                     {workspaceId && (
                         <div className="mt-auto">
-                            <p className="px-2 pb-1 pt-2 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                            <p className="text-muted-foreground px-2 pt-2 pb-1 text-[10px] font-medium tracking-[0.08em] uppercase">
                                 Workspace
                             </p>
                             <NavLink
@@ -99,7 +99,7 @@ export default function AppLayout() {
                                 className={({ isActive }) =>
                                     `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
                                         isActive
-                                            ? 'bg-primary/10 font-medium text-primary'
+                                            ? 'bg-primary/10 text-primary font-medium'
                                             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                     }`
                                 }
@@ -112,7 +112,7 @@ export default function AppLayout() {
                                 className={({ isActive }) =>
                                     `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
                                         isActive
-                                            ? 'bg-primary/10 font-medium text-primary'
+                                            ? 'bg-primary/10 text-primary font-medium'
                                             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                     }`
                                 }
@@ -123,7 +123,7 @@ export default function AppLayout() {
                         </div>
                     )}
                 </aside>
-                <main className="flex-1 overflow-auto bg-background p-8">
+                <main className="bg-background flex-1 overflow-auto p-8">
                     <Outlet />
                 </main>
             </div>

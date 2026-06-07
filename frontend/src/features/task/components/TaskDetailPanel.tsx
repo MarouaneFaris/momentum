@@ -29,10 +29,10 @@ function UserSummary({ user }: { user: { id: string; name: string } }) {
 
     return (
         <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[8px] font-semibold text-primary flex-shrink-0">
+            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
                 {initials}
             </div>
-            <span className="text-[13px] text-foreground">{user.name}</span>
+            <span className="text-foreground text-[13px]">{user.name}</span>
         </div>
     )
 }
@@ -40,10 +40,10 @@ function UserSummary({ user }: { user: { id: string; name: string } }) {
 function PanelRow({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex items-center gap-2.5">
-            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.05em] w-20 flex-shrink-0">
+            <span className="text-muted-foreground w-20 flex-shrink-0 text-[11px] font-medium tracking-[0.05em] uppercase">
                 {label}
             </span>
-            <div className="flex items-center gap-1.5 text-[13px] text-foreground">{children}</div>
+            <div className="text-foreground flex items-center gap-1.5 text-[13px]">{children}</div>
         </div>
     )
 }
@@ -66,24 +66,24 @@ type Props = {
 
 export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDelete }: Props) {
     return (
-        <div className="w-[28rem] min-w-[28rem] flex flex-col bg-card border-l border-border overflow-hidden h-full">
+        <div className="bg-card border-border flex h-full w-[28rem] min-w-[28rem] flex-col overflow-hidden border-l">
             {task ? (
                 <>
-                    <div className="flex items-start gap-2 px-5 py-5 border-b border-border flex-shrink-0">
-                        <p className="flex-1 text-sm font-semibold text-foreground leading-snug">
+                    <div className="border-border flex flex-shrink-0 items-start gap-2 border-b px-5 py-5">
+                        <p className="text-foreground flex-1 text-sm leading-snug font-semibold">
                             {task.title}
                         </p>
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={onClose}
-                            className="h-6 w-6 flex-shrink-0 mt-0.5"
+                            className="mt-0.5 h-6 w-6 flex-shrink-0"
                         >
                             <X size={13} />
                         </Button>
                     </div>
 
-                    <div className="flex-1 flex flex-col gap-3.5 px-5 py-4 overflow-y-auto">
+                    <div className="flex flex-1 flex-col gap-3.5 overflow-y-auto px-5 py-4">
                         <PanelRow label="Status">
                             <StatusBadge status={task.status} />
                         </PanelRow>
@@ -92,7 +92,7 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                             {task.assignee ? (
                                 <UserSummary user={task.assignee} />
                             ) : (
-                                <span className="text-[13px] text-muted-foreground">—</span>
+                                <span className="text-muted-foreground text-[13px]">—</span>
                             )}
                         </PanelRow>
 
@@ -101,19 +101,19 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                         </PanelRow>
 
                         <PanelRow label="Created">
-                            <span className="text-[12px] text-muted-foreground">
+                            <span className="text-muted-foreground text-[12px]">
                                 {formatDate(task.createdAt)}
                             </span>
                         </PanelRow>
 
                         {task.description && (
                             <>
-                                <div className="h-px bg-border my-1" />
+                                <div className="bg-border my-1 h-px" />
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.05em]">
+                                    <span className="text-muted-foreground text-[11px] font-medium tracking-[0.05em] uppercase">
                                         Description
                                     </span>
-                                    <p className="text-[13px] text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                    <p className="text-muted-foreground text-[13px] leading-relaxed whitespace-pre-wrap">
                                         {task.description}
                                     </p>
                                 </div>
@@ -122,7 +122,7 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                     </div>
 
                     {canEdit && (
-                        <div className="flex items-center gap-2 px-5 py-3 border-t border-border flex-shrink-0">
+                        <div className="border-border flex flex-shrink-0 items-center gap-2 border-t px-5 py-3">
                             {onDelete && (
                                 <Button
                                     variant="outline"
@@ -130,14 +130,14 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                                     onClick={onDelete}
                                     className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
                                 >
-                                    <Trash2 className="size-3.5 mr-1.5" />
+                                    <Trash2 className="mr-1.5 size-3.5" />
                                     Delete
                                 </Button>
                             )}
                             <div className="flex-1" />
                             {onEdit && (
                                 <Button variant="outline" size="sm" onClick={onEdit}>
-                                    <Pencil className="size-3.5 mr-1.5" />
+                                    <Pencil className="mr-1.5 size-3.5" />
                                     Edit
                                 </Button>
                             )}

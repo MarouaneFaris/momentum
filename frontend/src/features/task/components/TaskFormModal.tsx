@@ -81,7 +81,7 @@ export function TaskFormModal({
                                 {...register('title')}
                             />
                             {errors.title && (
-                                <p className="text-sm text-destructive">{errors.title.message}</p>
+                                <p className="text-destructive text-sm">{errors.title.message}</p>
                             )}
                         </div>
                         <div className="grid gap-2">
