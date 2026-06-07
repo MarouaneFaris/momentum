@@ -5,8 +5,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { AuthContext } from '@/contexts/auth/AuthContext'
 import type { NotificationType } from '@/features/notification/types'
 import { useTriggerNotification } from '@/features/dev/queries'
+import { useContext } from 'react'
 
 const NOTIFICATION_LABELS: Record<NotificationType, string> = {
     task_assigned_to_you: 'Task assigned to you',
@@ -19,9 +21,10 @@ const NOTIFICATION_LABELS: Record<NotificationType, string> = {
 }
 
 export default function DevNotificationsPanel() {
+    const { isAuthenticated } = useContext(AuthContext)
     const { mutate: trigger } = useTriggerNotification()
 
-    if (!import.meta.env.DEV) return null
+    if (!import.meta.env.DEV || !isAuthenticated) return null
 
     return (
         <div className="fixed right-4 bottom-16 z-50">
