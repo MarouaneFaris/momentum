@@ -11,9 +11,11 @@ use App\Entity\WorkspaceInvitation;
 use App\Enum\NotificationType;
 use App\Enum\WorkspaceRole;
 use App\Event\WorkspaceInvitationAccepted;
+use App\Event\WorkspaceInvitationCancelled;
 use App\Event\WorkspaceInvitationCreated;
 use App\Event\WorkspaceInvitationDeclined;
 use App\EventListener\InvitationAcceptedNotificationHandler;
+use App\EventListener\InvitationCancelledNotificationHandler;
 use App\EventListener\InvitationCreatedNotificationHandler;
 use App\EventListener\InvitationDeclinedNotificationHandler;
 use App\Service\NotificationPublisher;
@@ -168,6 +170,44 @@ final class InvitationNotificationHandlerTest extends TestCase
 
         $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
         ($handler)(new WorkspaceInvitationDeclined($invitation, new User()));
+    }
+
+    public function testCancelledHandlerNotifiesInvitee(): void
+    {
+        $invitee = new User();
+        $actor = new User();
+        $invitation = $this->makeInvitation(invitee: $invitee, role: WorkspaceRole::Member);
+
+        $notification = new Notification();
+
+        $this->notificationService
+            ->expects($this->once())
+            ->method('create')
+            ->with($invitee, NotificationType::InvitationCancelled, $this->isArray())
+            ->willReturn($notification);
+
+        $this->notificationPublisher
+            ->expects($this->once())
+            ->method('publishCreated')
+            ->with($notification);
+
+        $handler = new InvitationCancelledNotificationHandler($this->notificationService, $this->notificationPublisher);
+        ($handler)(new WorkspaceInvitationCancelled($invitation, $actor));
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCancelledHandlerMercureFailureSilenced(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $invitee = new User();
+        $invitation = $this->makeInvitation(invitee: $invitee);
+
+        $notification = new Notification();
+        $this->notificationService->method('create')->willReturn($notification);
+
+        $handler = new InvitationCancelledNotificationHandler($this->notificationService, $this->notificationPublisher);
+        ($handler)(new WorkspaceInvitationCancelled($invitation, new User()));
     }
 
     private function makeInvitation(

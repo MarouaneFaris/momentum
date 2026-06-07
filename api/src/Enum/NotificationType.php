@@ -13,4 +13,5 @@ enum NotificationType: string
     case InvitationReceived = 'invitation_received';
     case InvitationAccepted = 'invitation_accepted';
     case InvitationDeclined = 'invitation_declined';
+    case InvitationCancelled = 'invitation_cancelled';
 }
