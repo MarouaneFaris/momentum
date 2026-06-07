@@ -19,7 +19,7 @@ export const useNotifications = () => {
         const url = new URL(getMercureUrl())
         url.searchParams.append('topic', `/notifications/${user.id}`)
 
-        const es = new EventSource(url.toString(), { withCredentials: true })
+        const es = new EventSource(url.toString())
 
         es.onmessage = () => {
             void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })

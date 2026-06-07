@@ -16,7 +16,10 @@ export const useMarkAllNotificationsRead = () => {
     return useMutation({
         mutationFn: () => api.patch('/notifications/read-all'),
         onSuccess: () => {
-            void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })
+            const readAt = new Date().toISOString()
+            queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
+                prev?.map((n) => (n.read_at === null ? { ...n, read_at: readAt } : n)),
+            )
         },
     })
 }
