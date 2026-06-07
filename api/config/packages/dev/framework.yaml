@@ -1,0 +1,6 @@
+framework:
+    http_client:
+        default_options:
+            # Self-signed certs in dev — skip TLS verification for internal Mercure publishing.
+            verify_peer: false
+            verify_host: false

@@ -23,6 +23,7 @@
         "symfony/expression-language": "^8.1",
         "symfony/flex": "^2.10",
         "symfony/framework-bundle": "8.1.*",
+        "symfony/mercure-bundle": "^0.4.2",
         "symfony/monolog-bundle": "^4.0",
         "symfony/rate-limiter": "8.1.*",
         "symfony/runtime": "8.1.*",
@@ -31,7 +32,6 @@
         "symfony/twig-bundle": "^8.1",
         "symfony/uid": "8.1.*",
         "symfony/validator": "^8.1",
-        "symfony/web-profiler-bundle": "^8.1",
         "symfony/yaml": "8.1.*",
         "zenstruck/foundry": "^2.10.1"
     },
@@ -43,8 +43,10 @@
         "phpstan/phpstan-doctrine": "^2.0.22",
         "phpstan/phpstan-symfony": "^2.0.18",
         "phpunit/phpunit": "^13.1.13",
+        "symfony/debug-bundle": "8.1.*",
         "symfony/maker-bundle": "^1.67",
         "symfony/stopwatch": "8.1.*",
+        "symfony/web-profiler-bundle": "8.1.*",
         "zircote/swagger-php": "^6.1"
     },
     "config": {

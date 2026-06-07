@@ -18,10 +18,12 @@ services:
     environment:
       FRANKENPHP_WORKER_CONFIG: watch
       FRANKENPHP_SITE_CONFIG: hot_reload
+      MERCURE_URL: https://localhost/.well-known/mercure
       MERCURE_EXTRA_DIRECTIVES: |
         anonymous
         subscriptions
         demo
+        cors_origins https://localhost:3000
       # See https://xdebug.org/docs/all_settings#mode
       XDEBUG_MODE: "${XDEBUG_MODE}"
       APP_ENV: "${APP_ENV}"
