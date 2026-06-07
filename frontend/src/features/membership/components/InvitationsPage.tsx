@@ -5,10 +5,10 @@ export function InvitationsPage() {
     const { invitations, isLoading, isAccepting, isDeclining, handleAccept, handleDecline } =
         useInvitationActions()
 
-    if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>
+    if (isLoading) return <p className="text-muted-foreground text-sm">Loading…</p>
 
     if (!invitations || invitations.length === 0) {
-        return <p className="text-sm text-muted-foreground">No pending invitations.</p>
+        return <p className="text-muted-foreground text-sm">No pending invitations.</p>
     }
 
     return (
@@ -20,7 +20,7 @@ export function InvitationsPage() {
                 >
                     <div className="flex flex-col gap-0.5">
                         <span className="font-medium">{inv.workspace.name}</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground text-sm">
                             Invited as <span className="capitalize">{inv.role}</span>
                             {inv.invitedBy ? ` by ${inv.invitedBy.name}` : ''}
                             {' · expires '}

@@ -32,6 +32,24 @@ src/
 └── types/                     # shared global types
 ```
 
+## Tailwind CSS
+
+Tailwind v4. Always use canonical v4 class names — never deprecated v3 aliases:
+
+| Use | Not |
+|-----|-----|
+| `shrink-0` | `flex-shrink-0` |
+| `shrink` | `flex-shrink` |
+| `grow-0` | `flex-grow-0` |
+| `grow` | `flex-grow` |
+| `text-ellipsis` | `overflow-ellipsis` |
+| `rounded-s-*` / `rounded-e-*` | `rounded-tl-*` logical replacements |
+
+Use shorthand classes when multiple utilities can be combined:
+- `my-4` not `mt-4 mb-4`
+- `px-4` not `pl-4 pr-4`
+- `inset-0` not `top-0 right-0 bottom-0 left-0`
+
 ## Rules
 
 - New domain = new `features/<name>/` folder. Co-locate components, hooks, queries, types inside it.

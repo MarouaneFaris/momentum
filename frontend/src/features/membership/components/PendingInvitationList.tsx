@@ -9,10 +9,10 @@ export function PendingInvitationList({ workspaceId }: Props) {
     const { invitations, isLoading, isPending, handleCancel } =
         usePendingInvitationList(workspaceId)
 
-    if (isLoading) return <p className="text-sm text-muted-foreground">Loading invitations…</p>
+    if (isLoading) return <p className="text-muted-foreground text-sm">Loading invitations…</p>
 
     if (!invitations || invitations.length === 0) {
-        return <p className="text-sm text-muted-foreground">No pending invitations.</p>
+        return <p className="text-muted-foreground text-sm">No pending invitations.</p>
     }
 
     return (
@@ -24,7 +24,7 @@ export function PendingInvitationList({ workspaceId }: Props) {
                 >
                     <div className="flex flex-col gap-0.5">
                         <span className="font-medium">{inv.invitee.email}</span>
-                        <span className="text-xs text-muted-foreground capitalize">
+                        <span className="text-muted-foreground text-xs capitalize">
                             {inv.role} · expires {new Date(inv.expiresAt).toLocaleDateString()}
                         </span>
                     </div>

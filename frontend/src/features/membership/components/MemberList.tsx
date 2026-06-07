@@ -26,10 +26,10 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
         handleLeave,
     } = useMemberList(workspaceId)
 
-    if (isLoading) return <p className="text-sm text-muted-foreground">Loading members…</p>
+    if (isLoading) return <p className="text-muted-foreground text-sm">Loading members…</p>
 
     if (!members || members.length === 0) {
-        return <p className="text-sm text-muted-foreground">No members.</p>
+        return <p className="text-muted-foreground text-sm">No members.</p>
     }
 
     return (
@@ -45,7 +45,7 @@ export function MemberList({ workspaceId, currentUserId, isOwner }: Props) {
                     >
                         <div className="flex flex-col gap-0.5">
                             <span className="text-sm font-medium">{member.name}</span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-muted-foreground text-xs">
                                 {member.email} · <span className="capitalize">{member.role}</span>
                             </span>
                         </div>

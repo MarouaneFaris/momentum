@@ -3,12 +3,7 @@ type Props = { size: 'sm' | 'lg' }
 export function MomentumLogo({ size }: Props) {
     if (size === 'sm') {
         return (
-            <svg
-                viewBox="0 0 40 40"
-                className="h-5 w-5 flex-shrink-0"
-                role="img"
-                aria-label="Momentum"
-            >
+            <svg viewBox="0 0 40 40" className="h-5 w-5 shrink-0" role="img" aria-label="Momentum">
                 <g transform="translate(8, 5) skewX(-12)">
                     <rect
                         x="0"
@@ -37,7 +32,7 @@ export function MomentumLogo({ size }: Props) {
     return (
         <svg
             viewBox="-56 0 420 60"
-            className="h-10 w-auto flex-shrink-0"
+            className="h-10 w-auto shrink-0"
             role="img"
             aria-label="Momentum"
         >

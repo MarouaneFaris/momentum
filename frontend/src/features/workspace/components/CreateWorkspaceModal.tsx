@@ -42,7 +42,7 @@ export function CreateWorkspaceModal({ open, onOpenChange }: Props) {
                             {...register('name')}
                         />
                         {errors.name && (
-                            <p className="text-sm text-destructive">{errors.name.message}</p>
+                            <p className="text-destructive text-sm">{errors.name.message}</p>
                         )}
                     </div>
                 </form>

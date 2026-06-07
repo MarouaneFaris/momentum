@@ -77,7 +77,7 @@ function NewTaskButton({ className, onClick }: { className?: string; onClick: ()
 
 function Assignee({ assignee }: { assignee: Task['assignee'] }) {
     if (!assignee) {
-        return <span className="text-[11px] text-muted-foreground">—</span>
+        return <span className="text-muted-foreground text-[11px]">—</span>
     }
 
     const initials = assignee.name
@@ -89,10 +89,10 @@ function Assignee({ assignee }: { assignee: Task['assignee'] }) {
 
     return (
         <div className="flex items-center gap-1">
-            <div className="w-5 h-5 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-[8px] font-semibold text-primary flex-shrink-0">
+            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
                 {initials}
             </div>
-            <span className="text-[11px] text-muted-foreground">{assignee.name.split(' ')[0]}</span>
+            <span className="text-muted-foreground text-[11px]">{assignee.name.split(' ')[0]}</span>
         </div>
     )
 }
@@ -123,14 +123,14 @@ function TaskCard({
     return (
         <div
             className={[
-                'bg-card border rounded-[var(--radius)] p-3 flex flex-col gap-2 cursor-pointer transition-[border-color,box-shadow] duration-150',
+                'bg-card flex cursor-pointer flex-col gap-2 rounded-[var(--radius)] border p-3 transition-[border-color,box-shadow] duration-150',
                 isSelected
                     ? 'border-primary [box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.1)]'
                     : 'border-border hover:border-primary/40 hover:[box-shadow:0_0_0_3px_oklch(0.488_0.243_264.376_/_0.06)]',
             ].join(' ')}
             onClick={() => onOpen(task.id)}
         >
-            <div className="text-[13px] font-medium text-foreground leading-snug">{task.title}</div>
+            <div className="text-foreground text-[13px] leading-snug font-medium">{task.title}</div>
             <div className="flex items-center gap-1.5">
                 <StatusBadge status={task.status} />
                 <div className="flex-1" />
@@ -139,7 +139,7 @@ function TaskCard({
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <div
-                                className="w-5 h-5 flex items-center justify-center rounded text-muted-foreground text-[13px] hover:bg-muted cursor-pointer"
+                                className="text-muted-foreground hover:bg-muted flex h-5 w-5 cursor-pointer items-center justify-center rounded text-[13px]"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 ⋯
@@ -159,14 +159,14 @@ function TaskCard({
                                 <>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => onEdit(task)}>
-                                        <Pencil className="size-3.5 mr-1.5" />
+                                        <Pencil className="mr-1.5 size-3.5" />
                                         Edit task
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         onClick={() => onDelete(task)}
                                         className="text-destructive focus:text-destructive"
                                     >
-                                        <Trash2 className="size-3.5 mr-1.5" />
+                                        <Trash2 className="mr-1.5 size-3.5" />
                                         Delete task
                                     </DropdownMenuItem>
                                 </>
@@ -239,37 +239,37 @@ function TaskBoard({
             </div>
 
             {isGuest && (
-                <div className="flex items-center gap-2 px-3 py-2 bg-muted border border-border rounded-[var(--radius)] text-xs text-muted-foreground">
+                <div className="bg-muted border-border text-muted-foreground flex items-center gap-2 rounded-[var(--radius)] border px-3 py-2 text-xs">
                     <Info className="size-3.5 shrink-0" />
                     You're viewing as a Guest — read-only access.
                 </div>
             )}
 
             {isEmpty ? (
-                <div className="flex flex-col items-center gap-3 py-16 px-6 text-center">
-                    <ClipboardList className="size-10 text-border" />
-                    <div className="text-sm font-medium text-foreground">No tasks yet</div>
-                    <div className="text-[13px] text-muted-foreground">
+                <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+                    <ClipboardList className="text-border size-10" />
+                    <div className="text-foreground text-sm font-medium">No tasks yet</div>
+                    <div className="text-muted-foreground text-[13px]">
                         Create a task to start tracking work for this project.
                     </div>
                     {!isGuest && <NewTaskButton className="mt-1" onClick={onNewTask} />}
                 </div>
             ) : (
-                <div className="grid grid-cols-3 gap-3 items-start">
+                <div className="grid grid-cols-3 items-start gap-3">
                     {COLUMNS.map(({ status, label }) => {
                         const tasks = tasksByStatus[status]
                         return (
                             <div key={status} className="flex flex-col gap-2">
                                 <div className="flex items-center gap-2 px-1 pb-1">
-                                    <span className="text-xs font-semibold text-foreground">
+                                    <span className="text-foreground text-xs font-semibold">
                                         {label}
                                     </span>
-                                    <span className="text-[11px] text-muted-foreground bg-muted border border-border rounded-full px-1.5 leading-[18px]">
+                                    <span className="text-muted-foreground bg-muted border-border rounded-full border px-1.5 text-[11px] leading-[18px]">
                                         {tasks.length}
                                     </span>
                                 </div>
                                 {tasks.length === 0 ? (
-                                    <div className="border border-dashed border-border rounded-[var(--radius)] px-3 py-5 text-center text-xs text-muted-foreground">
+                                    <div className="border-border text-muted-foreground rounded-[var(--radius)] border border-dashed px-3 py-5 text-center text-xs">
                                         {COLUMN_EMPTY[status]}
                                     </div>
                                 ) : (
@@ -344,15 +344,15 @@ export default function WorkspaceProjectTasksPage() {
             <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
                 <div
                     className={[
-                        'flex-1 flex flex-col p-6 overflow-y-auto min-w-0 gap-5 transition-[border-color] duration-200',
-                        panelOpen ? 'border-r border-border' : 'border-r border-transparent',
+                        'flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto p-6 transition-[border-color] duration-200',
+                        panelOpen ? 'border-border border-r' : 'border-r border-transparent',
                     ].join(' ')}
                 >
                     {board}
                 </div>
                 <div
                     className={[
-                        'flex-shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
+                        'shrink-0 overflow-hidden transition-[width] duration-200 ease-in-out',
                         panelOpen ? 'w-[28rem]' : 'w-0',
                     ].join(' ')}
                 >

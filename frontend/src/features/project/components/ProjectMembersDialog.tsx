@@ -47,7 +47,7 @@ export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project 
                                 >
                                     <div className="flex flex-col">
                                         <span className="font-medium">{member.name}</span>
-                                        <span className="text-xs text-muted-foreground">
+                                        <span className="text-muted-foreground text-xs">
                                             {member.email}
                                         </span>
                                     </div>
@@ -64,7 +64,7 @@ export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project 
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-sm text-muted-foreground">No guests assigned yet.</p>
+                        <p className="text-muted-foreground text-sm">No guests assigned yet.</p>
                     )}
 
                     {availableGuests.length > 0 && (

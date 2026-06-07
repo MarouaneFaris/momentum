@@ -27,7 +27,7 @@ export function DeleteTaskDialog({ open, onOpenChange, task, isPending, onConfir
                         {task ? (
                             <>
                                 Delete{' '}
-                                <span className="font-medium text-foreground">{task.title}</span>?
+                                <span className="text-foreground font-medium">{task.title}</span>?
                                 This cannot be undone.
                             </>
                         ) : (

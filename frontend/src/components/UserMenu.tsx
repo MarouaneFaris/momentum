@@ -32,7 +32,7 @@ export function UserMenu() {
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
-                    className="h-7 w-7 rounded-full bg-primary/15 text-[10px] font-semibold text-primary border border-primary/30 ml-1 p-0"
+                    className="bg-primary/15 text-primary border-primary/30 ml-1 h-7 w-7 rounded-full border p-0 text-[10px] font-semibold"
                     aria-label="User menu"
                 >
                     {initials}

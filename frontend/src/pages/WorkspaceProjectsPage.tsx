@@ -79,7 +79,7 @@ export default function WorkspaceProjectsPage() {
                     {projects.map((project) => (
                         <li
                             key={project.id}
-                            className="flex items-center justify-between rounded-lg border bg-card px-4 py-3"
+                            className="bg-card flex items-center justify-between rounded-lg border px-4 py-3"
                         >
                             <span className="font-medium">{project.name}</span>
                             <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function WorkspaceProjectsPage() {
                     ))}
                 </ul>
             ) : (
-                <p className="text-sm text-muted-foreground">No projects yet.</p>
+                <p className="text-muted-foreground text-sm">No projects yet.</p>
             )}
 
             <ProjectFormModal
