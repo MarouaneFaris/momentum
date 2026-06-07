@@ -62,3 +62,9 @@ export type Notification = {
     readAt: string | null
     createdAt: string
 }
+
+export type NotificationEnvelope =
+    | { op: 'created'; notification: Notification }
+    | { op: 'updated'; notification: Notification }
+    | { op: 'deleted'; id: string }
+    | { op: 'all-read'; readAt: string }

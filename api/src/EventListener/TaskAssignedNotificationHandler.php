@@ -39,12 +39,12 @@ final readonly class TaskAssignedNotificationHandler
         $sameUser = $creator === $assignee
             || ($creatorId !== null && $assigneeId !== null && $creatorId->equals($assigneeId));
 
-        $this->notificationPublisher->publish(
+        $this->notificationPublisher->publishCreated(
             $this->notificationService->create($assignee, NotificationType::TaskAssignedToYou, $basePayload)
         );
 
         if (!$sameUser) {
-            $this->notificationPublisher->publish(
+            $this->notificationPublisher->publishCreated(
                 $this->notificationService->create($creator, NotificationType::TaskAssignedMember, [
                     ...$basePayload,
                     'assignee_name' => $assignee->getName(),

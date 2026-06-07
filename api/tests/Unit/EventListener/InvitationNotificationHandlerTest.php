@@ -48,7 +48,7 @@ final class InvitationNotificationHandlerTest extends TestCase
 
         $this->notificationPublisher
             ->expects($this->once())
-            ->method('publish')
+            ->method('publishCreated')
             ->with($notification);
 
         $handler = new InvitationCreatedNotificationHandler($this->notificationService, $this->notificationPublisher);
@@ -71,7 +71,7 @@ final class InvitationNotificationHandlerTest extends TestCase
 
         $this->notificationPublisher
             ->expects($this->once())
-            ->method('publish')
+            ->method('publishCreated')
             ->with($notification);
 
         $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
@@ -84,7 +84,7 @@ final class InvitationNotificationHandlerTest extends TestCase
         $invitation = $this->makeInvitation(invitedBy: null);
 
         $this->notificationService->expects($this->never())->method('create');
-        $this->notificationPublisher->expects($this->never())->method('publish');
+        $this->notificationPublisher->expects($this->never())->method('publishCreated');
 
         $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
         ($handler)(new WorkspaceInvitationAccepted($invitation, $actor));
@@ -106,7 +106,7 @@ final class InvitationNotificationHandlerTest extends TestCase
 
         $this->notificationPublisher
             ->expects($this->once())
-            ->method('publish')
+            ->method('publishCreated')
             ->with($notification);
 
         $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
@@ -119,7 +119,7 @@ final class InvitationNotificationHandlerTest extends TestCase
         $invitation = $this->makeInvitation(invitedBy: null);
 
         $this->notificationService->expects($this->never())->method('create');
-        $this->notificationPublisher->expects($this->never())->method('publish');
+        $this->notificationPublisher->expects($this->never())->method('publishCreated');
 
         $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
         ($handler)(new WorkspaceInvitationDeclined($invitation, $actor));

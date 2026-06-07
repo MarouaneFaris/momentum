@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\Notification;
 
 use App\Entity\User;
+use App\Service\NotificationPublisher;
 use App\Service\NotificationService;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,8 +34,12 @@ final class MarkAllNotificationsReadController extends AbstractController
     public function __invoke(
         #[CurrentUser] User $user,
         NotificationService $notificationService,
+        NotificationPublisher $notificationPublisher,
     ): Response {
+        $readAt = new \DateTimeImmutable();
         $notificationService->markAllRead($user);
+
+        $notificationPublisher->publishAllRead($user, $readAt);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

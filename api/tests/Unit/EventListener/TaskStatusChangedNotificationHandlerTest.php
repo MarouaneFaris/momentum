@@ -42,7 +42,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
         $task = $this->makeTask($user, $user);
 
         $this->notificationService->expects($this->never())->method('create');
-        $this->notificationPublisher->expects($this->never())->method('publish');
+        $this->notificationPublisher->expects($this->never())->method('publishCreated');
 
         ($this->handler)(new TaskStatusChanged($task, $user, TaskStatus::Todo, TaskStatus::InProgress));
     }
@@ -62,7 +62,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
             ->with($assignee, NotificationType::TaskStatusChangedYours, $this->isArray())
             ->willReturn($notification);
 
-        $this->notificationPublisher->expects($this->once())->method('publish')->with($notification);
+        $this->notificationPublisher->expects($this->once())->method('publishCreated')->with($notification);
 
         ($this->handler)(new TaskStatusChanged($task, $creator, TaskStatus::Todo, TaskStatus::InProgress));
     }
@@ -82,7 +82,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
             ->with($creator, NotificationType::TaskStatusChangedMember, $this->isArray())
             ->willReturn($notification);
 
-        $this->notificationPublisher->expects($this->once())->method('publish')->with($notification);
+        $this->notificationPublisher->expects($this->once())->method('publishCreated')->with($notification);
 
         ($this->handler)(new TaskStatusChanged($task, $assignee, TaskStatus::Todo, TaskStatus::InProgress));
     }
@@ -106,7 +106,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
                 return new Notification();
             });
 
-        $this->notificationPublisher->expects($this->exactly(2))->method('publish');
+        $this->notificationPublisher->expects($this->exactly(2))->method('publishCreated');
 
         ($this->handler)(new TaskStatusChanged($task, $actor, TaskStatus::Todo, TaskStatus::InProgress));
     }
@@ -124,7 +124,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
             ->with($creator, NotificationType::TaskStatusChangedMember, $this->isArray())
             ->willReturn(new Notification());
 
-        $this->notificationPublisher->expects($this->once())->method('publish');
+        $this->notificationPublisher->expects($this->once())->method('publishCreated');
 
         ($this->handler)(new TaskStatusChanged($task, $actor, TaskStatus::Todo, TaskStatus::Done));
     }
@@ -136,7 +136,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
         $task = $this->makeTask($creator, null);
 
         $this->notificationService->expects($this->never())->method('create');
-        $this->notificationPublisher->expects($this->never())->method('publish');
+        $this->notificationPublisher->expects($this->never())->method('publishCreated');
 
         ($this->handler)(new TaskStatusChanged($task, $creator, TaskStatus::Todo, TaskStatus::Done));
     }
@@ -158,7 +158,7 @@ final class TaskStatusChangedNotificationHandlerTest extends TestCase
             )
             ->willReturn(new Notification());
 
-        $this->notificationPublisher->method('publish');
+        $this->notificationPublisher->method('publishCreated');
 
         ($this->handler)(new TaskStatusChanged($task, $creator, TaskStatus::Todo, TaskStatus::Done));
     }

@@ -39,6 +39,6 @@ final readonly class InvitationDeclinedNotificationHandler
             ],
         );
 
-        $this->notificationPublisher->publish($notification);
+        $this->notificationPublisher->publishCreated($notification);
     }
 }

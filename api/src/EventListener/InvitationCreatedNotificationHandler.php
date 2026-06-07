@@ -34,6 +34,6 @@ final readonly class InvitationCreatedNotificationHandler
             ],
         );
 
-        $this->notificationPublisher->publish($notification);
+        $this->notificationPublisher->publishCreated($notification);
     }
 }

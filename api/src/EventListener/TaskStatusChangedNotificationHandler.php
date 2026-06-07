@@ -49,7 +49,7 @@ final readonly class TaskStatusChangedNotificationHandler
 
         // Notify assignee unless they are the actor.
         if ($assignee !== null && !$actorIsAssignee) {
-            $this->notificationPublisher->publish(
+            $this->notificationPublisher->publishCreated(
                 $this->notificationService->create($assignee, NotificationType::TaskStatusChangedYours, $basePayload)
             );
         }
@@ -61,7 +61,7 @@ final readonly class TaskStatusChangedNotificationHandler
         );
 
         if (!$actorIsCreator && !$creatorIsAssignee) {
-            $this->notificationPublisher->publish(
+            $this->notificationPublisher->publishCreated(
                 $this->notificationService->create($creator, NotificationType::TaskStatusChangedMember, [
                     ...$basePayload,
                     'actor_name' => $actor->getName(),
