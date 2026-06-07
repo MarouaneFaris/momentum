@@ -14,15 +14,8 @@ export function NotificationBell() {
 
     const hasUnread = notifications.some((n) => n.read_at === null)
 
-    const handleOpenChange = (next: boolean) => {
-        setOpen(next)
-        if (next && notifications.length > 0) {
-            markAllRead()
-        }
-    }
-
     return (
-        <Popover open={open} onOpenChange={handleOpenChange}>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
                     <Bell className="h-4 w-4" />

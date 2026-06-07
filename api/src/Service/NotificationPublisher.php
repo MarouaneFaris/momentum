@@ -27,7 +27,7 @@ readonly class NotificationPublisher
                 'readAt' => $notification->getReadAt()?->format(\DateTimeInterface::ATOM),
                 'createdAt' => $notification->getCreatedAt()->format(\DateTimeInterface::ATOM),
             ], \JSON_THROW_ON_ERROR),
-            private: true,
+            private: false,
         ));
     }
 }
