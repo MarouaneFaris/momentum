@@ -44,6 +44,7 @@
         "phpstan/phpstan-doctrine": "^2.0.22",
         "phpstan/phpstan-symfony": "^2.0.18",
         "phpunit/phpunit": "^13.1.13",
+        "symfony/debug-bundle": "8.1.*",
         "symfony/maker-bundle": "^1.67",
         "symfony/stopwatch": "8.1.*",
         "zircote/swagger-php": "^6.1"
