@@ -95,6 +95,19 @@ describe('NotificationItem', () => {
         expect(screen.getByText(/declined your invitation to/)).toBeInTheDocument()
     })
 
+    it('renders invitation_cancelled copy', () => {
+        const n: Notification = {
+            ...base,
+            type: 'invitation_cancelled',
+            payload: { workspace_name: 'Acme', role_name: 'member' },
+        }
+        render(<NotificationItem notification={n} />)
+        expect(screen.getByText(/Your invitation to/)).toBeInTheDocument()
+        expect(screen.getByText('Acme')).toBeInTheDocument()
+        expect(screen.getByText('member')).toBeInTheDocument()
+        expect(screen.getByText(/was cancelled/)).toBeInTheDocument()
+    })
+
     it('shows blue dot for unread', () => {
         const n: Notification = {
             ...base,

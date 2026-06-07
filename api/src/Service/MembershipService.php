@@ -13,6 +13,7 @@ use App\Event\ProjectMemberRemoved;
 use App\Event\ProjectOwnerRemoved;
 use App\Event\UserRemovedFromWorkspace;
 use App\Event\WorkspaceInvitationAccepted;
+use App\Event\WorkspaceInvitationCancelled;
 use App\Event\WorkspaceInvitationCreated;
 use App\Event\WorkspaceInvitationDeclined;
 use App\Repository\UserRepository;
@@ -116,7 +117,7 @@ final readonly class MembershipService
         $this->eventDispatcher->dispatch(new WorkspaceInvitationDeclined($invitation, $currentUser));
     }
 
-    public function cancel(Workspace $workspace, WorkspaceInvitation $invitation): void
+    public function cancel(Workspace $workspace, WorkspaceInvitation $invitation, User $actor): void
     {
         if ((string) $invitation->getWorkspace()->getId() !== (string) $workspace->getId()) {
             throw new NotFoundHttpException('Invitation not found in this workspace');
@@ -124,6 +125,8 @@ final readonly class MembershipService
 
         $this->em->remove($invitation);
         $this->em->flush();
+
+        $this->eventDispatcher->dispatch(new WorkspaceInvitationCancelled($invitation, $actor));
     }
 
     public function removeMember(UserWorkspace $membership): void

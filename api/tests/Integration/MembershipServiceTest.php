@@ -233,8 +233,9 @@ final class MembershipServiceTest extends KernelTestCase
     {
         $workspace = WorkspaceFactory::createOne();
         $invitation = WorkspaceInvitationFactory::createOne(['workspace' => $workspace]);
+        $actor = UserFactory::createOne();
 
-        $this->service->cancel($workspace, $invitation);
+        $this->service->cancel($workspace, $invitation, $actor);
 
         /** @var WorkspaceInvitationRepository $repo */
         $repo = static::getContainer()->get(WorkspaceInvitationRepository::class);
@@ -245,9 +246,10 @@ final class MembershipServiceTest extends KernelTestCase
     {
         $workspace = WorkspaceFactory::createOne();
         $invitation = WorkspaceInvitationFactory::createOne();
+        $actor = UserFactory::createOne();
 
         $this->expectException(NotFoundHttpException::class);
-        $this->service->cancel($workspace, $invitation);
+        $this->service->cancel($workspace, $invitation, $actor);
     }
 
     // — removeMember ——————————————————————————————————————————————————————————

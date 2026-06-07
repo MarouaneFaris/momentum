@@ -92,6 +92,10 @@ final class DevNotificationTriggerController extends AbstractController
                 'workspace_name' => 'Demo Workspace',
                 'actor_name' => 'Demo User',
             ],
+            NotificationType::InvitationCancelled => [
+                'workspace_name' => 'Demo Workspace',
+                'role_name' => 'member',
+            ],
         };
 
         $notification = $notificationService->create($user, $type, $payload);

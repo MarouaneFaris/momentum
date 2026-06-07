@@ -6,6 +6,7 @@ export type NotificationType =
     | 'invitation_received'
     | 'invitation_accepted'
     | 'invitation_declined'
+    | 'invitation_cancelled'
 
 export type TaskAssignedToYouPayload = {
     task_id: string
@@ -46,6 +47,11 @@ export type InvitationDeclinedPayload = {
     actor_name: string
 }
 
+export type InvitationCancelledPayload = {
+    workspace_name: string
+    role_name: string
+}
+
 export type NotificationPayload =
     | TaskAssignedToYouPayload
     | TaskAssignedMemberPayload
@@ -54,6 +60,7 @@ export type NotificationPayload =
     | InvitationReceivedPayload
     | InvitationAcceptedPayload
     | InvitationDeclinedPayload
+    | InvitationCancelledPayload
 
 export type Notification = {
     id: string

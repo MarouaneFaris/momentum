@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Workspace\Invitation;
 
+use App\Entity\User;
 use App\Entity\Workspace;
 use App\Entity\WorkspaceInvitation;
 use App\Security\Voter\WorkspaceVoter;
@@ -13,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CancelInvitationController extends AbstractController
@@ -24,11 +26,12 @@ final class CancelInvitationController extends AbstractController
     )]
     #[IsGranted(WorkspaceVoter::CANCEL_INVITATION, subject: 'workspace')]
     public function __invoke(
+        #[CurrentUser] User $currentUser,
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['invitationId' => 'id'])] WorkspaceInvitation $invitation,
         MembershipService $membershipService,
     ): Response {
-        $membershipService->cancel($workspace, $invitation);
+        $membershipService->cancel($workspace, $invitation, $currentUser);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

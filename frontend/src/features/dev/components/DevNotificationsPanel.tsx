@@ -18,6 +18,7 @@ const NOTIFICATION_LABELS: Record<NotificationType, string> = {
     invitation_received: 'Invitation received',
     invitation_accepted: 'Invitation accepted',
     invitation_declined: 'Invitation declined',
+    invitation_cancelled: 'Invitation cancelled',
 }
 
 export default function DevNotificationsPanel() {

@@ -75,6 +75,15 @@ const renderText = (type: NotificationType, payload: Notification['payload']): R
                 </>
             )
         }
+        case 'invitation_cancelled': {
+            const p = payload as { workspace_name: string; role_name: string }
+            return (
+                <>
+                    Your invitation to <strong>{p.workspace_name}</strong> as{' '}
+                    <strong>{p.role_name}</strong> was cancelled
+                </>
+            )
+        }
     }
 }
 
