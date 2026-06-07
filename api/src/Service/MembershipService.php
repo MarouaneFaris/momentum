@@ -9,6 +9,7 @@ use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Entity\WorkspaceInvitation;
 use App\Enum\WorkspaceRole;
+use App\Event\ProjectMemberRemoved;
 use App\Event\ProjectOwnerRemoved;
 use App\Event\UserRemovedFromWorkspace;
 use App\Repository\UserRepository;
@@ -162,6 +163,7 @@ final readonly class MembershipService
     {
         $workspace = $membership->getWorkspace();
         $this->eventDispatcher->dispatch(new ProjectOwnerRemoved($membership, $workspace));
+        $this->eventDispatcher->dispatch(new ProjectMemberRemoved($membership, $workspace));
         $this->eventDispatcher->dispatch(new UserRemovedFromWorkspace($membership->getUser(), $workspace));
     }
 }

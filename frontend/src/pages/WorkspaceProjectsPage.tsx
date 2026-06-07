@@ -6,13 +6,14 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectFormModal } from '@/features/project/components/ProjectFormModal'
 import { ProjectMembersDialog } from '@/features/project/components/ProjectMembersDialog'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { Project, ProjectStatus } from '@/features/project/types'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { EllipsisVerticalIcon } from 'lucide-react'
+import { EllipsisVerticalIcon, Plus } from 'lucide-react'
+import { Link } from 'react-router'
 
 const STATUS_TRANSITIONS: Record<ProjectStatus, { value: ProjectStatus; label: string }[]> = {
     draft: [
@@ -67,7 +68,8 @@ export default function WorkspaceProjectsPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-xl font-semibold">Projects</h1>
                 {canCreateProject() && (
-                    <Button size="sm" onClick={() => setCreateOpen(true)}>
+                    <Button size="lg" onClick={() => setCreateOpen(true)}>
+                        <Plus />
                         New project
                     </Button>
                 )}
@@ -81,6 +83,13 @@ export default function WorkspaceProjectsPage() {
                         >
                             <span className="font-medium">{project.name}</span>
                             <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="sm" asChild>
+                                    <Link
+                                        to={`/workspaces/${workspaceId}/projects/${project.id}/tasks`}
+                                    >
+                                        Tasks
+                                    </Link>
+                                </Button>
                                 <span
                                     className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass(project.status)}`}
                                 >

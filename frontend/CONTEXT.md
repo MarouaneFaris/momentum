@@ -38,6 +38,8 @@ src/
 - No cross-feature imports. Shared code gets hoisted to `lib/` or `types/`.
 - Context rule: if two+ unrelated features import a context, it belongs in `contexts/`, not in a feature.
 - `pages/` components are thin — compose features and layouts only, no business logic.
+- **Always use Shadcn UI** (`src/components/ui/`) for any interactive or styled element (Button, Badge, Dialog, Input, Select, etc.). Never write raw `<button>`, `<input>`, `<select>`, etc. when a Shadcn equivalent exists.
+- **Always use Lucide React** for icons. Pick the closest match if an exact name doesn't exist. Never use emoji, inline SVG, or other icon libraries.
 
 ## Testing
 
