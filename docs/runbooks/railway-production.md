@@ -123,8 +123,7 @@ REDIS_URL=${{Redis.REDIS_URL}}
 | `MERCURE_EXTRA_DIRECTIVES`   | _(empty string)_                             |
 | `CADDY_MERCURE_JWT_SECRET`   | _(generate: `openssl rand -hex 32`)_                           |
 | `MERCURE_PUBLISHER_JWT_KEY`  | _(same value as `CADDY_MERCURE_JWT_SECRET`)_                   |
-| `MERCURE_SUBSCRIBER_JWT_KEY` | _(same value as `CADDY_MERCURE_JWT_SECRET`)_                   |
-| `MERCURE_JWT_SECRET`         | _(same value as `CADDY_MERCURE_JWT_SECRET`)_                   |
+| `MERCURE_SUBSCRIBER_JWT_KEY` | _(same value as `CADDY_MERCURE_JWT_SECRET`)_ (can diverge when rotating keys) |
 | `MERCURE_URL`                | `http://localhost:${{PORT}}/.well-known/mercure`               |
 | `MERCURE_PUBLIC_URL`         | `https://${{RAILWAY_PUBLIC_DOMAIN}}/.well-known/mercure`       |
 | `VITE_MERCURE_PUBLIC_URL`    | `/.well-known/mercure`                                         |
