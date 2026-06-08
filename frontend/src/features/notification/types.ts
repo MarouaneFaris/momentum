@@ -65,7 +65,7 @@ export type NotificationPayload =
 export type Notification = {
     id: string
     type: NotificationType
-    payload: NotificationPayload
+    payload: NotificationPayload & { demo?: true }
     readAt: string | null
     createdAt: string
 }

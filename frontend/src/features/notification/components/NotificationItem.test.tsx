@@ -128,4 +128,14 @@ describe('NotificationItem', () => {
         render(<NotificationItem notification={n} />)
         expect(screen.getByLabelText('read')).toBeInTheDocument()
     })
+
+    it('shows demo label for demo payloads', () => {
+        const n: Notification = {
+            ...base,
+            type: 'task_assigned_to_you',
+            payload: { task_id: 't1', task_title: 'Demo Task', demo: true },
+        }
+        render(<NotificationItem notification={n} />)
+        expect(screen.getByText('demo')).toBeInTheDocument()
+    })
 })
