@@ -42,7 +42,7 @@ The CI `api` job runs Symfony directly without Docker. A dedicated step exports 
 ### Fallback policy
 
 - **Bare `${VAR}` (no fallback):** all vars defined in root `.env`. A missing var produces a loud `docker compose` error at startup rather than silently using a stale value.
-- **`${VAR:-default}` retained for:** vars with no root `.env` entry — currently `CADDY_MERCURE_JWT_SECRET`, `CADDY_MERCURE_URL`, `CADDY_MERCURE_PUBLIC_URL` (Mercure not yet wired) and `IMAGES_PREFIX` (optional build-time image prefix).
+- **`${VAR:-default}` retained for:** vars with no root `.env` entry — `IMAGES_PREFIX` (optional build-time image prefix).
 
 ### How to add a new infrastructure variable
 
@@ -64,4 +64,4 @@ Having one authoritative file for infra defaults eliminates the class of bug whe
 - A missing required var now fails loudly at `make up` time rather than starting with wrong credentials.
 - The `api/.env` `DATABASE_URL` has no fallback values — this is intentional. Do not add `:-defaults` back.
 - Adding a new var that CI needs requires a one-line update to the CI workflow alongside the root `.env` change.
-- `CADDY_MERCURE_*` vars retain their fallbacks until Mercure is wired; at that point they should be promoted to root `.env` following the same pattern.
+- `MERCURE_PUBLISHER_JWT_KEY` and `MERCURE_SUBSCRIBER_JWT_KEY` are now in root `.env` (Mercure fully wired). `CADDY_MERCURE_JWT_SECRET` is retired.
