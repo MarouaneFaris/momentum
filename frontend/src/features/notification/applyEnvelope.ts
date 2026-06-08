@@ -11,13 +11,23 @@ export function applyEnvelope(envelope: NotificationEnvelope, queryClient: Query
         return
     }
     if (envelope.op === 'updated') {
-        update((prev) =>
-            prev?.map((n) => (n.id === envelope.notification.id ? envelope.notification : n)),
+        const prev = queryClient.getQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY)
+        if (!prev?.some((n) => n.id === envelope.notification.id)) {
+            void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })
+            return
+        }
+        update((list) =>
+            list?.map((n) => (n.id === envelope.notification.id ? envelope.notification : n)),
         )
         return
     }
     if (envelope.op === 'deleted') {
-        update((prev) => prev?.filter((n) => n.id !== envelope.id))
+        const prev = queryClient.getQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY)
+        if (!prev?.some((n) => n.id === envelope.id)) {
+            void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY })
+            return
+        }
+        update((list) => list?.filter((n) => n.id !== envelope.id))
         return
     }
     if (envelope.op === 'all-read') {
