@@ -121,10 +121,8 @@ REDIS_URL=${{Redis.REDIS_URL}}
 | `CADDY_SPA_FALLBACK`         | `try_files {path} /index.html`               |
 | `CADDY_SECURITY_HEADERS`     | _(multiline — paste exactly as shown below)_ |
 | `MERCURE_EXTRA_DIRECTIVES`   | _(empty string)_                             |
-| `CADDY_MERCURE_JWT_SECRET`   | _(generate: `openssl rand -hex 32`)_                           |
-| `MERCURE_PUBLISHER_JWT_KEY`  | _(same value as `CADDY_MERCURE_JWT_SECRET`)_                   |
-| `MERCURE_SUBSCRIBER_JWT_KEY` | _(same value as `CADDY_MERCURE_JWT_SECRET`)_                   |
-| `MERCURE_JWT_SECRET`         | _(same value as `CADDY_MERCURE_JWT_SECRET`)_                   |
+| `MERCURE_PUBLISHER_JWT_KEY`  | _(generate: `openssl rand -hex 32`)_ — signs PHP→hub publish JWTs      |
+| `MERCURE_SUBSCRIBER_JWT_KEY` | _(generate: `openssl rand -hex 32`)_ — signs browser subscriber JWTs   |
 | `MERCURE_URL`                | `http://localhost:${{PORT}}/.well-known/mercure`               |
 | `MERCURE_PUBLIC_URL`         | `https://${{RAILWAY_PUBLIC_DOMAIN}}/.well-known/mercure`       |
 | `VITE_MERCURE_PUBLIC_URL`    | `/.well-known/mercure`                                         |
