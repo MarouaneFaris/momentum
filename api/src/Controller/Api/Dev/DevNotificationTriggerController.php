@@ -28,13 +28,9 @@ final class DevNotificationTriggerController extends AbstractController
         DevService $devService,
         NotificationService $notificationService,
         NotificationPublisher $notificationPublisher,
-        #[CurrentUser] ?User $user = null,
+        #[CurrentUser] User $user,
     ): JsonResponse {
         $devService->ensureDevEnvironment();
-
-        if ($user === null) {
-            return $this->json(['error' => 'authentication required'], Response::HTTP_UNAUTHORIZED);
-        }
 
         $typeValue = $request->toArray()['type'] ?? null;
         $type = $typeValue !== null ? NotificationType::tryFrom($typeValue) : null;
