@@ -28,13 +28,9 @@ final class DevNotificationTriggerController extends AbstractController
         DevService $devService,
         NotificationService $notificationService,
         NotificationPublisher $notificationPublisher,
-        #[CurrentUser] ?User $user = null,
+        #[CurrentUser] User $user,
     ): JsonResponse {
         $devService->ensureDevEnvironment();
-
-        if ($user === null) {
-            return $this->json(['error' => 'authentication required'], Response::HTTP_UNAUTHORIZED);
-        }
 
         $typeValue = $request->toArray()['type'] ?? null;
         $type = $typeValue !== null ? NotificationType::tryFrom($typeValue) : null;
@@ -54,6 +50,7 @@ final class DevNotificationTriggerController extends AbstractController
                 'project_id' => $fakeProjectId,
                 'project_name' => 'Demo Project',
                 'workspace_id' => $fakeWorkspaceId,
+                'demo' => true,
             ],
             NotificationType::TaskAssignedMember => [
                 'task_id' => $fakeId,
@@ -62,6 +59,7 @@ final class DevNotificationTriggerController extends AbstractController
                 'project_id' => $fakeProjectId,
                 'project_name' => 'Demo Project',
                 'workspace_id' => $fakeWorkspaceId,
+                'demo' => true,
             ],
             NotificationType::TaskStatusChangedYours => [
                 'task_id' => $fakeId,
@@ -70,6 +68,7 @@ final class DevNotificationTriggerController extends AbstractController
                 'project_id' => $fakeProjectId,
                 'project_name' => 'Demo Project',
                 'workspace_id' => $fakeWorkspaceId,
+                'demo' => true,
             ],
             NotificationType::TaskStatusChangedMember => [
                 'task_id' => $fakeId,
@@ -79,22 +78,27 @@ final class DevNotificationTriggerController extends AbstractController
                 'project_id' => $fakeProjectId,
                 'project_name' => 'Demo Project',
                 'workspace_id' => $fakeWorkspaceId,
+                'demo' => true,
             ],
             NotificationType::InvitationReceived => [
                 'workspace_name' => 'Demo Workspace',
                 'role_name' => 'member',
+                'demo' => true,
             ],
             NotificationType::InvitationAccepted => [
                 'workspace_name' => 'Demo Workspace',
                 'actor_name' => 'Demo User',
+                'demo' => true,
             ],
             NotificationType::InvitationDeclined => [
                 'workspace_name' => 'Demo Workspace',
                 'actor_name' => 'Demo User',
+                'demo' => true,
             ],
             NotificationType::InvitationCancelled => [
                 'workspace_name' => 'Demo Workspace',
                 'role_name' => 'member',
+                'demo' => true,
             ],
         };
 

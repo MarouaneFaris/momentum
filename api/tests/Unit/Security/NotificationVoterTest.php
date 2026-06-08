@@ -11,6 +11,7 @@ use App\Security\Voter\NotificationVoter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class NotificationVoterTest extends TestCase
 {
@@ -21,6 +22,7 @@ final class NotificationVoterTest extends TestCase
     {
         $this->voter = new NotificationVoter();
         $this->user = new User();
+        $this->setId($this->user, Uuid::v7());
     }
 
     public function testUnauthenticatedUserDenied(): void
@@ -71,7 +73,40 @@ final class NotificationVoterTest extends TestCase
     public function testOtherUserDenied(string $attribute): void
     {
         $otherUser = new User();
+        $this->setId($otherUser, Uuid::v7());
         $notification = $this->makeNotification($otherUser);
+
+        $result = $this->voter->vote($this->createToken(), $notification, [$attribute]);
+
+        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideAttributes')]
+    public function testSameIdDifferentRefGranted(string $attribute): void
+    {
+        $sharedId = Uuid::v7();
+
+        $recipient = new User();
+        $this->setId($recipient, $sharedId);
+
+        $tokenUser = new User();
+        $this->setId($tokenUser, $sharedId);
+
+        $notification = $this->makeNotification($recipient);
+        $token = $this->createStub(TokenInterface::class);
+        $token->method('getUser')->willReturn($tokenUser);
+
+        self::assertNotSame($recipient, $tokenUser);
+        $result = $this->voter->vote($token, $notification, [$attribute]);
+
+        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideAttributes')]
+    public function testNullRecipientIdDenied(string $attribute): void
+    {
+        $recipientWithNullId = new User();
+        $notification = $this->makeNotification($recipientWithNullId);
 
         $result = $this->voter->vote($this->createToken(), $notification, [$attribute]);
 
@@ -94,5 +129,11 @@ final class NotificationVoterTest extends TestCase
         $token->method('getUser')->willReturn($this->user);
 
         return $token;
+    }
+
+    private function setId(User $user, Uuid $id): void
+    {
+        $ref = new \ReflectionProperty(User::class, 'id');
+        $ref->setValue($user, $id);
     }
 }
