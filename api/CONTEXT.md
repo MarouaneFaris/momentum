@@ -162,16 +162,21 @@ In-app only via Mercure (no email). Triggers:
 
 Hub is built into FrankenPHP via the Caddy Mercure module — no separate container. Reachable at `/.well-known/mercure`.
 
-**Env vars** (all derived from `CADDY_MERCURE_JWT_SECRET` in compose.yaml; set directly in Railway):
-- `MERCURE_PUBLISHER_JWT_KEY` / `MERCURE_SUBSCRIBER_JWT_KEY` — Caddy vars, sign/verify JWTs at hub level
-- `MERCURE_JWT_SECRET` — Symfony MercureBundle var, used server-side to sign publish JWTs; must equal `MERCURE_PUBLISHER_JWT_KEY`
-- `MERCURE_URL` — internal Docker URL (`http://php/.well-known/mercure`), used by PHP to publish
-- `MERCURE_PUBLIC_URL` — browser-facing URL (`https://localhost/.well-known/mercure` in dev)
-- `VITE_MERCURE_PUBLIC_URL` — frontend env var (Vite, exposed via `import.meta.env`); read by `src/lib/mercure.ts` at module load. Dev: `https://localhost/.well-known/mercure` (root `.env`). Prod: `/.well-known/mercure` (`frontend/.env.production`). Railway: set on the `app` service (see runbook §4.3).
+**JWT key separation**: Publisher and subscriber keys are kept distinct. Caddy verifies each side with its own key; the PHP app signs with the matching key.
+
+| Var | Who reads it | Purpose |
+|-----|-------------|---------|
+| `MERCURE_PUBLISHER_JWT_KEY` | Caddy hub + MercureBundle (`mercure.yaml`) | Signs JWTs used by PHP when publishing updates to the hub |
+| `MERCURE_SUBSCRIBER_JWT_KEY` | Caddy hub + `MercureTokenController` | Signs JWTs issued to browsers for SSE subscription |
+| `MERCURE_URL` | PHP app | Internal Docker URL (`http://php/.well-known/mercure`) used to publish |
+| `MERCURE_PUBLIC_URL` | PHP app | Browser-facing URL (`https://localhost/.well-known/mercure` in dev) |
+| `VITE_MERCURE_PUBLIC_URL` | Vite/frontend | Exposed via `import.meta.env`; read by `src/lib/mercure.ts`. Dev: `https://localhost/.well-known/mercure`. Prod: `/.well-known/mercure` (`frontend/.env.production`). Railway: set on the `app` service (see runbook §4.3). |
+
+In dev/compose: both JWT keys default to `CADDY_MERCURE_JWT_SECRET`. In Railway: set each independently for key rotation safety.
 
 **Dev extras**: `MERCURE_EXTRA_DIRECTIVES` (compose.override.yaml) enables `anonymous` subscriptions and demo UI at `/.well-known/mercure/ui/`.
 
-**Subscriber JWT issuance**: server-side endpoint TBD — defined when implementing the notification API.
+**Subscriber JWT issuance**: `GET /api/notifications/mercure-token` — issues an HttpOnly cookie (`mercureAuthorization`) signed with `MERCURE_SUBSCRIBER_JWT_KEY`, scoped to the caller's `/notifications/{id}` topic. TTL: 3600 s.
 
 #### Local debugging
 
