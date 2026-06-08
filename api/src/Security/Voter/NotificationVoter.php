@@ -33,7 +33,6 @@ final class NotificationVoter extends Voter
         $recipientId = $recipient->getId();
         $userId = $user->getId();
 
-        return $recipient === $user
-            || ($recipientId !== null && $userId !== null && $recipientId->equals($userId));
+        return $recipientId !== null && $userId !== null && $recipientId->equals($userId);
     }
 }
