@@ -22,7 +22,7 @@ final class NotificationVoterTest extends TestCase
     {
         $this->voter = new NotificationVoter();
         $this->user = new User();
-        $this->setId($this->user, Uuid::v4());
+        $this->setId($this->user, Uuid::v7());
     }
 
     public function testUnauthenticatedUserDenied(): void
@@ -73,7 +73,7 @@ final class NotificationVoterTest extends TestCase
     public function testOtherUserDenied(string $attribute): void
     {
         $otherUser = new User();
-        $this->setId($otherUser, Uuid::v4());
+        $this->setId($otherUser, Uuid::v7());
         $notification = $this->makeNotification($otherUser);
 
         $result = $this->voter->vote($this->createToken(), $notification, [$attribute]);
@@ -84,7 +84,7 @@ final class NotificationVoterTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('provideAttributes')]
     public function testSameIdDifferentRefGranted(string $attribute): void
     {
-        $sharedId = Uuid::v4();
+        $sharedId = Uuid::v7();
 
         $recipient = new User();
         $this->setId($recipient, $sharedId);
