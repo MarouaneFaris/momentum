@@ -172,7 +172,7 @@ Hub is built into FrankenPHP via the Caddy Mercure module — no separate contai
 | `MERCURE_PUBLIC_URL` | PHP app | Browser-facing URL (`https://localhost/.well-known/mercure` in dev) |
 | `VITE_MERCURE_PUBLIC_URL` | Vite/frontend | Exposed via `import.meta.env`; read by `src/lib/mercure.ts`. Dev: `https://localhost/.well-known/mercure`. Prod: `/.well-known/mercure` (`frontend/.env.production`). Railway: set on the `app` service (see runbook §4.3). |
 
-In dev/compose: both JWT keys default to `CADDY_MERCURE_JWT_SECRET`. In Railway: set each independently for key rotation safety.
+In dev/compose: both JWT keys default to `CADDY_MERCURE_JWT_SECRET` (one shared secret is fine locally). In Railway: each key is generated independently — a compromised subscriber key cannot be used to publish.
 
 **Dev extras**: `MERCURE_EXTRA_DIRECTIVES` (compose.override.yaml) enables `anonymous` subscriptions and demo UI at `/.well-known/mercure/ui/`.
 
