@@ -44,10 +44,15 @@ final class MercureTokenController extends AbstractController
     )]
     public function __invoke(#[CurrentUser] User $user): JsonResponse
     {
+        $now = new \DateTimeImmutable();
         $token = $this->subscriberJwtFactory->create(
             subscribe: ["/notifications/{$user->getId()}"],
             publish: [],
-            additionalClaims: ['exp' => new \DateTimeImmutable('+' . self::JWT_TTL . ' seconds')],
+            additionalClaims: [
+                'sub' => (string) $user->getId(),
+                'iat' => $now,
+                'exp' => $now->modify('+' . self::JWT_TTL . ' seconds'),
+            ],
         );
 
         $response = $this->json(['expiresIn' => self::JWT_TTL]);
