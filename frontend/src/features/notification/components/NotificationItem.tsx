@@ -93,6 +93,7 @@ type Props = {
 
 export function NotificationItem({ notification }: Props) {
     const isRead = notification.readAt !== null
+    const isDemo = notification.payload.demo === true
 
     return (
         <div className="flex items-start gap-3 px-3 py-2.5">
@@ -104,11 +105,12 @@ export function NotificationItem({ notification }: Props) {
                 aria-label={isRead ? 'read' : 'unread'}
             />
             <div className="min-w-0 flex-1">
-                <p className="text-sm leading-snug">
+                <p className={cn('text-sm leading-snug', isDemo && 'text-muted-foreground')}>
                     {renderText(notification.type, notification.payload)}
                 </p>
                 <p className="text-muted-foreground mt-0.5 text-xs">
                     {relativeTime(notification.createdAt)}
+                    {isDemo && <span className="ml-1.5 italic">demo</span>}
                 </p>
             </div>
         </div>
