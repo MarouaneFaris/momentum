@@ -8,7 +8,6 @@ use App\Repository\AuthTokenRepository;
 use App\Service\AuthTokenManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -23,7 +22,6 @@ final readonly class LogoutSubscriber implements EventSubscriberInterface
         private EntityManagerInterface $entityManager,
         #[Autowire(service: 'cache.auth_tokens')]
         private CacheItemPoolInterface $authTokenCache,
-        private LoggerInterface $logger,
     ) {}
 
     #[\Override]
@@ -47,11 +45,7 @@ final readonly class LogoutSubscriber implements EventSubscriberInterface
                 $this->entityManager->flush();
             }
 
-            try {
-                $this->authTokenCache->deleteItem(AuthTokenManager::tokenCacheKey($rawToken));
-            } catch (\Throwable $e) {
-                $this->logger->warning('Failed to delete auth token from cache on logout.', ['exception' => $e]);
-            }
+            $this->authTokenCache->deleteItem(AuthTokenManager::tokenCacheKey($rawToken));
         }
 
         $response = new JsonResponse(status: Response::HTTP_NO_CONTENT);

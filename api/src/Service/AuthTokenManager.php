@@ -9,7 +9,6 @@ use App\Entity\User;
 use App\Repository\AuthTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -27,22 +26,13 @@ final readonly class AuthTokenManager
         private AuthTokenRepository $repository,
         #[Autowire(service: 'cache.auth_tokens')]
         private CacheItemPoolInterface $authTokenCache,
-        private LoggerInterface $logger,
     ) {}
 
     public function findUserByToken(string $rawToken): ?User
     {
-        $cacheKey = self::tokenCacheKey($rawToken);
-        $cacheItem = null;
-
-        try {
-            $cacheItem = $this->authTokenCache->getItem($cacheKey);
-            if ($cacheItem->isHit()) {
-                return $this->entityManager->find(User::class, Uuid::fromString($cacheItem->get()));
-            }
-        } catch (\Throwable $e) {
-            $this->logger->warning('Auth token cache read failed, falling back to DB.', ['exception' => $e]);
-            $cacheItem = null;
+        $cacheItem = $this->authTokenCache->getItem(self::tokenCacheKey($rawToken));
+        if ($cacheItem->isHit()) {
+            return $this->entityManager->find(User::class, Uuid::fromString($cacheItem->get()));
         }
 
         $authToken = $this->repository->findOneBy(['token' => self::hashToken($rawToken)]);
@@ -51,15 +41,11 @@ final readonly class AuthTokenManager
         }
 
         $userId = $authToken->getUser()->getId();
-        if ($cacheItem !== null && $userId !== null) {
-            try {
-                $ttl = $authToken->getExpiresAt()->getTimestamp() - $this->clock->now()->getTimestamp();
-                $cacheItem->set($userId->toRfc4122());
-                $cacheItem->expiresAfter(max(1, $ttl));
-                $this->authTokenCache->save($cacheItem);
-            } catch (\Throwable $e) {
-                $this->logger->warning('Auth token cache write failed.', ['exception' => $e]);
-            }
+        if ($userId !== null) {
+            $ttl = $authToken->getExpiresAt()->getTimestamp() - $this->clock->now()->getTimestamp();
+            $cacheItem->set($userId->toRfc4122());
+            $cacheItem->expiresAfter(max(1, $ttl));
+            $this->authTokenCache->save($cacheItem);
         }
 
         return $authToken->getUser();
