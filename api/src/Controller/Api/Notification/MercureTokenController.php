@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class MercureTokenController extends AbstractController
 {
-    private const JWT_TTL = 3600;
+    private const JWT_TTL = 900;
 
     public function __construct(private readonly TokenFactoryInterface $subscriberJwtFactory) {}
 
