@@ -48,13 +48,13 @@ class TokenAuthenticator extends AbstractAuthenticator
 
         return new SelfValidatingPassport(
             new UserBadge($hashedToken, function () use ($rawToken) {
-                $authToken = $this->authTokenManager->findValidToken($rawToken);
+                $user = $this->authTokenManager->findUserByToken($rawToken);
 
-                if (!$authToken) {
+                if (!$user) {
                     throw new AuthenticationException('Invalid or expired token.');
                 }
 
-                return $authToken->getUser();
+                return $user;
             }),
         );
     }
