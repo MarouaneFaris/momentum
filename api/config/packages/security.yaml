@@ -38,6 +38,7 @@ security:
 
             logout:
                 path: api_logout
+                invalidate_session: false
 
             custom_authenticators:
                 - App\Security\TokenAuthenticator

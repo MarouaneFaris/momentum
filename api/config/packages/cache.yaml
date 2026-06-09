@@ -4,3 +4,6 @@ framework:
             cache.rate_limiter:
                 adapter: cache.adapter.redis
                 provider: app.redis_connection
+            cache.auth_tokens:
+                adapter: cache.adapter.redis
+                provider: app.redis_connection
