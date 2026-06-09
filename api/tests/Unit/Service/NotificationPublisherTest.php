@@ -47,6 +47,7 @@ final class NotificationPublisherTest extends TestCase
 
                 return true;
             }));
+        $this->logger->expects($this->never())->method('warning');
 
         $this->publisher->publishCreated($this->makeNotification());
     }
@@ -60,16 +61,14 @@ final class NotificationPublisherTest extends TestCase
             ->method('warning')
             ->with(
                 'Mercure publish failed',
-                $this->callback(function (array $context) use ($exception): bool {
+                $this->callback(function (array $context): bool {
                     self::assertArrayHasKey('notification_id', $context);
                     self::assertArrayHasKey('recipient_id', $context);
                     self::assertArrayHasKey('topic', $context);
                     self::assertArrayHasKey('exception_class', $context);
-                    self::assertArrayHasKey('exception_message', $context);
-                    self::assertArrayHasKey('exception', $context);
+                    self::assertArrayHasKey('error', $context);
                     self::assertSame(\RuntimeException::class, $context['exception_class']);
-                    self::assertSame('hub down', $context['exception_message']);
-                    self::assertSame($exception, $context['exception']);
+                    self::assertSame('hub down', $context['error']);
 
                     return true;
                 }),
@@ -89,6 +88,7 @@ final class NotificationPublisherTest extends TestCase
 
                 return true;
             }));
+        $this->logger->expects($this->never())->method('warning');
 
         $this->publisher->publishUpdated($this->makeNotification());
     }
@@ -115,6 +115,7 @@ final class NotificationPublisherTest extends TestCase
 
                 return true;
             }));
+        $this->logger->expects($this->never())->method('warning');
 
         $this->publisher->publishDeleted($id, $recipient);
     }
@@ -141,6 +142,7 @@ final class NotificationPublisherTest extends TestCase
 
                 return true;
             }));
+        $this->logger->expects($this->never())->method('warning');
 
         $this->publisher->publishAllRead($recipient, $readAt);
     }
