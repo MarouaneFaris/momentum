@@ -99,7 +99,7 @@ export default function WorkspaceProjectsPage() {
                         <Button
                             variant="outline"
                             onClick={() => setCreateOpen(true)}
-                            className="border-border text-muted-foreground hover:border-primary/40 hover:text-foreground h-auto min-h-[132px] w-full cursor-pointer flex-col gap-2 rounded-[calc(var(--radius))] border-dashed bg-transparent shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+                            className="border-border text-muted-foreground hover:border-primary/40 hover:text-foreground dark:hover:border-primary/40 h-auto min-h-[132px] w-full cursor-pointer flex-col gap-2 rounded-[calc(var(--radius))] border-dashed bg-transparent shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
                         >
                             <PlusCircle className="size-5" />
                             <span className="text-sm">New project</span>
