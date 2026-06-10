@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Project, ProjectStatus } from '@/features/project/types'
-import { EllipsisVerticalIcon } from 'lucide-react'
+import { EllipsisIcon } from 'lucide-react'
 import { Link } from 'react-router'
 
 const STATUS_TRANSITIONS: Record<ProjectStatus, { value: ProjectStatus; label: string }[]> = {
@@ -69,7 +69,7 @@ export function ProjectCard({
             />
 
             {canManage && (
-                <div className="absolute top-2 right-2 z-20">
+                <div className="absolute top-0 right-0 z-20">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -78,7 +78,7 @@ export function ProjectCard({
                                 className="text-muted-foreground hover:text-foreground size-6 shrink-0 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
                                 onClick={(e) => e.preventDefault()}
                             >
-                                <EllipsisVerticalIcon className="size-3.5" />
+                                <EllipsisIcon className="size-3.5" />
                                 <span className="sr-only">Project actions</span>
                             </Button>
                         </DropdownMenuTrigger>
@@ -118,7 +118,7 @@ export function ProjectCard({
                 </div>
             )}
 
-            <div className={`relative z-10 flex items-start gap-2 ${canManage ? 'pr-8' : ''}`}>
+            <div className="relative z-10 flex items-start gap-2">
                 <span className="text-foreground min-w-0 flex-1 text-sm leading-snug font-medium">
                     {project.name}
                 </span>
