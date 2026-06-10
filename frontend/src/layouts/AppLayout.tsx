@@ -42,6 +42,7 @@ export default function AppLayout() {
                     <span className="text-primary">m</span>omentum
                 </span>
                 <span className="flex-1" />
+                <ThemeToggle />
                 <NotificationBell />
                 <UserMenu />
             </header>
