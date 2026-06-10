@@ -6,7 +6,7 @@ import { ProjectFormModal } from '@/features/project/components/ProjectFormModal
 import { ProjectMembersDialog } from '@/features/project/components/ProjectMembersDialog'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { ProjectStatus } from '@/features/project/types'
-import { Plus } from 'lucide-react'
+import { Plus, PlusCircle } from 'lucide-react'
 import { useState } from 'react'
 
 const FILTERS = [
@@ -101,7 +101,7 @@ export default function WorkspaceProjectsPage() {
                             onClick={() => setCreateOpen(true)}
                             className="border-border text-muted-foreground hover:border-primary/40 hover:text-foreground h-auto min-h-[132px] w-full cursor-pointer flex-col gap-2 rounded-[calc(var(--radius))] border-dashed bg-transparent shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
                         >
-                            <Plus className="size-5" />
+                            <PlusCircle className="size-5" />
                             <span className="text-sm">New project</span>
                         </Button>
                     )}
