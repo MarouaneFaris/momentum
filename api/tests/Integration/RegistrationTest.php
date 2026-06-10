@@ -159,7 +159,7 @@ final class RegistrationTest extends IntegrationTestCase
 
         self::assertNotNull($user);
 
-        return array_values($em->getRepository(UserWorkspace::class)->findBy(['user' => $user]));
+        return $em->getRepository(UserWorkspace::class)->findBy(['user' => $user]);
     }
 
     public function testDuplicateEmailDoesNotCreateWorkspace(): void
