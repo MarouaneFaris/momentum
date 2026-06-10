@@ -3,12 +3,12 @@ import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { Bell } from 'lucide-react'
 import { useState } from 'react'
 import { useNotificationActions } from '../hooks/useNotificationActions'
-import { useNotifications } from '../hooks/useNotifications'
+import { useNotificationList } from '../queries'
 import { NotificationPanel } from './NotificationPanel'
 
 export function NotificationBell() {
     const [open, setOpen] = useState(false)
-    const { data } = useNotifications()
+    const { data } = useNotificationList()
     const notifications = data ?? []
     const { handleMarkAllRead, handleMarkRead, handleDelete } = useNotificationActions()
 

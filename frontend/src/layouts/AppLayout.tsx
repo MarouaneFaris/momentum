@@ -5,6 +5,7 @@ import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useMyInvitations } from '@/features/membership/queries'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
+import { useNotifications } from '@/features/notification/hooks/useNotifications'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
 import { FolderOpen, LayoutDashboard, ListTodo, Mail, Settings, Users } from 'lucide-react'
@@ -16,6 +17,7 @@ export default function AppLayout() {
     const workspaceId = useActiveWorkspaceId()
     const { data: invitations } = useMyInvitations()
     const pendingCount = invitations?.length ?? 0
+    useNotifications()
 
     if (auth.isLoading) return null
     if (!auth.isAuthenticated) return <Navigate to="/login" />

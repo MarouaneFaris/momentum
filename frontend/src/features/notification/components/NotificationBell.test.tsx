@@ -2,11 +2,9 @@ import { render, screen } from '@testing-library/react'
 import { NotificationBell } from './NotificationBell'
 import type { Notification } from '../types'
 
-vi.mock('../hooks/useNotifications', () => ({
-    useNotifications: vi.fn(),
+vi.mock('../queries', () => ({
+    useNotificationList: vi.fn(),
 }))
-
-vi.mock('../queries', () => ({}))
 
 vi.mock('../hooks/useNotificationActions', () => ({
     useNotificationActions: () => ({
@@ -16,7 +14,7 @@ vi.mock('../hooks/useNotificationActions', () => ({
     }),
 }))
 
-import { useNotifications } from '../hooks/useNotifications'
+import { useNotificationList } from '../queries'
 
 const makeNotification = (overrides: Partial<Notification> = {}): Notification => ({
     id: 'n1',
@@ -29,7 +27,7 @@ const makeNotification = (overrides: Partial<Notification> = {}): Notification =
 
 describe('NotificationBell', () => {
     it('shows unread dot badge when there are unread notifications', () => {
-        vi.mocked(useNotifications).mockReturnValue({
+        vi.mocked(useNotificationList).mockReturnValue({
             data: [makeNotification({ readAt: null })],
         } as never)
 
@@ -38,7 +36,7 @@ describe('NotificationBell', () => {
     })
 
     it('does not show badge when all notifications are read', () => {
-        vi.mocked(useNotifications).mockReturnValue({
+        vi.mocked(useNotificationList).mockReturnValue({
             data: [makeNotification({ readAt: new Date().toISOString() })],
         } as never)
 
@@ -49,7 +47,7 @@ describe('NotificationBell', () => {
     })
 
     it('does not show badge when no notifications', () => {
-        vi.mocked(useNotifications).mockReturnValue({ data: [] } as never)
+        vi.mocked(useNotificationList).mockReturnValue({ data: [] } as never)
 
         render(<NotificationBell />)
         const button = screen.getByLabelText('Notifications')
