@@ -23,4 +23,4 @@ jobs:
             --jq '.[].number' \
           | xargs -I {} gh pr update-branch {} --repo "$GITHUB_REPOSITORY" || true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT }}
