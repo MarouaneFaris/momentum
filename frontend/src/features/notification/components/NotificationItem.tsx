@@ -158,7 +158,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Props) 
             <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-1.5 right-1.5 hidden h-6 w-6 group-hover:flex"
+                className="absolute top-1.5 right-1.5 hidden h-6 w-6 cursor-pointer group-hover:flex"
                 onClick={handleDelete}
                 aria-label="Delete notification"
             >

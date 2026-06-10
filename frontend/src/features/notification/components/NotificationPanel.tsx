@@ -27,7 +27,7 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="text-primary h-auto px-1 py-0.5 text-[11px] font-medium"
+                        className="text-primary h-auto cursor-pointer px-1 py-0.5 text-[11px] font-medium"
                         onClick={onMarkAllRead}
                     >
                         Mark all read

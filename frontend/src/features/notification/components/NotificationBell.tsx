@@ -1,10 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import { Bell } from 'lucide-react'
 import { useState } from 'react'
-import { useMarkAllNotificationsRead } from '../queries'
-import { useDeleteNotification, useMarkNotificationRead } from '../hooks/useNotificationActions'
+import { useNotificationActions } from '../hooks/useNotificationActions'
 import { useNotifications } from '../hooks/useNotifications'
 import { NotificationPanel } from './NotificationPanel'
 
@@ -12,9 +10,7 @@ export function NotificationBell() {
     const [open, setOpen] = useState(false)
     const { data } = useNotifications()
     const notifications = data ?? []
-    const { mutate: markAllRead } = useMarkAllNotificationsRead()
-    const { mutate: markRead } = useMarkNotificationRead()
-    const { mutate: deleteNotification } = useDeleteNotification()
+    const { handleMarkAllRead, handleMarkRead, handleDelete } = useNotificationActions()
 
     const hasUnread = notifications.some((n) => n.readAt === null)
 
@@ -25,7 +21,7 @@ export function NotificationBell() {
                     variant="ghost"
                     size="icon"
                     aria-label="Notifications"
-                    className={cn('relative', open && 'bg-primary/10 text-primary')}
+                    className="relative cursor-pointer"
                 >
                     <Bell className="h-4 w-4" />
                     {hasUnread && (
@@ -35,9 +31,9 @@ export function NotificationBell() {
             </PopoverTrigger>
             <NotificationPanel
                 notifications={notifications}
-                onMarkAllRead={() => markAllRead()}
-                onMarkRead={(id) => markRead(id)}
-                onDelete={(id) => deleteNotification(id)}
+                onMarkAllRead={handleMarkAllRead}
+                onMarkRead={handleMarkRead}
+                onDelete={handleDelete}
             />
         </Popover>
     )

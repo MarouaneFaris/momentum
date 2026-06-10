@@ -1,29 +1,43 @@
-import api from '@/lib/api'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { NOTIFICATIONS_QUERY_KEY } from '../queries'
+import { useQueryClient } from '@tanstack/react-query'
+import {
+    NOTIFICATIONS_QUERY_KEY,
+    useDeleteNotification,
+    useMarkAllNotificationsRead,
+    useMarkNotificationRead,
+} from '../queries'
 import type { Notification } from '../types'
 
-export const useMarkNotificationRead = () => {
+export const useNotificationActions = () => {
     const queryClient = useQueryClient()
-    return useMutation({
-        mutationFn: (id: string) => api.patch(`/notifications/${id}/read`),
-        onMutate: (id) => {
-            const readAt = new Date().toISOString()
-            queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
-                prev?.map((n) => (n.id === id ? { ...n, readAt } : n)),
-            )
-        },
-    })
-}
+    const { mutate: markRead } = useMarkNotificationRead()
+    const { mutate: deleteNotif } = useDeleteNotification()
+    const { mutate: markAllRead } = useMarkAllNotificationsRead()
 
-export const useDeleteNotification = () => {
-    const queryClient = useQueryClient()
-    return useMutation({
-        mutationFn: (id: string) => api.delete(`/notifications/${id}`),
-        onMutate: (id) => {
-            queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
-                prev?.filter((n) => n.id !== id),
-            )
-        },
-    })
+    const handleMarkRead = (id: string) => {
+        const readAt = new Date().toISOString()
+        queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
+            prev?.map((n) => (n.id === id ? { ...n, readAt } : n)),
+        )
+        markRead(id)
+    }
+
+    const handleDelete = (id: string) => {
+        queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
+            prev?.filter((n) => n.id !== id),
+        )
+        deleteNotif(id)
+    }
+
+    const handleMarkAllRead = () => {
+        markAllRead(undefined, {
+            onSuccess: () => {
+                const readAt = new Date().toISOString()
+                queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
+                    prev?.map((n) => (n.readAt === null ? { ...n, readAt } : n)),
+                )
+            },
+        })
+    }
+
+    return { handleMarkRead, handleDelete, handleMarkAllRead }
 }
