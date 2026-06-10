@@ -33,6 +33,10 @@ services:
         arguments:
             $subscriberJwtFactory: '@app.mercure.subscriber_jwt_factory'
 
+    App\Logging\RequestContextProcessor:
+        tags:
+            - { name: monolog.processor }
+
     app.redis_connection:
         class: Redis
         factory: ['Symfony\Component\Cache\Adapter\RedisAdapter', 'createConnection']

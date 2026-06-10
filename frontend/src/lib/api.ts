@@ -10,6 +10,7 @@ const apiFetch = async <T>(url: ApiRoute, options: RequestInit = {}): Promise<T 
         headers: {
             ...options.headers,
             'Content-Type': 'application/json',
+            'X-Request-ID': crypto.randomUUID(),
         },
     })
 
