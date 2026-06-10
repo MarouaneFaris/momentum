@@ -2,7 +2,11 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { Bell } from 'lucide-react'
 import { useState } from 'react'
-import { useMarkAllNotificationsRead } from '../queries'
+import {
+    useDeleteNotification,
+    useMarkAllNotificationsRead,
+    useMarkNotificationRead,
+} from '../queries'
 import { useNotifications } from '../hooks/useNotifications'
 import { NotificationPanel } from './NotificationPanel'
 
@@ -11,6 +15,8 @@ export function NotificationBell() {
     const { data } = useNotifications()
     const notifications = data ?? []
     const { mutate: markAllRead } = useMarkAllNotificationsRead()
+    const { mutate: markRead } = useMarkNotificationRead()
+    const { mutate: deleteNotification } = useDeleteNotification()
 
     const hasUnread = notifications.some((n) => n.readAt === null)
 
@@ -24,7 +30,12 @@ export function NotificationBell() {
                     )}
                 </Button>
             </PopoverTrigger>
-            <NotificationPanel notifications={notifications} onMarkAllRead={() => markAllRead()} />
+            <NotificationPanel
+                notifications={notifications}
+                onMarkAllRead={() => markAllRead()}
+                onMarkRead={(id) => markRead(id)}
+                onDelete={(id) => deleteNotification(id)}
+            />
         </Popover>
     )
 }
