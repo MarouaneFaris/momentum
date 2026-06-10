@@ -61,28 +61,21 @@ export function ProjectCard({
     onChangeStatus,
 }: ProjectCardProps) {
     return (
-        <div className="bg-card border-border hover:border-primary/40 group relative flex flex-col gap-2.5 rounded-[calc(var(--radius))] border p-4 transition-[border-color,box-shadow] hover:shadow-[0_0_0_3px_hsl(var(--primary)/0.06)]">
+        <div className="bg-card border-border hover:border-primary/40 group relative flex cursor-pointer flex-col gap-2.5 rounded-[calc(var(--radius))] border p-4 transition-[border-color,box-shadow] hover:shadow-[0_0_0_3px_hsl(var(--primary)/0.06)]">
             <Link
                 to={`/workspaces/${workspaceId}/projects/${project.id}/tasks`}
                 className="absolute inset-0 rounded-[calc(var(--radius))]"
                 aria-label={project.name}
             />
-            <div className="relative z-10 flex items-start gap-2">
-                <span className="text-foreground min-w-0 flex-1 text-sm leading-snug font-medium">
-                    {project.name}
-                </span>
-                <span
-                    className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap ${statusBadgeClass(project.status)}`}
-                >
-                    {statusLabel(project.status)}
-                </span>
-                {canManage && (
+
+            {canManage && (
+                <div className="absolute top-2 right-2 z-20">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-muted-foreground hover:text-foreground size-6 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                                className="text-muted-foreground hover:text-foreground size-6 shrink-0 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
                                 onClick={(e) => e.preventDefault()}
                             >
                                 <EllipsisVerticalIcon className="size-3.5" />
@@ -122,8 +115,20 @@ export function ProjectCard({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                )}
+                </div>
+            )}
+
+            <div className="relative z-10 flex items-start gap-2 pr-4">
+                <span className="text-foreground min-w-0 flex-1 text-sm leading-snug font-medium">
+                    {project.name}
+                </span>
+                <span
+                    className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap ${statusBadgeClass(project.status)}`}
+                >
+                    {statusLabel(project.status)}
+                </span>
             </div>
+
             {project.description && (
                 <p className="text-muted-foreground relative z-10 line-clamp-2 text-xs leading-relaxed">
                     {project.description}

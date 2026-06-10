@@ -49,7 +49,11 @@ export default function WorkspaceProjectsPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-base font-semibold tracking-tight">Projects</h1>
                 {canCreateProject() && (
-                    <Button size="lg" onClick={() => setCreateOpen(true)}>
+                    <Button
+                        size="lg"
+                        className="cursor-pointer"
+                        onClick={() => setCreateOpen(true)}
+                    >
                         <Plus />
                         New project
                     </Button>
@@ -62,10 +66,10 @@ export default function WorkspaceProjectsPage() {
                         key={value}
                         size="sm"
                         onClick={() => setFilter(value)}
-                        className={`h-7 rounded-full px-2.5 text-xs font-medium ${
+                        className={`h-7 cursor-pointer rounded-full px-2.5 text-xs font-medium ${
                             filter === value
-                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary'
-                                : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground'
+                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:bg-primary/20 dark:border-primary/50 dark:hover:bg-primary/25'
+                                : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-transparent dark:hover:bg-transparent'
                         }`}
                         variant="outline"
                     >
@@ -95,7 +99,7 @@ export default function WorkspaceProjectsPage() {
                         <Button
                             variant="outline"
                             onClick={() => setCreateOpen(true)}
-                            className="border-border text-muted-foreground hover:border-primary/40 hover:text-foreground h-auto min-h-[132px] w-full flex-col gap-2 rounded-[calc(var(--radius))] border-dashed"
+                            className="border-border text-muted-foreground hover:border-primary/40 hover:text-foreground h-auto min-h-[132px] w-full cursor-pointer flex-col gap-2 rounded-[calc(var(--radius))] border-dashed bg-transparent shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
                         >
                             <Plus className="size-5" />
                             <span className="text-sm">New project</span>
