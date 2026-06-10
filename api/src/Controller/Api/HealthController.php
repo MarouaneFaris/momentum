@@ -18,6 +18,8 @@ final class HealthController
         #[Autowire('%env(REDIS_URL)%')]
         private readonly string $redisUrl,
         private readonly LoggerInterface $logger,
+        #[Autowire('%env(APP_VERSION)%')]
+        private readonly string $version,
     ) {}
 
     #[Route('/api/health', name: 'api_health', methods: [Request::METHOD_GET])]
@@ -51,9 +53,9 @@ final class HealthController
         }
 
         if ($healthy) {
-            return new JsonResponse(['status' => 'ok']);
+            return new JsonResponse(['status' => 'ok', 'version' => $this->version]);
         }
 
-        return new JsonResponse(['status' => 'degraded'], JsonResponse::HTTP_SERVICE_UNAVAILABLE);
+        return new JsonResponse(['status' => 'degraded', 'version' => $this->version], JsonResponse::HTTP_SERVICE_UNAVAILABLE);
     }
 }

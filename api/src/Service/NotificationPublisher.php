@@ -85,9 +85,8 @@ readonly class NotificationPublisher
         } catch (\Throwable $e) {
             $this->logger->warning('Mercure publish failed', array_merge($logContext, [
                 'topic' => $topic,
+                'error' => $e->getMessage(),
                 'exception_class' => $e::class,
-                'exception_message' => $e->getMessage(),
-                'exception' => $e,
             ]));
         }
     }

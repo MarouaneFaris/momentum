@@ -10,6 +10,7 @@ concurrency:
 on:
   push:
     branches: [main]
+    tags: ["v*.*.*"]
   pull_request:
     branches: [main, "epic/**"]
 
@@ -73,7 +74,7 @@ jobs:
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
-    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     defaults:
       run:
         working-directory: ./frontend
@@ -92,7 +93,7 @@ jobs:
     name: Tests / Unit
     runs-on: ubuntu-latest
     needs: api-quality
-    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     env:
       APP_ENV: test
     defaults:
@@ -113,7 +114,7 @@ jobs:
     name: Tests / ${{ matrix.suite }}
     runs-on: ubuntu-latest
     needs: api-quality
-    if: github.base_ref == 'main' || github.ref == 'refs/heads/main'
+    if: github.base_ref == 'main' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     strategy:
       matrix:
         suite: [Integration, Functional]
@@ -170,7 +171,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     needs: [frontend, frontend-tests, api-quality, api-test-unit, api-tests]
-    if: github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/v')
     environment: production
     concurrency:
       group: deploy-production
@@ -186,7 +187,10 @@ jobs:
       - name: Deploy
         # Migrations run via Railway's pre-deploy command, not here.
         # Required: repo secret RAILWAY_TOKEN, repo variable RAILWAY_APP_SERVICE_ID.
-        run: railway up --ci --service "$RAILWAY_APP_SERVICE_ID"
+        run: >
+          railway up --ci --service "$RAILWAY_APP_SERVICE_ID"
+          --build-arg "VITE_APP_VERSION=${{ github.ref_name }}"
+          --build-arg "APP_VERSION=${{ github.ref_name }}"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}

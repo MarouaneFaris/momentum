@@ -1,0 +1,26 @@
+name: Dependabot update branches
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: Update open Dependabot branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update each open Dependabot PR
+        run: |
+          gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --author "dependabot[bot]" \
+            --state open \
+            --json number \
+            --jq '.[].number' \
+          | xargs -I {} gh pr update-branch {} --repo "$GITHUB_REPOSITORY" || true
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDABOT_PAT }}
