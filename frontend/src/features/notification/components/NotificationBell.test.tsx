@@ -10,6 +10,11 @@ vi.mock('../queries', () => ({
     useMarkAllNotificationsRead: () => ({ mutate: vi.fn() }),
 }))
 
+vi.mock('../hooks/useNotificationActions', () => ({
+    useMarkNotificationRead: () => ({ mutate: vi.fn() }),
+    useDeleteNotification: () => ({ mutate: vi.fn() }),
+}))
+
 import { useNotifications } from '../hooks/useNotifications'
 
 const makeNotification = (overrides: Partial<Notification> = {}): Notification => ({
