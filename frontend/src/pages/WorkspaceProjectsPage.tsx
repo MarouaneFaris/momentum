@@ -84,8 +84,8 @@ export default function WorkspaceProjectsPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-base font-semibold tracking-tight">Projects</h1>
                 {canCreateProject() && (
-                    <Button size="sm" onClick={() => setCreateOpen(true)}>
-                        <Plus className="size-3.5" />
+                    <Button size="lg" onClick={() => setCreateOpen(true)}>
+                        <Plus />
                         New project
                     </Button>
                 )}
@@ -281,8 +281,8 @@ function EmptyState({ onNew }: { onNew?: () => void }) {
                 </p>
             </div>
             {onNew && (
-                <Button size="sm" onClick={onNew}>
-                    <Plus className="size-3.5" />
+                <Button size="lg" onClick={onNew}>
+                    <Plus />
                     New project
                 </Button>
             )}
