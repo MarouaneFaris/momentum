@@ -1,6 +1,6 @@
 # Momentum
 
-[![CI](https://img.shields.io/github/actions/workflow/status/MarouaneFaris/momentum/ci.yaml?branch=main&label=CI)](https://github.com/MarouaneFaris/momentum/actions/workflows/ci.yaml)
+[![CI](https://github.com/MarouaneFaris/momentum/actions/workflows/ci.yaml/badge.svg)](https://github.com/MarouaneFaris/momentum/actions/workflows/ci.yaml)
 ![PHP](https://img.shields.io/badge/PHP-8.5-777BB4?logo=php)
 ![Symfony](https://img.shields.io/badge/Symfony-8.0-000000?logo=symfony)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
