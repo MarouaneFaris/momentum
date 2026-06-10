@@ -145,7 +145,7 @@ export default function AppLayout() {
             </div>
             {/* Bottom tab bar — mobile only */}
             {workspaceId && (
-                <nav className="bg-card fixed right-0 bottom-0 left-0 flex h-14 shrink-0 items-center justify-around border-t px-2 pb-1 md:hidden">
+                <nav className="bg-card fixed right-0 bottom-0 left-0 z-50 flex h-14 shrink-0 items-center justify-around border-t px-2 pb-1 md:hidden">
                     <NavLink
                         to={`/workspaces/${workspaceId}/dashboard`}
                         className={({ isActive }) =>
