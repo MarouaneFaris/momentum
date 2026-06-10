@@ -118,7 +118,7 @@ export function ProjectCard({
                 </div>
             )}
 
-            <div className="relative z-10 flex items-start gap-2 pr-4">
+            <div className={`relative z-10 flex items-start gap-2 ${canManage ? 'pr-8' : ''}`}>
                 <span className="text-foreground min-w-0 flex-1 text-sm leading-snug font-medium">
                     {project.name}
                 </span>
