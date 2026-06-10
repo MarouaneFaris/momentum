@@ -14,28 +14,34 @@ export const useNotificationActions = () => {
     const { mutate: markAllRead } = useMarkAllNotificationsRead()
 
     const handleMarkRead = (id: string) => {
+        const snapshot = queryClient.getQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY)
         const readAt = new Date().toISOString()
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
             prev?.map((n) => (n.id === id ? { ...n, readAt } : n)),
         )
-        markRead(id)
+        markRead(id, {
+            onError: () => queryClient.setQueryData(NOTIFICATIONS_QUERY_KEY, snapshot),
+        })
     }
 
     const handleDelete = (id: string) => {
+        const snapshot = queryClient.getQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY)
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
             prev?.filter((n) => n.id !== id),
         )
-        deleteNotif(id)
+        deleteNotif(id, {
+            onError: () => queryClient.setQueryData(NOTIFICATIONS_QUERY_KEY, snapshot),
+        })
     }
 
     const handleMarkAllRead = () => {
+        const snapshot = queryClient.getQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY)
+        const readAt = new Date().toISOString()
+        queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
+            prev?.map((n) => (n.readAt === null ? { ...n, readAt } : n)),
+        )
         markAllRead(undefined, {
-            onSuccess: () => {
-                const readAt = new Date().toISOString()
-                queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (prev) =>
-                    prev?.map((n) => (n.readAt === null ? { ...n, readAt } : n)),
-                )
-            },
+            onError: () => queryClient.setQueryData(NOTIFICATIONS_QUERY_KEY, snapshot),
         })
     }
 
