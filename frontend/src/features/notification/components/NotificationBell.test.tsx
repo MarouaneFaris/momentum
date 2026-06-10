@@ -6,13 +6,14 @@ vi.mock('../hooks/useNotifications', () => ({
     useNotifications: vi.fn(),
 }))
 
-vi.mock('../queries', () => ({
-    useMarkAllNotificationsRead: () => ({ mutate: vi.fn() }),
-}))
+vi.mock('../queries', () => ({}))
 
 vi.mock('../hooks/useNotificationActions', () => ({
-    useMarkNotificationRead: () => ({ mutate: vi.fn() }),
-    useDeleteNotification: () => ({ mutate: vi.fn() }),
+    useNotificationActions: () => ({
+        handleMarkAllRead: vi.fn(),
+        handleMarkRead: vi.fn(),
+        handleDelete: vi.fn(),
+    }),
 }))
 
 import { useNotifications } from '../hooks/useNotifications'
