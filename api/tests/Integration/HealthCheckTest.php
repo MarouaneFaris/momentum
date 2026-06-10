@@ -19,7 +19,7 @@ final class HealthCheckTest extends IntegrationTestCase
 
         self::assertResponseStatusCodeSame(200);
         $data = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertSame(['status' => 'ok'], $data);
+        self::assertSame(['status' => 'ok', 'version' => 'dev'], $data);
     }
 
     public function testReturnsDegradedWhenRedisFails(): void
@@ -32,7 +32,7 @@ final class HealthCheckTest extends IntegrationTestCase
 
         self::assertResponseStatusCodeSame(503);
         $data = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertSame(['status' => 'degraded'], $data);
+        self::assertSame(['status' => 'degraded', 'version' => 'dev'], $data);
     }
 
     public function testReturnsDegradedWhenDbFails(): void
@@ -54,7 +54,7 @@ final class HealthCheckTest extends IntegrationTestCase
 
         self::assertResponseStatusCodeSame(503);
         $data = json_decode((string) $client->getResponse()->getContent(), true);
-        self::assertSame(['status' => 'degraded'], $data);
+        self::assertSame(['status' => 'degraded', 'version' => 'dev'], $data);
     }
 
     public function testHealthEndpointIsNotRateLimited(): void
@@ -93,6 +93,7 @@ final class HealthCheckTest extends IntegrationTestCase
             $dbConnection ?? $defaultConn,
             $redisUrl ?? $defaultUrl,
             new NullLogger(),
+            'dev',
         ));
     }
 }
