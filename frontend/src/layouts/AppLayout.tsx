@@ -87,42 +87,44 @@ export default function AppLayout() {
                             </Badge>
                         )}
                     </NavLink>
-                    {workspaceId && (
-                        <div className="mt-auto">
-                            <p className="text-muted-foreground px-2 pt-2 pb-1 text-[10px] font-medium tracking-[0.08em] uppercase">
-                                Workspace
-                            </p>
-                            <NavLink
-                                to={`/workspaces/${workspaceId}/members`}
-                                className={({ isActive }) =>
-                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                        isActive
-                                            ? 'bg-primary/10 text-primary font-medium'
-                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                    }`
-                                }
-                            >
-                                <Users className="h-4 w-4 shrink-0" />
-                                Members
-                            </NavLink>
-                            <NavLink
-                                to={`/workspaces/${workspaceId}/settings`}
-                                className={({ isActive }) =>
-                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                        isActive
-                                            ? 'bg-primary/10 text-primary font-medium'
-                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                    }`
-                                }
-                            >
-                                <Settings className="h-4 w-4 shrink-0" />
-                                Settings
-                            </NavLink>
-                        </div>
-                    )}
-                    <p className="text-muted-foreground/60 mt-auto px-2 pt-3 pb-1 text-[10px]">
-                        {import.meta.env.VITE_APP_VERSION ?? 'dev'}
-                    </p>
+                    <div className="mt-auto">
+                        {workspaceId && (
+                            <>
+                                <p className="text-muted-foreground px-2 pt-2 pb-1 text-[10px] font-medium tracking-[0.08em] uppercase">
+                                    Workspace
+                                </p>
+                                <NavLink
+                                    to={`/workspaces/${workspaceId}/members`}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                            isActive
+                                                ? 'bg-primary/10 text-primary font-medium'
+                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                        }`
+                                    }
+                                >
+                                    <Users className="h-4 w-4 shrink-0" />
+                                    Members
+                                </NavLink>
+                                <NavLink
+                                    to={`/workspaces/${workspaceId}/settings`}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                            isActive
+                                                ? 'bg-primary/10 text-primary font-medium'
+                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                        }`
+                                    }
+                                >
+                                    <Settings className="h-4 w-4 shrink-0" />
+                                    Settings
+                                </NavLink>
+                            </>
+                        )}
+                        <p className="text-muted-foreground/60 px-2 pt-3 pb-1 text-[10px]">
+                            {import.meta.env.VITE_APP_VERSION ?? 'dev'}
+                        </p>
+                    </div>
                 </aside>
                 <main className="bg-background flex-1 overflow-auto p-8">
                     <Outlet />
