@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Clock, FileText, X } from 'lucide-react'
 import type { Notification, NotificationType } from '../types'
@@ -117,7 +118,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Props) 
     return (
         <div
             className={cn(
-                'group flex cursor-pointer items-start gap-2.5 px-3.5 py-2.5 transition-colors',
+                'group relative flex cursor-pointer items-start gap-2.5 px-3.5 py-2.5 transition-colors',
                 isRead ? 'hover:bg-muted' : 'bg-primary/[0.03] hover:bg-primary/[0.06]',
             )}
             onClick={handleClick}
@@ -154,13 +155,15 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Props) 
                     {isDemo && <span className="ml-1.5 italic">demo</span>}
                 </p>
             </div>
-            <button
-                className="text-muted-foreground hover:text-foreground hover:bg-muted mt-0.5 hidden shrink-0 rounded p-0.5 group-hover:flex"
+            <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-1.5 right-1.5 hidden h-6 w-6 group-hover:flex"
                 onClick={handleDelete}
                 aria-label="Delete notification"
             >
                 <X className="h-3 w-3" />
-            </button>
+            </Button>
         </div>
     )
 }

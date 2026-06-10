@@ -1,12 +1,10 @@
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 import { Bell } from 'lucide-react'
 import { useState } from 'react'
-import {
-    useDeleteNotification,
-    useMarkAllNotificationsRead,
-    useMarkNotificationRead,
-} from '../queries'
+import { useMarkAllNotificationsRead } from '../queries'
+import { useDeleteNotification, useMarkNotificationRead } from '../hooks/useNotificationActions'
 import { useNotifications } from '../hooks/useNotifications'
 import { NotificationPanel } from './NotificationPanel'
 
@@ -23,10 +21,15 @@ export function NotificationBell() {
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Notifications"
+                    className={cn('relative', open && 'bg-primary/10 text-primary')}
+                >
                     <Bell className="h-4 w-4" />
                     {hasUnread && (
-                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500" />
+                        <span className="border-sidebar bg-primary absolute top-[5px] right-[5px] h-[7px] w-[7px] rounded-full border-[1.5px]" />
                     )}
                 </Button>
             </PopoverTrigger>
