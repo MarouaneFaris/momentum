@@ -25,8 +25,6 @@ export default function AuthLayout() {
 
     const bullets = pathname === '/register' ? REGISTER_BULLETS : LOGIN_BULLETS
 
-    const isLogin = pathname === '/login'
-
     return (
         <div className="bg-card flex min-h-screen flex-col md:grid md:grid-cols-[1fr_480px]">
             <div className="bg-muted hidden flex-col items-center justify-center gap-3 border-r p-12 md:flex">
@@ -51,18 +49,16 @@ export default function AuthLayout() {
                 <div className="flex justify-end">
                     <ThemeToggle />
                 </div>
-                {isLogin && (
-                    <div className="mb-8 flex flex-col items-center gap-3 md:hidden">
-                        <MomentumLogo size="lg" />
-                        <div className="flex w-full max-w-[280px] items-center gap-3">
-                            <span className="bg-border h-px flex-1" />
-                            <span className="text-muted-foreground text-[10px] font-medium tracking-[0.18em] whitespace-nowrap uppercase">
-                                Task · Project · Team
-                            </span>
-                            <span className="bg-border h-px flex-1" />
-                        </div>
+                <div className="mb-8 flex flex-col items-center gap-3 md:hidden">
+                    <MomentumLogo size="lg" />
+                    <div className="flex w-full max-w-[280px] items-center gap-3">
+                        <span className="bg-border h-px flex-1" />
+                        <span className="text-muted-foreground text-[10px] font-medium tracking-[0.18em] whitespace-nowrap uppercase">
+                            Task · Project · Team
+                        </span>
+                        <span className="bg-border h-px flex-1" />
                     </div>
-                )}
+                </div>
                 <div className="flex flex-1 flex-col justify-center">
                     <Outlet />
                 </div>
