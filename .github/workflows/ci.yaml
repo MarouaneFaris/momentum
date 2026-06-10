@@ -184,13 +184,22 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
+      - name: Set version variables
+        # --skip-deploys: set vars without triggering a deploy (deploy follows immediately after)
+        run: |
+          railway variable set \
+            "VITE_APP_VERSION=${{ github.ref_name }}" \
+            "APP_VERSION=${{ github.ref_name }}" \
+            --service "$RAILWAY_APP_SERVICE_ID" \
+            --skip-deploys
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
+
       - name: Deploy
         # Migrations run via Railway's pre-deploy command, not here.
         # Required: repo secret RAILWAY_TOKEN, repo variable RAILWAY_APP_SERVICE_ID.
-        run: >
-          railway up --ci --service "$RAILWAY_APP_SERVICE_ID"
-          --build-arg "VITE_APP_VERSION=${{ github.ref_name }}"
-          --build-arg "APP_VERSION=${{ github.ref_name }}"
+        run: railway up --ci --service "$RAILWAY_APP_SERVICE_ID"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
