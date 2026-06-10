@@ -4,6 +4,7 @@ updates:
     directory: "/frontend"
     schedule:
       interval: "weekly"
+    rebase-strategy: "auto"
     groups:
       react-ecosystem:
         patterns:
@@ -27,6 +28,7 @@ updates:
     directory: "/api"
     schedule:
       interval: "weekly"
+    rebase-strategy: "auto"
     groups:
       symfony:
         patterns:
@@ -39,3 +41,4 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    rebase-strategy: "auto"
