@@ -7,7 +7,7 @@ import { useMyInvitations } from '@/features/membership/queries'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
-import { FolderOpen, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
+import { FolderOpen, LayoutDashboard, ListTodo, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 
@@ -22,7 +22,8 @@ export default function AppLayout() {
 
     return (
         <div className="flex h-screen flex-col">
-            <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4">
+            {/* Desktop topbar */}
+            <header className="bg-sidebar hidden h-12 shrink-0 items-center gap-3 border-b px-4 md:flex">
                 <MomentumLogo size="sm" />
                 <span className="text-sm font-semibold tracking-tight">
                     <span className="text-primary">m</span>omentum
@@ -34,8 +35,19 @@ export default function AppLayout() {
                 <NotificationBell />
                 <UserMenu />
             </header>
+            {/* Mobile topbar */}
+            <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4 md:hidden">
+                <MomentumLogo size="sm" />
+                <span className="text-sm font-semibold tracking-tight">
+                    <span className="text-primary">m</span>omentum
+                </span>
+                <span className="flex-1" />
+                <NotificationBell />
+                <UserMenu />
+            </header>
             <div className="flex flex-1 overflow-hidden">
-                <aside className="bg-sidebar flex w-[200px] shrink-0 flex-col overflow-y-auto border-r px-2 py-3">
+                {/* Sidebar — desktop only */}
+                <aside className="bg-sidebar hidden w-[200px] shrink-0 flex-col overflow-y-auto border-r px-2 py-3 md:flex">
                     <p className="text-muted-foreground px-2 py-1 text-[10px] font-medium tracking-[0.08em] uppercase">
                         Main
                     </p>
@@ -126,10 +138,99 @@ export default function AppLayout() {
                         </p>
                     </div>
                 </aside>
-                <main className="bg-background flex-1 overflow-auto p-8">
+                <main className="bg-background flex-1 overflow-auto p-8 pb-14 md:pb-8">
                     <Outlet />
                 </main>
             </div>
+            {/* Bottom tab bar — mobile only */}
+            {workspaceId && (
+                <nav className="bg-card fixed right-0 bottom-0 left-0 flex h-14 shrink-0 items-center justify-around border-t px-2 pb-1 md:hidden">
+                    <NavLink
+                        to={`/workspaces/${workspaceId}/dashboard`}
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <LayoutDashboard
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    Home
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink
+                        to={`/workspaces/${workspaceId}/projects`}
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <ListTodo
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    Tasks
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink
+                        to={`/workspaces/${workspaceId}/projects`}
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <FolderOpen
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    Projects
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink
+                        to={`/workspaces/${workspaceId}/settings`}
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <Settings
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    Settings
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                </nav>
+            )}
         </div>
     )
 }
