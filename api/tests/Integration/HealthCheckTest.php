@@ -93,6 +93,7 @@ final class HealthCheckTest extends IntegrationTestCase
             $dbConnection ?? $defaultConn,
             $redisUrl ?? $defaultUrl,
             new NullLogger(),
+            'dev',
         ));
     }
 }
