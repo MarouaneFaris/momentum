@@ -88,6 +88,9 @@ FROM node:lts-alpine AS frontend_builder
 
 ENV CI=true
 
+ARG VITE_APP_VERSION=dev
+ENV VITE_APP_VERSION=$VITE_APP_VERSION
+
 WORKDIR /frontend
 
 COPY --link frontend/package.json frontend/pnpm-lock.yaml frontend/.npmrc frontend/pnpm-workspace.yaml ./
@@ -103,7 +106,9 @@ RUN corepack pnpm run build:prod
 # Builder for the prod FrankenPHP image
 FROM frankenphp_base AS frankenphp_prod_builder
 
+ARG APP_VERSION=dev
 ENV APP_ENV=prod
+ENV APP_VERSION=$APP_VERSION
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 

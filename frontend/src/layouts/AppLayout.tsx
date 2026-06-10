@@ -120,6 +120,9 @@ export default function AppLayout() {
                             </NavLink>
                         </div>
                     )}
+                    <p className="text-muted-foreground/60 mt-auto px-2 pt-3 pb-1 text-[10px]">
+                        {import.meta.env.VITE_APP_VERSION ?? 'dev'}
+                    </p>
                 </aside>
                 <main className="bg-background flex-1 overflow-auto p-8">
                     <Outlet />

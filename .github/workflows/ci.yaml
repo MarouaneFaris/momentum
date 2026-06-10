@@ -187,7 +187,10 @@ jobs:
       - name: Deploy
         # Migrations run via Railway's pre-deploy command, not here.
         # Required: repo secret RAILWAY_TOKEN, repo variable RAILWAY_APP_SERVICE_ID.
-        run: railway up --ci --service "$RAILWAY_APP_SERVICE_ID"
+        run: >
+          railway up --ci --service "$RAILWAY_APP_SERVICE_ID"
+          --build-arg "VITE_APP_VERSION=${{ github.ref_name }}"
+          --build-arg "APP_VERSION=${{ github.ref_name }}"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_APP_SERVICE_ID: ${{ vars.RAILWAY_APP_SERVICE_ID }}
