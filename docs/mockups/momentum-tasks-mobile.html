@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum — Tasks mobile mockups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: oklch(0.488 0.243 264.376);
+      --primary-fg: oklch(0.97 0.014 254.604);
+      --primary-hover: oklch(0.44 0.22 264.376);
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.141 0.005 285.823);
+      --card: oklch(1 0 0);
+      --muted: oklch(0.967 0.001 286.375);
+      --muted-fg: oklch(0.552 0.016 285.938);
+      --border: oklch(0.92 0.004 286.32);
+      --radius: 0.625rem;
+      --red: oklch(0.55 0.2 25);
+      --red-bg: oklch(0.55 0.2 25 / 0.1);
+      --red-border: oklch(0.55 0.2 25 / 0.25);
+      --green: oklch(0.35 0.12 145);
+      --green-bg: oklch(0.3 0.1 145 / 0.1);
+      --green-border: oklch(0.3 0.1 145 / 0.25);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: oklch(0.624 0.214 259.815);
+        --primary-fg: oklch(0.97 0.014 254.604);
+        --background: oklch(0.141 0.005 285.823);
+        --foreground: oklch(0.985 0 0);
+        --card: oklch(0.21 0.006 285.885);
+        --muted: oklch(0.274 0.006 286.033);
+        --muted-fg: oklch(0.705 0.015 286.067);
+        --border: oklch(1 0 0 / 10%);
+        --red: oklch(0.65 0.2 25);
+        --red-bg: oklch(0.55 0.2 25 / 0.12);
+        --red-border: oklch(0.55 0.2 25 / 0.3);
+        --green: oklch(0.55 0.15 145);
+        --green-bg: oklch(0.3 0.1 145 / 0.12);
+        --green-border: oklch(0.3 0.1 145 / 0.3);
+      }
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--muted);
+      color: var(--foreground);
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+
+    .page-header {
+      max-width: 1100px;
+      margin: 0 auto 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-logo { display: flex; align-items: center; gap: 10px; }
+    .mark { display: flex; flex-direction: column; gap: 4px; transform: skewX(-12deg); }
+    .stripe { border-radius: 2px; background: var(--primary); }
+    .wordmark { font-size: 16px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .wordmark .acc { color: var(--primary); }
+    .page-divider { flex: 1; height: 0.5px; background: var(--border); }
+    .page-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); white-space: nowrap; }
+
+    .screens-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+    }
+
+    .screen-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+    .screen-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+    }
+
+    /* Phone frame */
+    .phone {
+      width: 220px;
+      border-radius: 28px;
+      border: 1.5px solid var(--border);
+      background: var(--background);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 4px oklch(0 0 0 / 0.06);
+    }
+
+    .notch-bar {
+      height: 32px;
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .notch {
+      width: 60px; height: 12px;
+      border-radius: 6px;
+      background: var(--muted);
+    }
+
+    .topbar {
+      height: 44px;
+      background: var(--card);
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .topbar-mark { display: flex; flex-direction: column; gap: 3px; transform: skewX(-12deg); }
+    .topbar-wordmark { font-size: 13px; font-weight: 600; letter-spacing: -0.5px; color: var(--foreground); }
+    .spacer { flex: 1; }
+
+    .icon-btn {
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius);
+      color: var(--muted-fg);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .icon-btn svg { width: 16px; height: 16px; }
+
+    .notif-badge {
+      position: absolute;
+      top: 4px; right: 4px;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 1.5px solid var(--card);
+    }
+
+    .avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: oklch(0.488 0.243 264.376 / 0.15);
+      border: 0.5px solid oklch(0.488 0.243 264.376 / 0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 600;
+      color: var(--primary);
+    }
+
+    .body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--background);
+    }
+
+    /* Section label */
+    .sec-label {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      padding: 10px 12px 4px;
+    }
+
+    /* Badges */
+    .badge {
+      font-size: 9px; font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-todo { background: var(--muted); color: var(--muted-fg); border: 0.5px solid var(--border); }
+    .badge-prog { background: oklch(0.488 0.243 264.376 / 0.1); color: var(--primary); border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25); }
+    .badge-done { background: var(--green-bg); color: var(--green); border: 0.5px solid var(--green-border); }
+    .badge-danger { background: var(--red-bg); color: var(--red); border: 0.5px solid var(--red-border); }
+
+    /* Task rows */
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 9px 12px;
+      border-bottom: 0.5px solid var(--border);
+      cursor: pointer;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item:active { background: var(--muted); }
+
+    .task-check {
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .task-check.prog { border-color: var(--primary); }
+    .task-check.done {
+      background: oklch(0.488 0.243 264.376 / 0.12);
+      border-color: var(--primary);
+    }
+
+    .task-content { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .task-title { font-size: 12px; color: var(--foreground); line-height: 1.3; }
+    .task-title.done { text-decoration: line-through; color: var(--muted-fg); }
+    .task-meta { display: flex; align-items: center; gap: 5px; }
+    .task-project { font-size: 10px; color: var(--muted-fg); }
+
+    .mini-av {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: oklch(0.488 0.243 264.376 / 0.15);
+      border: 0.5px solid oklch(0.488 0.243 264.376 / 0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; font-weight: 600;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    /* Filter tabs */
+    .filter-bar {
+      display: flex;
+      gap: 2px;
+      padding: 8px 12px;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+      background: var(--card);
+      overflow-x: auto;
+    }
+    .filter-chip {
+      font-size: 10px; font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      cursor: pointer;
+      color: var(--muted-fg);
+      border: 0.5px solid var(--border);
+      background: transparent;
+    }
+    .filter-chip.active {
+      background: oklch(0.488 0.243 264.376 / 0.1);
+      color: var(--primary);
+      border-color: oklch(0.488 0.243 264.376 / 0.3);
+    }
+
+    /* Tab bar */
+    .tabbar {
+      height: 56px;
+      border-top: 0.5px solid var(--border);
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px 4px;
+      flex-shrink: 0;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .tab-icon {
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tab-icon svg { width: 20px; height: 20px; color: var(--muted-fg); }
+    .tab-icon.active svg { color: var(--primary); }
+
+    .tab-lbl { font-size: 9px; color: var(--muted-fg); }
+    .tab-lbl.active { color: var(--primary); font-weight: 500; }
+
+    /* Home indicator */
+    .home-bar {
+      height: 24px;
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .home-pill { width: 80px; height: 4px; border-radius: 2px; background: var(--border); }
+
+    /* Scrollable body */
+    .scroll-body { flex: 1; overflow-y: auto; }
+
+    /* Empty state */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 24px;
+      text-align: center;
+    }
+    .empty-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .empty-icon svg { width: 20px; height: 20px; color: var(--muted-fg); }
+    .empty-title { font-size: 13px; font-weight: 500; color: var(--foreground); }
+    .empty-sub { font-size: 11px; color: var(--muted-fg); line-height: 1.5; }
+    .empty-btn {
+      margin-top: 4px;
+      padding: 7px 16px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* FAB */
+    .fab {
+      position: absolute;
+      bottom: 70px;
+      right: 14px;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px oklch(0.488 0.243 264.376 / 0.4);
+    }
+    .fab svg { width: 18px; height: 18px; color: var(--primary-fg); }
+    .phone-rel { position: relative; }
+
+    /* Bottom sheet */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: oklch(0 0 0 / 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .sheet {
+      background: var(--card);
+      border-radius: 18px 18px 0 0;
+      padding: 0 0 8px;
+    }
+    .sheet-handle-row {
+      display: flex; justify-content: center;
+      padding: 10px 0 6px;
+    }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); }
+    .sheet-title {
+      font-size: 13px; font-weight: 600;
+      padding: 0 16px 12px;
+      color: var(--foreground);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .sheet-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field-label { font-size: 11px; font-weight: 500; color: var(--foreground); }
+
+    .mock-input {
+      width: 100%;
+      height: 36px;
+      background: var(--muted);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0 10px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      color: var(--foreground);
+    }
+    .mock-input::placeholder { color: var(--muted-fg); }
+
+    .mock-textarea {
+      width: 100%;
+      height: 60px;
+      background: var(--muted);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      color: var(--foreground);
+      resize: none;
+    }
+    .mock-textarea::placeholder { color: var(--muted-fg); }
+
+    .mock-select-row {
+      display: flex;
+      gap: 6px;
+    }
+    .select-chip {
+      flex: 1;
+      height: 32px;
+      border-radius: var(--radius);
+      background: var(--muted);
+      border: 0.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      color: var(--muted-fg);
+      cursor: pointer;
+    }
+    .select-chip.selected {
+      background: oklch(0.488 0.243 264.376 / 0.1);
+      border-color: oklch(0.488 0.243 264.376 / 0.3);
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .sheet-actions { display: flex; gap: 8px; padding: 0 16px 8px; }
+    .btn-primary {
+      flex: 1; height: 38px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px; font-weight: 500;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-ghost {
+      flex: 1; height: 38px;
+      background: transparent;
+      color: var(--muted-fg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Detail view */
+    .detail-body { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 12px; }
+
+    .detail-title { font-size: 15px; font-weight: 600; color: var(--foreground); line-height: 1.3; }
+
+    .detail-card {
+      background: var(--muted);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 11px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: var(--muted-fg); }
+    .detail-val { color: var(--foreground); font-weight: 500; display: flex; align-items: center; gap: 5px; }
+
+    .desc-card {
+      background: var(--muted);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      font-size: 11px;
+      color: var(--muted-fg);
+      line-height: 1.6;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 6px;
+    }
+    .action-btn {
+      flex: 1; height: 34px;
+      border-radius: var(--radius);
+      font-size: 11px; font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      border: 0.5px solid var(--border);
+      background: var(--muted);
+      color: var(--foreground);
+      cursor: pointer;
+    }
+    .action-btn.danger { color: var(--red); border-color: var(--red-border); background: var(--red-bg); }
+    .action-btn svg { width: 12px; height: 12px; }
+
+    /* Confirm dialog */
+    .dialog-overlay {
+      position: absolute;
+      inset: 0;
+      background: oklch(0 0 0 / 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .dialog {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 20px 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .dialog-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--red-bg);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 2px;
+    }
+    .dialog-icon svg { width: 18px; height: 18px; color: var(--red); }
+    .dialog-title { font-size: 14px; font-weight: 600; color: var(--foreground); }
+    .dialog-body { font-size: 12px; color: var(--muted-fg); line-height: 1.5; }
+    .dialog-actions { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .btn-danger {
+      width: 100%; height: 38px;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 13px; font-weight: 500;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-cancel {
+      width: 100%; height: 38px;
+      background: var(--muted);
+      color: var(--foreground);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Context menu sheet */
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+      color: var(--foreground);
+      cursor: pointer;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item.danger { color: var(--red); }
+    .menu-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* Guest blocked state */
+    .blocked-banner {
+      margin: 12px;
+      padding: 10px 12px;
+      background: var(--muted);
+      border-radius: var(--radius);
+      border: 0.5px solid var(--border);
+      font-size: 11px;
+      color: var(--muted-fg);
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="page-logo">
+      <div class="mark">
+        <div class="stripe" style="width:20px;height:6px;opacity:.25"></div>
+        <div class="stripe" style="width:20px;height:6px;opacity:.55"></div>
+        <div class="stripe" style="width:20px;height:6px;opacity:1"></div>
+      </div>
+      <div class="wordmark"><span class="acc">m</span>omentum</div>
+    </div>
+    <div class="page-divider"></div>
+    <div class="page-label">Tasks — Mobile</div>
+  </div>
+
+  <div class="screens-grid">
+
+    <!-- TASK LIST -->
+    <div class="screen-col">
+      <div class="screen-label">Task list</div>
+      <div class="phone phone-rel">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Backend API
+          </div>
+          <div class="spacer"></div>
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <div class="filter-chip active">All</div>
+          <div class="filter-chip">To do</div>
+          <div class="filter-chip">In progress</div>
+          <div class="filter-chip">Done</div>
+        </div>
+        <div class="body">
+          <div class="scroll-body">
+            <div class="task-item">
+              <div class="task-check prog"></div>
+              <div class="task-content">
+                <div class="task-title">Implement task CRUD endpoints</div>
+                <div class="task-meta">
+                  <span class="badge badge-prog">In progress</span>
+                  <div class="mini-av">AJ</div>
+                </div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <div class="task-content">
+                <div class="task-title">Write permission voter tests</div>
+                <div class="task-meta">
+                  <span class="badge badge-todo">To do</span>
+                </div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <div class="task-content">
+                <div class="task-title">Set up FrankenPHP prod config</div>
+                <div class="task-meta">
+                  <span class="badge badge-todo">To do</span>
+                  <div class="mini-av" style="background:oklch(0.55 0.15 145/.15);border-color:oklch(0.55 0.15 145/.3);color:oklch(0.35 0.12 145)">ML</div>
+                </div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-check done">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2" stroke="var(--primary)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="task-content">
+                <div class="task-title done">Setup Docker Compose</div>
+                <div class="task-meta">
+                  <span class="badge badge-done">Done</span>
+                </div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-check done">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2" stroke="var(--primary)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="task-content">
+                <div class="task-title done">Auth endpoint</div>
+                <div class="task-meta">
+                  <span class="badge badge-done">Done</span>
+                  <div class="mini-av">AJ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fab">
+          <svg viewBox="0 0 18 18" fill="none"><path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="tabbar">
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Home</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon active"><svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl active">Tasks</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M7 4V2M13 4V2M3 8h14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Projects</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Settings</div>
+          </div>
+        </div>
+        <div class="home-bar"><div class="home-pill"></div></div>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="screen-col">
+      <div class="screen-label">Empty state</div>
+      <div class="phone phone-rel">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Frontend MVP
+          </div>
+          <div class="spacer"></div>
+          <div class="icon-btn">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <div class="filter-chip active">All</div>
+          <div class="filter-chip">To do</div>
+          <div class="filter-chip">In progress</div>
+          <div class="filter-chip">Done</div>
+        </div>
+        <div class="body">
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="empty-title">No tasks yet</div>
+            <div class="empty-sub">Create your first task to start tracking work in this project.</div>
+            <button class="empty-btn">+ New task</button>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Home</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon active"><svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl active">Tasks</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M7 4V2M13 4V2M3 8h14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Projects</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Settings</div>
+          </div>
+        </div>
+        <div class="home-bar"><div class="home-pill"></div></div>
+      </div>
+    </div>
+
+    <!-- TASK DETAIL -->
+    <div class="screen-col">
+      <div class="screen-label">Task detail</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Backend API
+          </div>
+          <div class="spacer"></div>
+          <div class="icon-btn">
+            <!-- ellipsis / more actions -->
+            <svg viewBox="0 0 16 16" fill="none"><circle cx="4" cy="8" r="1.2" fill="currentColor"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/><circle cx="12" cy="8" r="1.2" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <div class="detail-body">
+          <div class="detail-title">Implement task CRUD endpoints</div>
+          <div class="detail-card">
+            <div class="detail-row">
+              <span class="detail-key">Status</span>
+              <span class="badge badge-prog">In progress</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-key">Assignee</span>
+              <span class="detail-val">
+                <div class="mini-av" style="width:18px;height:18px;font-size:7px">AJ</div>
+                Alex J.
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-key">Creator</span>
+              <span class="detail-val">
+                <div class="mini-av" style="width:18px;height:18px;font-size:7px">AJ</div>
+                Alex J.
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-key">Project</span>
+              <span class="detail-val">Backend API</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;font-weight:500;color:var(--muted-fg);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:5px">Description</div>
+            <div class="desc-card">
+              Implement create, read, update, and delete endpoints for tasks. Include status transition validation and assignee logic. Must respect workspace data isolation.
+            </div>
+          </div>
+          <div class="action-row">
+            <button class="action-btn">
+              <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Change status
+            </button>
+            <button class="action-btn">
+              <svg viewBox="0 0 14 14" fill="none"><path d="M9 1.5L12.5 5l-7.5 7.5L1 13.5l.5-4L9 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Edit
+            </button>
+            <button class="action-btn danger">
+              <svg viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M5.5 3.5V2h3v1.5M5.5 6v4.5M8.5 6v4.5M3 3.5l.5 8.5h7l.5-8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>
+        <div class="home-bar"><div class="home-pill"></div></div>
+      </div>
+    </div>
+
+    <!-- CREATE TASK SHEET -->
+    <div class="screen-col">
+      <div class="screen-label">Create task</div>
+      <div class="phone phone-rel">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500">Backend API</div>
+          <div class="spacer"></div>
+        </div>
+        <div class="filter-bar">
+          <div class="filter-chip active">All</div>
+          <div class="filter-chip">To do</div>
+          <div class="filter-chip">In progress</div>
+          <div class="filter-chip">Done</div>
+        </div>
+        <div class="body">
+          <div class="scroll-body">
+            <div class="task-item" style="opacity:0.4">
+              <div class="task-check prog"></div>
+              <div class="task-content">
+                <div class="task-title">Implement task CRUD endpoints</div>
+                <div class="task-meta"><span class="badge badge-prog">In progress</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sheet-overlay" style="border-radius:28px;overflow:hidden">
+          <div class="sheet">
+            <div class="sheet-handle-row"><div class="sheet-handle"></div></div>
+            <div class="sheet-title">New task</div>
+            <div class="sheet-body">
+              <div class="field">
+                <div class="field-label">Title <span style="color:var(--red)">*</span></div>
+                <input class="mock-input" placeholder="What needs to be done?" />
+              </div>
+              <div class="field">
+                <div class="field-label">Description</div>
+                <textarea class="mock-textarea" placeholder="Optional details…"></textarea>
+              </div>
+              <div class="field">
+                <div class="field-label">Assignee</div>
+                <div class="mock-select-row">
+                  <div class="select-chip">Unassigned</div>
+                  <div class="select-chip selected" style="background:oklch(0.488 0.243 264.376 / 0.1);border-color:oklch(0.488 0.243 264.376 / 0.3);color:var(--primary)">Alex J.</div>
+                  <div class="select-chip">Marie L.</div>
+                </div>
+              </div>
+            </div>
+            <div class="sheet-actions">
+              <button class="btn-ghost">Cancel</button>
+              <button class="btn-primary">Create task</button>
+            </div>
+          </div>
+        </div>
+        <div class="home-bar"><div class="home-pill"></div></div>
+      </div>
+    </div>
+
+    <!-- EDIT TASK SHEET -->
+    <div class="screen-col">
+      <div class="screen-label">Edit task</div>
+      <div class="phone phone-rel">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500">Backend API</div>
+          <div class="spacer"></div>
+        </div>
+        <div class="detail-body" style="opacity:0.4;padding-top:8px">
+          <div class="detail-title">Implement task CRUD endpoints</div>
+        </div>
+        <div class="sheet-overlay" style="border-radius:28px;overflow:hidden">
+          <div class="sheet">
+            <div class="sheet-handle-row"><div class="sheet-handle"></div></div>
+            <div class="sheet-title">Edit task</div>
+            <div class="sheet-body">
+              <div class="field">
+                <div class="field-label">Title</div>
+                <input class="mock-input" value="Implement task CRUD endpoints" />
+              </div>
+              <div class="field">
+                <div class="field-label">Description</div>
+                <textarea class="mock-textarea">Implement create, read, update, and delete endpoints for tasks.</textarea>
+              </div>
+              <div class="field">
+                <div class="field-label">Status</div>
+                <div class="mock-select-row">
+                  <div class="select-chip">To do</div>
+                  <div class="select-chip selected">In progress</div>
+                  <div class="select-chip">Done</div>
+                </div>
+              </div>
+              <div class="field">
+                <div class="field-label">Assignee</div>
+                <div class="mock-select-row">
+                  <div class="select-chip selected">Alex J.</div>
+                  <div class="select-chip">Marie L.</div>
+                  <div class="select-chip">None</div>
+                </div>
+              </div>
+            </div>
+            <div class="sheet-actions">
+              <button class="btn-ghost">Cancel</button>
+              <button class="btn-primary">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="home-bar"><div class="home-pill"></div></div>
+      </div>
+    </div>
+
+    <!-- DELETE CONFIRM -->
+    <div class="screen-col">
+      <div class="screen-label">Delete confirm</div>
+      <div class="phone phone-rel">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500">Backend API</div>
+          <div class="spacer"></div>
+        </div>
+        <div class="detail-body" style="opacity:0.3;padding-top:8px">
+          <div class="detail-title">Implement task CRUD endpoints</div>
+        </div>
+        <div class="dialog-overlay" style="border-radius:28px;overflow:hidden">
+          <div class="dialog">
+            <div class="dialog-icon">
+              <svg viewBox="0 0 18 18" fill="none"><path d="M3 4.5h12M7 4.5V3h4v1.5M7 7.5v5M11 7.5v5M3.5 4.5l.5 10h10l.5-10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="dialog-title">Delete task?</div>
+            <div class="dialog-body">
+              "Implement task CRUD endpoints" will be permanently deleted. This cannot be undone.
+            </div>
+            <div class="dialog-actions">
+              <button class="btn-danger">Delete task</button>
+              <button class="btn-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div class="home-bar"><div class="home-pill"></div></div>
+      </div>
+    </div>
+
+    <!-- GUEST VIEW -->
+    <div class="screen-col">
+      <div class="screen-label">Guest view</div>
+      <div class="phone">
+        <div class="notch-bar"><div class="notch"></div></div>
+        <div class="topbar">
+          <div style="color:var(--primary);font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Backend API
+          </div>
+          <div class="spacer"></div>
+          <!-- no add button for guest -->
+        </div>
+        <div class="filter-bar">
+          <div class="filter-chip active">All</div>
+          <div class="filter-chip">To do</div>
+          <div class="filter-chip">In progress</div>
+          <div class="filter-chip">Done</div>
+        </div>
+        <div class="body">
+          <div class="blocked-banner">
+            You have read-only access to this project.
+          </div>
+          <div class="scroll-body">
+            <div class="task-item">
+              <div class="task-check prog"></div>
+              <div class="task-content">
+                <div class="task-title">Implement task CRUD endpoints</div>
+                <div class="task-meta"><span class="badge badge-prog">In progress</span></div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-check"></div>
+              <div class="task-content">
+                <div class="task-title">Write permission voter tests</div>
+                <div class="task-meta"><span class="badge badge-todo">To do</span></div>
+              </div>
+            </div>
+            <div class="task-item">
+              <div class="task-check done">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2" stroke="var(--primary)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="task-content">
+                <div class="task-title done">Auth endpoint</div>
+                <div class="task-meta"><span class="badge badge-done">Done</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- no FAB for guest -->
+        <div class="tabbar">
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Home</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon active"><svg viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h9M3 15h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl active">Tasks</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/><path d="M7 4V2M13 4V2M3 8h14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+            <div class="tab-lbl">Projects</div>
+          </div>
+          <div class="tab-item">
+            <div class="tab-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.3"/></svg></div>
+            <div class="tab-lbl">Settings</div>
+          </div>
+        </div>
+        <div class="home-bar"><div class="home-pill"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

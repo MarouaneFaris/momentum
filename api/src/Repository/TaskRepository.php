@@ -8,6 +8,7 @@ use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Entity\Workspace;
+use App\Enum\TaskStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
@@ -50,6 +51,46 @@ class TaskRepository extends ServiceEntityRepository
         );
     }
 
+    /** @return array{open: int, in_progress: int, done_this_week: int} */
+    public function getStatsByWorkspaceAndUser(Workspace $workspace, User $user): array
+    {
+        $workspaceId = $workspace->getId();
+        $userId = $user->getId();
+
+        if ($workspaceId === null || $userId === null) {
+            return ['open' => 0, 'in_progress' => 0, 'done_this_week' => 0];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $weekStart = (new \DateTimeImmutable())->setTime(0, 0)->modify('Monday this week');
+
+        $row = $conn->fetchAssociative(
+            'SELECT
+                SUM(t.status = :todo) AS open,
+                SUM(t.status = :in_progress) AS in_progress,
+                SUM(t.status = :done AND t.updated_at >= :weekStart) AS done_this_week
+            FROM task t
+            INNER JOIN project p ON p.id = t.project_id
+            WHERE p.workspace_id = :workspaceId
+              AND t.assignee_id = :userId',
+            [
+                'todo' => TaskStatus::Todo->value,
+                'in_progress' => TaskStatus::InProgress->value,
+                'done' => TaskStatus::Done->value,
+                'weekStart' => $weekStart->format('Y-m-d H:i:s'),
+                'workspaceId' => $workspaceId->toBinary(),
+                'userId' => $userId->toBinary(),
+            ],
+        );
+
+        return [
+            'open' => (int) ($row['open'] ?? 0),
+            'in_progress' => (int) ($row['in_progress'] ?? 0),
+            'done_this_week' => (int) ($row['done_this_week'] ?? 0),
+        ];
+    }
+
     /** @return Task[] */
     public function findByProject(Project $project): array
     {
@@ -63,5 +104,27 @@ class TaskRepository extends ServiceEntityRepository
             ->orderBy('t.createdAt', 'ASC')
             ->getQuery()
             ->getResult();
+    }
+
+    /** @return Task[] */
+    public function findByWorkspaceAndUser(Workspace $workspace, User $user, ?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->leftJoin('t.assignee', 'a')
+            ->addSelect('a')
+            ->leftJoin('t.creator', 'c')
+            ->addSelect('c')
+            ->join('t.project', 'p')
+            ->where('IDENTITY(p.workspace) = :workspaceId')
+            ->andWhere('IDENTITY(t.assignee) = :userId')
+            ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
+            ->setParameter('userId', $user->getId(), UuidType::NAME)
+            ->orderBy('t.updatedAt', 'DESC');
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

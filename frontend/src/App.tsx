@@ -9,6 +9,7 @@ import queryClient from '@/lib/queryClient'
 import InvitationsPage from '@/pages/InvitationsPage'
 import LoginPage from '@/pages/LoginPage'
 import WorkspaceMembersPage from '@/pages/WorkspaceMembersPage'
+import WorkspaceMyTasksPage from '@/pages/WorkspaceMyTasksPage'
 import WorkspaceProjectsPage from '@/pages/WorkspaceProjectsPage'
 import WorkspaceProjectTasksPage from '@/pages/WorkspaceProjectTasksPage'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -64,6 +65,10 @@ export default function App() {
                                         <Route
                                             path="/workspaces/:id/projects"
                                             element={<WorkspaceProjectsPage />}
+                                        />
+                                        <Route
+                                            path="/workspaces/:id/my-tasks"
+                                            element={<WorkspaceMyTasksPage />}
                                         />
                                         <Route
                                             path="/workspaces/:id/projects/:projectId/tasks"

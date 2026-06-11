@@ -3,7 +3,7 @@ set -e
 
 export DOCKER_UID=$(id -u)
 export DOCKER_GID=$(id -g)
-DOCKER_COMP="docker compose -f docker/compose.yaml -f docker/compose.override.yaml"
+DOCKER_COMP="docker compose --env-file .env -f docker/compose.yaml -f docker/compose.override.yaml"
 
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
@@ -16,12 +16,12 @@ if [ -n "$STAGED_TS" ]; then
     STAGED_TS_CONT=$(echo "$STAGED_TS" | sed 's|^frontend/||' | tr '\n' ' ')
 
     printf "${CYAN}pre-commit: ESLint...${NC}\n"
-    $DOCKER_COMP exec -T frontend npx eslint --fix $STAGED_TS_CONT
+    $DOCKER_COMP exec -T frontend corepack pnpm exec eslint --fix $STAGED_TS_CONT
     for f in $STAGED_TS; do git add "$f"; done
     printf "${GREEN}pre-commit: ESLint passed.${NC}\n"
 
     printf "${CYAN}pre-commit: Prettier...${NC}\n"
-    $DOCKER_COMP exec -T frontend npx prettier --write $STAGED_TS_CONT
+    $DOCKER_COMP exec -T frontend corepack pnpm exec prettier --write $STAGED_TS_CONT
     for f in $STAGED_TS; do git add "$f"; done
     printf "${GREEN}pre-commit: Prettier passed.${NC}\n"
 fi

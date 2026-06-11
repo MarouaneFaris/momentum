@@ -29,11 +29,12 @@ final class ListInvitationsController extends AbstractController
         WorkspaceInvitationRepository $invitationRepository,
         ClockInterface $clock,
     ): JsonResponse {
-        $invitations = $invitationRepository->findPendingByWorkspace($workspace, $clock->now());
+        $now = $clock->now();
+        $invitations = $invitationRepository->findPendingByWorkspace($workspace, $now);
 
         return $this->json(
             array_map(
-                static fn ($inv) => InvitationOwnerViewResponse::fromInvitation($inv),
+                static fn ($inv) => InvitationOwnerViewResponse::fromInvitation($inv, $now),
                 $invitations,
             ),
         );

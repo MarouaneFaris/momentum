@@ -1,4 +1,6 @@
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Clock, FileText, X } from 'lucide-react'
 import type { Notification, NotificationType } from '../types'
 
 const relativeTime = (isoDate: string): string => {
@@ -12,6 +14,12 @@ const relativeTime = (isoDate: string): string => {
     if (days === 1) return 'Yesterday'
     return `${days}d ago`
 }
+
+const isTaskType = (type: NotificationType): boolean =>
+    type === 'task_assigned_to_you' ||
+    type === 'task_assigned_member' ||
+    type === 'task_status_changed_yours' ||
+    type === 'task_status_changed_member'
 
 const renderText = (type: NotificationType, payload: Notification['payload']): React.ReactNode => {
     switch (type) {
@@ -89,30 +97,73 @@ const renderText = (type: NotificationType, payload: Notification['payload']): R
 
 type Props = {
     notification: Notification
+    onMarkRead: (id: string) => void
+    onDelete: (id: string) => void
 }
 
-export function NotificationItem({ notification }: Props) {
+export function NotificationItem({ notification, onMarkRead, onDelete }: Props) {
     const isRead = notification.readAt !== null
     const isDemo = notification.payload.demo === true
+    const isTask = isTaskType(notification.type)
+
+    const handleClick = () => {
+        if (!isRead) onMarkRead(notification.id)
+    }
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        onDelete(notification.id)
+    }
 
     return (
-        <div className="flex items-start gap-3 px-3 py-2.5">
+        <div
+            className={cn(
+                'group relative flex cursor-pointer items-start gap-2.5 px-3.5 py-2.5 transition-colors',
+                isRead ? 'hover:bg-muted' : 'bg-primary/[0.03] hover:bg-primary/[0.06]',
+            )}
+            onClick={handleClick}
+        >
+            <div
+                className={cn(
+                    'mt-0.5 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md',
+                    isTask
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-green-500/10 text-green-700 dark:text-green-400',
+                )}
+            >
+                {isTask ? <FileText className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+            </div>
             <span
                 className={cn(
-                    'mt-1.5 h-2 w-2 shrink-0 rounded-full',
-                    isRead ? 'bg-muted-foreground/30' : 'bg-blue-500',
+                    'mt-[5px] h-[7px] w-[7px] shrink-0 rounded-full',
+                    isRead ? 'bg-border' : 'bg-primary',
                 )}
                 aria-label={isRead ? 'read' : 'unread'}
             />
             <div className="min-w-0 flex-1">
-                <p className={cn('text-sm leading-snug', isDemo && 'text-muted-foreground')}>
+                <p
+                    className={cn(
+                        'text-xs leading-snug',
+                        isRead ? 'text-muted-foreground' : 'text-foreground',
+                        isDemo && 'opacity-60',
+                    )}
+                >
                     {renderText(notification.type, notification.payload)}
                 </p>
-                <p className="text-muted-foreground mt-0.5 text-xs">
+                <p className="text-muted-foreground mt-0.5 text-[10px]">
                     {relativeTime(notification.createdAt)}
                     {isDemo && <span className="ml-1.5 italic">demo</span>}
                 </p>
             </div>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-1.5 right-1.5 hidden h-6 w-6 cursor-pointer group-hover:flex"
+                onClick={handleDelete}
+                aria-label="Delete notification"
+            >
+                <X className="h-3 w-3" />
+            </Button>
         </div>
     )
 }

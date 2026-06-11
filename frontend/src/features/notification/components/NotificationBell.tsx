@@ -2,29 +2,39 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { Bell } from 'lucide-react'
 import { useState } from 'react'
-import { useMarkAllNotificationsRead } from '../queries'
-import { useNotifications } from '../hooks/useNotifications'
+import { useNotificationActions } from '../hooks/useNotificationActions'
+import { useNotificationList } from '../queries'
 import { NotificationPanel } from './NotificationPanel'
 
 export function NotificationBell() {
     const [open, setOpen] = useState(false)
-    const { data } = useNotifications()
+    const { data } = useNotificationList()
     const notifications = data ?? []
-    const { mutate: markAllRead } = useMarkAllNotificationsRead()
+    const { handleMarkAllRead, handleMarkRead, handleDelete } = useNotificationActions()
 
     const hasUnread = notifications.some((n) => n.readAt === null)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Notifications"
+                    className="relative cursor-pointer"
+                >
                     <Bell className="h-4 w-4" />
                     {hasUnread && (
-                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500" />
+                        <span className="border-sidebar bg-primary absolute top-[5px] right-[5px] h-[7px] w-[7px] rounded-full border-[1.5px]" />
                     )}
                 </Button>
             </PopoverTrigger>
-            <NotificationPanel notifications={notifications} onMarkAllRead={() => markAllRead()} />
+            <NotificationPanel
+                notifications={notifications}
+                onMarkAllRead={handleMarkAllRead}
+                onMarkRead={handleMarkRead}
+                onDelete={handleDelete}
+            />
         </Popover>
     )
 }

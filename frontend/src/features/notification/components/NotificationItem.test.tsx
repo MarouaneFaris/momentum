@@ -8,6 +8,8 @@ const base: Pick<Notification, 'id' | 'readAt' | 'createdAt'> = {
     createdAt: new Date().toISOString(),
 }
 
+const noop = () => undefined
+
 describe('NotificationItem', () => {
     it('renders task_assigned_to_you copy', () => {
         const n: Notification = {
@@ -15,7 +17,7 @@ describe('NotificationItem', () => {
             type: 'task_assigned_to_you',
             payload: { task_id: 't1', task_title: 'Fix the bug' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText(/You were assigned/)).toBeInTheDocument()
         expect(screen.getByText('Fix the bug')).toBeInTheDocument()
     })
@@ -26,7 +28,7 @@ describe('NotificationItem', () => {
             type: 'task_assigned_member',
             payload: { task_id: 't1', task_title: 'Fix the bug', assignee_name: 'Alice' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText('Alice')).toBeInTheDocument()
         expect(screen.getByText(/was assigned/)).toBeInTheDocument()
     })
@@ -37,7 +39,7 @@ describe('NotificationItem', () => {
             type: 'task_status_changed_yours',
             payload: { task_id: 't1', task_title: 'Deploy app', new_status: 'done' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText('Deploy app')).toBeInTheDocument()
         expect(screen.getByText(/was marked/)).toBeInTheDocument()
         expect(screen.getByText('done')).toBeInTheDocument()
@@ -54,7 +56,7 @@ describe('NotificationItem', () => {
                 actor_name: 'Bob',
             },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText('Bob')).toBeInTheDocument()
         expect(screen.getByText(/updated/)).toBeInTheDocument()
         expect(screen.getByText('Deploy app')).toBeInTheDocument()
@@ -67,7 +69,7 @@ describe('NotificationItem', () => {
             type: 'invitation_received',
             payload: { workspace_name: 'Acme', role_name: 'member' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText(/You were invited to/)).toBeInTheDocument()
         expect(screen.getByText('Acme')).toBeInTheDocument()
         expect(screen.getByText('member')).toBeInTheDocument()
@@ -79,7 +81,7 @@ describe('NotificationItem', () => {
             type: 'invitation_accepted',
             payload: { actor_name: 'Carol', workspace_name: 'Acme' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText('Carol')).toBeInTheDocument()
         expect(screen.getByText(/accepted your invitation to/)).toBeInTheDocument()
     })
@@ -90,7 +92,7 @@ describe('NotificationItem', () => {
             type: 'invitation_declined',
             payload: { actor_name: 'Dan', workspace_name: 'Acme' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText('Dan')).toBeInTheDocument()
         expect(screen.getByText(/declined your invitation to/)).toBeInTheDocument()
     })
@@ -101,7 +103,7 @@ describe('NotificationItem', () => {
             type: 'invitation_cancelled',
             payload: { workspace_name: 'Acme', role_name: 'member' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText(/Your invitation to/)).toBeInTheDocument()
         expect(screen.getByText('Acme')).toBeInTheDocument()
         expect(screen.getByText('member')).toBeInTheDocument()
@@ -114,7 +116,7 @@ describe('NotificationItem', () => {
             type: 'invitation_received',
             payload: { workspace_name: 'Acme', role_name: 'member' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByLabelText('unread')).toBeInTheDocument()
     })
 
@@ -125,7 +127,7 @@ describe('NotificationItem', () => {
             type: 'invitation_received',
             payload: { workspace_name: 'Acme', role_name: 'member' },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByLabelText('read')).toBeInTheDocument()
     })
 
@@ -135,7 +137,7 @@ describe('NotificationItem', () => {
             type: 'task_assigned_to_you',
             payload: { task_id: 't1', task_title: 'Demo Task', demo: true },
         }
-        render(<NotificationItem notification={n} />)
+        render(<NotificationItem notification={n} onMarkRead={noop} onDelete={noop} />)
         expect(screen.getByText('demo')).toBeInTheDocument()
     })
 })

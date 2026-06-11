@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTask } from '../queries'
-import type { Task, TaskDetail } from '../types'
+import type { Task, TaskDetail, TaskStatus } from '../types'
 import { useTaskForm } from './useTaskForm'
 
 type EditState = {
@@ -8,6 +8,7 @@ type EditState = {
     title: string
     description: string
     assigneeId: string
+    status: TaskStatus
 }
 
 function fromDetail(t: TaskDetail): EditState {
@@ -16,6 +17,7 @@ function fromDetail(t: TaskDetail): EditState {
         title: t.title,
         description: t.description ?? '',
         assigneeId: t.assignee?.id ?? '',
+        status: t.status,
     }
 }
 
@@ -33,7 +35,13 @@ export function useEditTaskModal(workspaceId: string, projectId: string) {
     }, [fetchedDetail, rawState])
 
     const open = (t: Task) => {
-        setRawState({ id: t.id, title: t.title, description: '', assigneeId: t.assignee?.id ?? '' })
+        setRawState({
+            id: t.id,
+            title: t.title,
+            description: '',
+            assigneeId: t.assignee?.id ?? '',
+            status: t.status,
+        })
         setFetchId(t.id)
     }
     const openFromDetail = (t: TaskDetail) => setRawState(fromDetail(t))
@@ -51,6 +59,7 @@ export function useEditTaskModal(workspaceId: string, projectId: string) {
             title: state?.title ?? '',
             description: state?.description ?? '',
             assigneeId: state?.assigneeId ?? '',
+            status: state?.status,
         },
         onSuccess: close,
     })
@@ -61,6 +70,7 @@ export function useEditTaskModal(workspaceId: string, projectId: string) {
                 title: state.title,
                 description: state.description,
                 assigneeId: state.assigneeId,
+                status: state.status,
             })
         }
     }, [state, form])

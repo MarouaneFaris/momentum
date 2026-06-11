@@ -10,6 +10,7 @@ const schema = z.object({
     title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or fewer'),
     description: z.string().optional(),
     assigneeId: z.string().optional(),
+    status: z.enum(['todo', 'in-progress', 'done']).optional(),
 })
 
 export type TaskFormValues = z.infer<typeof schema>
@@ -58,6 +59,7 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
         const payload = {
             title: values.title,
             description: values.description || undefined,
+            ...(values.status ? { status: values.status } : {}),
             ...assigneePayload,
         }
         const onError = (error: Error) => {

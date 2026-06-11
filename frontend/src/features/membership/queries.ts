@@ -1,12 +1,19 @@
 import api from '@/lib/api'
 import { useSettledQuery } from '@/lib/useSettledQuery'
 import { useMutation } from '@tanstack/react-query'
-import type { InvitationInviteeView, InvitationOwnerView, InvitationRole, Member } from './types'
+import type {
+    AssignableMemberRole,
+    InvitationInviteeView,
+    InvitationOwnerView,
+    InvitationRole,
+    Member,
+} from './types'
 
-export const useWorkspaceInvitations = (workspaceId: string) =>
+export const useWorkspaceInvitations = (workspaceId: string, enabled = true) =>
     useSettledQuery({
         queryKey: ['workspaces', workspaceId, 'invitations'],
         queryFn: () => api.get<InvitationOwnerView[]>(`/workspaces/${workspaceId}/invitations`),
+        enabled,
     })
 
 export const useCreateInvitation = (workspaceId: string) =>
@@ -21,6 +28,12 @@ export const useCancelInvitation = (workspaceId: string) =>
             api.delete<null>(`/workspaces/${workspaceId}/invitations/${invitationId}`),
     })
 
+export const useResendInvitation = (workspaceId: string) =>
+    useMutation({
+        mutationFn: (invitationId: string) =>
+            api.post<null>(`/workspaces/${workspaceId}/invitations/${invitationId}/resend`, {}),
+    })
+
 export const useWorkspaceMembers = (workspaceId: string) =>
     useSettledQuery({
         queryKey: ['workspaces', workspaceId, 'members'],
@@ -29,7 +42,7 @@ export const useWorkspaceMembers = (workspaceId: string) =>
 
 export const useChangeMemberRole = (workspaceId: string) =>
     useMutation({
-        mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+        mutationFn: ({ userId, role }: { userId: string; role: AssignableMemberRole }) =>
             api.patch<Member>(`/workspaces/${workspaceId}/members/${userId}`, { role }),
     })
 

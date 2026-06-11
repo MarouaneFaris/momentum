@@ -31,6 +31,7 @@ export function useWorkspaceProjectTasksPage() {
         workspaceId: workspaceId!,
         projectId: projectId!,
         isLoading,
+        tasks: tasks ?? [],
         tasksByStatus,
         isEmpty: tasks != null && tasks.length === 0,
         isGuest,
