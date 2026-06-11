@@ -1,10 +1,6 @@
 import { AlertDialog as AlertDialogPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
-
-const btnBase =
-    'group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 h-9 gap-1.5 px-2.5'
-const btnDefault = `${btnBase} bg-primary text-primary-foreground hover:bg-primary/80`
-const btnOutline = `${btnBase} border-border bg-background shadow-xs hover:bg-muted hover:text-foreground`
+import { buttonVariants } from '@/components/ui/button-variants'
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
     return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -111,7 +107,7 @@ function AlertDialogAction({
     return (
         <AlertDialogPrimitive.Action
             data-slot="alert-dialog-action"
-            className={cn(btnDefault, className)}
+            className={cn(buttonVariants({ variant: 'default' }), className)}
             {...props}
         />
     )
@@ -124,7 +120,7 @@ function AlertDialogCancel({
     return (
         <AlertDialogPrimitive.Cancel
             data-slot="alert-dialog-cancel"
-            className={cn(btnOutline, 'mt-2 sm:mt-0', className)}
+            className={cn(buttonVariants({ variant: 'outline' }), 'mt-2 sm:mt-0', className)}
             {...props}
         />
     )
