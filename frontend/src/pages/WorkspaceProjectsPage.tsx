@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { Fab } from '@/components/Fab'
-import { FilterChips } from '@/components/FilterChips'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectCard } from '@/features/project/components/ProjectCard'
 import { ProjectEmptyState } from '@/features/project/components/ProjectEmptyState'
@@ -64,28 +63,21 @@ export default function WorkspaceProjectsPage() {
                 )}
             </div>
 
-            {/* Mobile: scrollable chips */}
-            <div className="md:hidden">
-                <FilterChips
-                    options={FILTERS as unknown as { label: string; value: string }[]}
-                    value={filter}
-                    onChange={(v) => setFilter(v as Filter)}
-                />
-            </div>
-            {/* Desktop: filter button row */}
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="flex [scrollbar-width:none] items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
                 {FILTERS.map(({ value, label }) => (
-                    <button
+                    <Button
                         key={value}
+                        size="sm"
                         onClick={() => setFilter(value)}
-                        className={`h-7 cursor-pointer rounded-full border px-2.5 text-xs font-medium whitespace-nowrap ${
+                        className={`h-7 cursor-pointer rounded-full px-2.5 text-xs font-medium ${
                             filter === value
-                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:border-primary/50 dark:bg-primary/20 dark:hover:bg-primary/25'
+                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:bg-primary/20 dark:border-primary/50 dark:hover:bg-primary/25'
                                 : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-transparent dark:hover:bg-transparent'
                         }`}
+                        variant="outline"
                     >
                         {label}
-                    </button>
+                    </Button>
                 ))}
             </div>
 
