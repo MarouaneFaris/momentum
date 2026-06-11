@@ -1,7 +1,13 @@
 import api from '@/lib/api'
 import { useSettledQuery } from '@/lib/useSettledQuery'
 import { useMutation } from '@tanstack/react-query'
-import type { Task, TaskDetail, TaskStatus } from './types'
+import type { Task, TaskDetail, TaskStats, TaskStatus } from './types'
+
+export const useWorkspaceTaskStats = (workspaceId: string) =>
+    useSettledQuery({
+        queryKey: ['workspaces', workspaceId, 'tasks', 'stats'],
+        queryFn: () => api.get<TaskStats>(`/workspaces/${workspaceId}/tasks/stats`),
+    })
 
 export const useWorkspaceProjectTasks = (workspaceId: string, projectId: string) =>
     useSettledQuery({
