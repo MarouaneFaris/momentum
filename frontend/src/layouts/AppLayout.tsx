@@ -8,7 +8,7 @@ import { NotificationBell } from '@/features/notification/components/Notificatio
 import { useNotifications } from '@/features/notification/hooks/useNotifications'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
-import { CheckSquare, FolderOpen, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
+import { FolderOpen, LayoutDashboard, ListTodo, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 
@@ -92,7 +92,7 @@ export default function AppLayout() {
                                     }`
                                 }
                             >
-                                <CheckSquare className="h-4 w-4 shrink-0" />
+                                <ListTodo className="h-4 w-4 shrink-0" />
                                 My tasks
                             </NavLink>
                         </>
@@ -213,7 +213,7 @@ export default function AppLayout() {
                     >
                         {({ isActive }) => (
                             <>
-                                <CheckSquare
+                                <ListTodo
                                     className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                                 />
                                 <span
