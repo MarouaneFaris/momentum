@@ -6,9 +6,12 @@ import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useMyInvitations } from '@/features/membership/queries'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { useNotifications } from '@/features/notification/hooks/useNotifications'
+import { getProjectColor } from '@/features/project/projectColor'
+import { useProjects } from '@/features/project/queries'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
-import { FolderOpen, LayoutDashboard, ListTodo, Mail, Settings, Users } from 'lucide-react'
+import { useWorkspace } from '@/features/workspace/queries'
+import { FolderOpen, LayoutDashboard, ListTodo, Mail, Plus, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 
@@ -17,6 +20,12 @@ export default function AppLayout() {
     const workspaceId = useActiveWorkspaceId()
     const { data: invitations } = useMyInvitations()
     const pendingCount = invitations?.length ?? 0
+    const { data: projects } = useProjects(workspaceId ?? '')
+    const { data: workspace } = useWorkspace(workspaceId ?? '')
+    const canCreateProject = workspace?.role === 'owner' || workspace?.role === 'member'
+    const sortedProjects = [...(projects ?? [])].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    )
     useNotifications()
 
     if (auth.isLoading) return null
@@ -115,6 +124,41 @@ export default function AppLayout() {
                             </Badge>
                         )}
                     </NavLink>
+                    {workspaceId && (
+                        <>
+                            <p className="text-muted-foreground mt-3 px-2 py-1 text-[10px] font-medium tracking-[0.08em] uppercase">
+                                Projects
+                            </p>
+                            {sortedProjects.map((project) => (
+                                <NavLink
+                                    key={project.id}
+                                    to={`/workspaces/${workspaceId}/projects/${project.id}/tasks`}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
+                                            isActive
+                                                ? 'bg-primary/10 text-primary font-medium'
+                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                        }`
+                                    }
+                                >
+                                    <span
+                                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                                        style={{ background: getProjectColor(project.id) }}
+                                    />
+                                    <span className="truncate">{project.name}</span>
+                                </NavLink>
+                            ))}
+                            {canCreateProject && (
+                                <NavLink
+                                    to={`/workspaces/${workspaceId}/projects`}
+                                    className="text-muted-foreground hover:bg-muted hover:text-foreground mt-0.5 flex items-center gap-2 rounded-md px-2 py-1.5 text-xs"
+                                >
+                                    <Plus className="h-3 w-3 shrink-0" />
+                                    New project
+                                </NavLink>
+                            )}
+                        </>
+                    )}
                     <div className="mt-auto">
                         {workspaceId && (
                             <>
