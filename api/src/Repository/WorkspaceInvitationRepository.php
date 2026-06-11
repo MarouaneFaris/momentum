@@ -45,6 +45,17 @@ class WorkspaceInvitationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /** @return list<WorkspaceInvitation> */
+    public function findAllByWorkspace(Workspace $workspace): array
+    {
+        return $this->createQueryBuilder('wi')
+            ->where('IDENTITY(wi.workspace) = :workspaceId')
+            ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
+            ->orderBy('wi.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findByWorkspaceAndInvitee(Workspace $workspace, User $invitee): ?WorkspaceInvitation
     {
         return $this->findOneBy(['workspace' => $workspace, 'invitee' => $invitee]);

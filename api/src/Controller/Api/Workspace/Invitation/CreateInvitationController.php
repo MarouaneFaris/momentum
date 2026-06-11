@@ -13,6 +13,7 @@ use App\Security\Voter\WorkspaceVoter;
 use App\Service\MembershipService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,7 @@ final class CreateInvitationController extends AbstractController
         #[MapRequestPayload] InviteDTO $dto,
         #[CurrentUser] User $currentUser,
         MembershipService $membershipService,
+        ClockInterface $clock,
     ): JsonResponse {
         $invitation = $membershipService->invite(
             $workspace,
@@ -43,7 +45,7 @@ final class CreateInvitationController extends AbstractController
         );
 
         return $this->json(
-            InvitationOwnerViewResponse::fromInvitation($invitation),
+            InvitationOwnerViewResponse::fromInvitation($invitation, $clock->now()),
             Response::HTTP_CREATED,
         );
     }

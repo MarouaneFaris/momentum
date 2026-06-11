@@ -2,6 +2,8 @@ export type InvitationRole = 'member' | 'guest'
 
 export type WorkspaceRole = 'owner' | 'member' | 'guest'
 
+export type AssignableMemberRole = Exclude<WorkspaceRole, 'owner'>
+
 export type InvitationInvitee = {
     id: string
     name: string
@@ -18,10 +20,13 @@ export type InvitationInvitedBy = {
     name: string
 }
 
+export type InvitationStatus = 'pending' | 'expired'
+
 export type InvitationOwnerView = {
     id: string
     invitee: InvitationInvitee
     role: InvitationRole
+    status: InvitationStatus
     expiresAt: string
     createdAt: string
 }

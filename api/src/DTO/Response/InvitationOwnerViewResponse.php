@@ -21,13 +21,15 @@ final readonly class InvitationOwnerViewResponse
         public array $invitee,
         #[OA\Property(type: 'string', enum: ['member', 'guest'])]
         public string $role,
+        #[OA\Property(type: 'string', enum: ['pending', 'expired'])]
+        public string $status,
         #[OA\Property(type: 'string', format: 'date-time')]
         public string $expiresAt,
         #[OA\Property(type: 'string', format: 'date-time')]
         public string $createdAt,
     ) {}
 
-    public static function fromInvitation(WorkspaceInvitation $invitation): self
+    public static function fromInvitation(WorkspaceInvitation $invitation, \DateTimeImmutable $now): self
     {
         $invitee = $invitation->getInvitee();
 
@@ -39,6 +41,7 @@ final readonly class InvitationOwnerViewResponse
                 'email' => $invitee->getEmail(),
             ],
             role: $invitation->getRole()->value,
+            status: $invitation->getExpiresAt() > $now ? 'pending' : 'expired',
             expiresAt: $invitation->getExpiresAt()->format(\DateTimeInterface::ATOM),
             createdAt: $invitation->getCreatedAt()->format(\DateTimeInterface::ATOM),
         );

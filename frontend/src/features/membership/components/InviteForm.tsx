@@ -25,25 +25,41 @@ export function InviteForm({ workspaceId }: Props) {
     } = form
 
     return (
-        <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="flex flex-col gap-4">
-            <div className="grid gap-2">
-                <Label htmlFor="invite-email">Email</Label>
-                <Input
-                    id="invite-email"
-                    type="email"
-                    placeholder="member@example.com"
-                    {...register('email')}
-                />
-                {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+        <form
+            onSubmit={(e) => void handleSubmit(onSubmit)(e)}
+            className="bg-muted/50 flex flex-wrap items-end gap-3 rounded-md border p-4"
+        >
+            <div className="flex flex-col gap-1.5">
+                <Label htmlFor="invite-email" className="text-xs">
+                    Email address
+                </Label>
+                <div className="flex flex-col gap-1">
+                    <Input
+                        id="invite-email"
+                        type="email"
+                        placeholder="colleague@company.com"
+                        className="bg-background dark:bg-background h-8 w-72 text-sm"
+                        {...register('email')}
+                    />
+                    {errors.email && (
+                        <p className="text-destructive text-xs">{errors.email.message}</p>
+                    )}
+                </div>
             </div>
-            <div className="grid gap-2">
-                <Label htmlFor="invite-role">Role</Label>
+            <div className="flex flex-col gap-1.5">
+                <Label htmlFor="invite-role" className="text-xs">
+                    Role
+                </Label>
                 <Controller
                     control={control}
                     name="role"
                     render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger id="invite-role">
+                            <SelectTrigger
+                                id="invite-role"
+                                size="sm"
+                                className="bg-background dark:bg-background w-28"
+                            >
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -54,7 +70,7 @@ export function InviteForm({ workspaceId }: Props) {
                     )}
                 />
             </div>
-            <Button type="submit" disabled={isPending} className="w-fit">
+            <Button type="submit" size="sm" disabled={isPending}>
                 Send invitation
             </Button>
         </form>
