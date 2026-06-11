@@ -1,4 +1,5 @@
 import { useAuth } from '@/features/auth/queries'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { ClipboardList, Info, Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 
@@ -29,6 +30,7 @@ import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
 import { DeleteTaskDialog } from './DeleteTaskDialog'
+import { MobileTasksView } from './MobileTasksView'
 import TaskDetailPanel from './TaskDetailPanel'
 import { TaskFormModal } from './TaskFormModal'
 
@@ -310,14 +312,30 @@ export default function WorkspaceProjectTasksPage() {
         isGuest,
         isOwner,
         projectName,
+        tasks,
     } = useWorkspaceProjectTasksPage()
     const { data: authUser } = useAuth()
+    const isMobile = useIsMobile()
     const detail = useTaskDetail(workspaceId, projectId)
     const modal = useCreateTaskModal(workspaceId, projectId)
     const editModal = useEditTaskModal(workspaceId, projectId)
     const deleteDialog = useDeleteTaskDialog(workspaceId, projectId, detail.close)
 
     if (isLoading) return null
+
+    if (isMobile) {
+        return (
+            <MobileTasksView
+                workspaceId={workspaceId}
+                projectId={projectId}
+                tasks={tasks}
+                isEmpty={isEmpty}
+                isGuest={isGuest}
+                isOwner={isOwner}
+                projectName={projectName}
+            />
+        )
+    }
 
     const panelOpen = detail.selectedTaskId !== null
 
