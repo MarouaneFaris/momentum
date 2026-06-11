@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { InvitationsTable } from './InvitationsTable'
 import type { InvitationOwnerView } from '../types'
+import type { useInvitationsTable } from '../hooks/useInvitationsTable'
 
 const mockHandleCancel = vi.fn()
 const mockHandleResend = vi.fn()
@@ -26,11 +27,10 @@ const invitations: InvitationOwnerView[] = [
     },
 ]
 
-const mockHook = vi.fn()
+const mockHook = vi.fn<typeof useInvitationsTable>()
 
 vi.mock('../hooks/useInvitationsTable', () => ({
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    useInvitationsTable: (...args: unknown[]) => mockHook(...args),
+    useInvitationsTable: (workspaceId: string) => mockHook(workspaceId),
 }))
 
 const defaultHookResult = {
