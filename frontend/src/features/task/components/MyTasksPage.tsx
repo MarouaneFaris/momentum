@@ -1,10 +1,8 @@
-import { useParams } from 'react-router'
-import { useWorkspaceMyTasks } from '../queries'
+import { useMyTasksPage } from '../hooks/useMyTasksPage'
 import { MyTasksTable } from './MyTasksTable'
 
 export default function MyTasksPage() {
-    const { id: workspaceId } = useParams<{ id: string }>()
-    const { data: tasks, isLoading } = useWorkspaceMyTasks(workspaceId!)
+    const { tasks, isLoading } = useMyTasksPage()
 
     if (isLoading) return null
 
@@ -13,7 +11,7 @@ export default function MyTasksPage() {
             <div className="flex items-center gap-3">
                 <h1 className="text-base font-semibold tracking-tight">My Tasks</h1>
             </div>
-            <MyTasksTable tasks={tasks ?? []} emptyMessage="No tasks assigned to you" />
+            <MyTasksTable tasks={tasks} emptyMessage="No tasks assigned to you" />
         </div>
     )
 }
