@@ -117,6 +117,17 @@ final readonly class MembershipService
         $this->eventDispatcher->dispatch(new WorkspaceInvitationDeclined($invitation, $currentUser));
     }
 
+    public function resend(WorkspaceInvitation $invitation): void
+    {
+        $now = $this->clock->now();
+
+        if ($invitation->getExpiresAt() <= $now) {
+            throw new BadRequestHttpException('Cannot resend an expired invitation');
+        }
+
+        $this->eventDispatcher->dispatch(new WorkspaceInvitationCreated($invitation));
+    }
+
     public function cancel(Workspace $workspace, WorkspaceInvitation $invitation, User $actor): void
     {
         if ((string) $invitation->getWorkspace()->getId() !== (string) $workspace->getId()) {

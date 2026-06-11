@@ -18,10 +18,13 @@ export type InvitationInvitedBy = {
     name: string
 }
 
+export type InvitationStatus = 'pending' | 'expired'
+
 export type InvitationOwnerView = {
     id: string
     invitee: InvitationInvitee
     role: InvitationRole
+    status: InvitationStatus
     expiresAt: string
     createdAt: string
 }
