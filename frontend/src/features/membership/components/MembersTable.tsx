@@ -186,7 +186,7 @@ export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceNam
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="bg-destructive/10 text-destructive hover:bg-destructive/20"
                             disabled={isRemoving}
                             onClick={() => {
                                 if (removingMember) {
