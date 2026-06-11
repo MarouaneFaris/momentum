@@ -72,22 +72,20 @@ export default function WorkspaceProjectsPage() {
                     onChange={(v) => setFilter(v as Filter)}
                 />
             </div>
-            {/* Desktop: original button row */}
+            {/* Desktop: filter button row */}
             <div className="hidden items-center gap-2 md:flex">
                 {FILTERS.map(({ value, label }) => (
-                    <Button
+                    <button
                         key={value}
-                        size="sm"
                         onClick={() => setFilter(value)}
-                        className={`h-7 cursor-pointer rounded-full px-2.5 text-xs font-medium ${
+                        className={`h-7 cursor-pointer rounded-full border px-2.5 text-xs font-medium whitespace-nowrap ${
                             filter === value
                                 ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:border-primary/50 dark:bg-primary/20 dark:hover:bg-primary/25'
                                 : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-transparent dark:hover:bg-transparent'
                         }`}
-                        variant="outline"
                     >
                         {label}
-                    </Button>
+                    </button>
                 ))}
             </div>
 
