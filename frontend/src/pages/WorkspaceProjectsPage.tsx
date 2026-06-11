@@ -64,11 +64,32 @@ export default function WorkspaceProjectsPage() {
                 )}
             </div>
 
-            <FilterChips
-                options={FILTERS as unknown as { label: string; value: string }[]}
-                value={filter}
-                onChange={(v) => setFilter(v as Filter)}
-            />
+            {/* Mobile: scrollable chips */}
+            <div className="md:hidden">
+                <FilterChips
+                    options={FILTERS as unknown as { label: string; value: string }[]}
+                    value={filter}
+                    onChange={(v) => setFilter(v as Filter)}
+                />
+            </div>
+            {/* Desktop: original button row */}
+            <div className="hidden items-center gap-2 md:flex">
+                {FILTERS.map(({ value, label }) => (
+                    <Button
+                        key={value}
+                        size="sm"
+                        onClick={() => setFilter(value)}
+                        className={`h-7 cursor-pointer rounded-full px-2.5 text-xs font-medium ${
+                            filter === value
+                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:border-primary/50 dark:bg-primary/20 dark:hover:bg-primary/25'
+                                : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-transparent dark:hover:bg-transparent'
+                        }`}
+                        variant="outline"
+                    >
+                        {label}
+                    </Button>
+                ))}
+            </div>
 
             {filtered.length > 0 ? (
                 <div className="grid grid-cols-1 gap-3 md:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
