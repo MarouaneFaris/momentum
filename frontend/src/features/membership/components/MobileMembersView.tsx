@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowLeft, MoreHorizontal } from 'lucide-react'
+import { ArrowLeft, Check, MoreHorizontal } from 'lucide-react'
 import { Controller } from 'react-hook-form'
-import ApiError from '@/lib/ApiError'
-import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,7 +33,7 @@ import {
 import { BottomSheet } from '@/components/BottomSheet'
 import { useMemberList } from '../hooks/useMemberList'
 import { useInviteForm } from '../hooks/useInviteForm'
-import { useCancelInvitation, useWorkspaceInvitations } from '../queries'
+import { useInvitationsTable } from '../hooks/useInvitationsTable'
 import type { Member } from '../types'
 
 type Props = {
@@ -87,30 +85,27 @@ function daysUntilExpiry(expiresAt: string): number {
 
 export function MobileMembersView({ workspaceId, workspaceName, isOwner, currentUserId }: Props) {
     const navigate = useNavigate()
-    const queryClient = useQueryClient()
-    const { members, isRemoving, handleRemove } = useMemberList(workspaceId)
-    const { data: invitations } = useWorkspaceInvitations(workspaceId, isOwner)
-    const { mutate: cancelInvitation, isPending: isCancelling } = useCancelInvitation(workspaceId)
+    const { members, isRemoving, isChanging, handleRemove, handleRoleChange } =
+        useMemberList(workspaceId)
+    const {
+        invitations,
+        isCancelling,
+        isResending,
+        isReinviting,
+        isDeleting,
+        handleCancel,
+        handleResend,
+        handleReinvite,
+        handleDelete,
+    } = useInvitationsTable(workspaceId)
     const invite = useInviteForm(workspaceId)
 
     const [inviteOpen, setInviteOpen] = useState(false)
     const [removingMember, setRemovingMember] = useState<Member | null>(null)
+    const [changingRoleMember, setChangingRoleMember] = useState<Member | null>(null)
 
     const pendingInvitations = invitations?.filter((inv) => inv.status === 'pending') ?? []
-
-    const handleCancelInvitation = (invitationId: string) => {
-        cancelInvitation(invitationId, {
-            onSuccess: () => {
-                void queryClient.invalidateQueries({
-                    queryKey: ['workspaces', workspaceId, 'invitations'],
-                })
-                toast.success('Invitation cancelled')
-            },
-            onError: (err) => {
-                if (err instanceof ApiError) toast.error(err.message)
-            },
-        })
-    }
+    const expiredInvitations = invitations?.filter((inv) => inv.status === 'expired') ?? []
 
     return (
         <div className="flex flex-col gap-4">
@@ -152,7 +147,7 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                 </p>
                 <div className="rounded-md border">
                     {members?.map((member) => {
-                        const canRemove =
+                        const canManage =
                             isOwner && member.id !== currentUserId && member.role !== 'owner'
                         return (
                             <div
@@ -169,7 +164,7 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                                     </p>
                                 </div>
                                 <RoleBadge role={member.role} />
-                                {canRemove ? (
+                                {canManage ? (
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button
@@ -182,6 +177,11 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
+                                            <DropdownMenuItem
+                                                onClick={() => setChangingRoleMember(member)}
+                                            >
+                                                Change role
+                                            </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 className="text-destructive"
                                                 onClick={() => setRemovingMember(member)}
@@ -223,15 +223,89 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                                 <Badge variant="secondary" className="text-xs">
                                     Pending
                                 </Badge>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-destructive hover:text-destructive h-7 shrink-0 px-2 text-xs"
-                                    disabled={isCancelling}
-                                    onClick={() => handleCancelInvitation(inv.id)}
-                                >
-                                    Cancel
-                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 shrink-0"
+                                            aria-label="Invitation actions"
+                                        >
+                                            <MoreHorizontal size={15} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem
+                                            disabled={isResending}
+                                            onClick={() => handleResend(inv.id)}
+                                        >
+                                            Resend
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-destructive"
+                                            disabled={isCancelling}
+                                            onClick={() => handleCancel(inv.id)}
+                                        >
+                                            Cancel
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Expired invitations — owner only, hidden when empty */}
+            {isOwner && expiredInvitations.length > 0 && (
+                <div className="flex flex-col gap-2 px-4">
+                    <p className="text-muted-foreground text-xs font-medium">Expired invitations</p>
+                    <div className="rounded-md border">
+                        {expiredInvitations.map((inv) => (
+                            <div
+                                key={inv.id}
+                                className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0"
+                            >
+                                <div className="bg-muted border-border text-muted-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-medium">
+                                    ?
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-muted-foreground truncate text-xs">
+                                        {inv.invitee.email}
+                                    </p>
+                                </div>
+                                <Badge variant="outline" className="text-muted-foreground text-xs">
+                                    Expired
+                                </Badge>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-7 w-7 shrink-0"
+                                            aria-label="Invitation actions"
+                                        >
+                                            <MoreHorizontal size={15} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem
+                                            disabled={isReinviting}
+                                            onClick={() =>
+                                                handleReinvite(inv.invitee.email, inv.role)
+                                            }
+                                        >
+                                            Reinvite
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-destructive"
+                                            disabled={isDeleting}
+                                            onClick={() => handleDelete(inv.id)}
+                                        >
+                                            Delete
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                         ))}
                     </div>
@@ -270,6 +344,40 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Change role bottom sheet */}
+            <BottomSheet
+                open={changingRoleMember !== null}
+                onOpenChange={(open) => {
+                    if (!open) setChangingRoleMember(null)
+                }}
+                title="Change role"
+            >
+                <div className="flex flex-col gap-2 px-4 pt-3 pb-6">
+                    {(['member', 'guest'] as const).map((role) => (
+                        <button
+                            key={role}
+                            type="button"
+                            disabled={isChanging}
+                            className={cn(
+                                'flex items-center justify-between rounded-md border px-3 py-2.5 text-sm transition-colors',
+                                changingRoleMember?.role === role
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'border-border text-foreground hover:bg-muted',
+                            )}
+                            onClick={() => {
+                                if (changingRoleMember) {
+                                    handleRoleChange(changingRoleMember.id, role)
+                                    setChangingRoleMember(null)
+                                }
+                            }}
+                        >
+                            <span className="font-medium capitalize">{role}</span>
+                            {changingRoleMember?.role === role && <Check size={14} />}
+                        </button>
+                    ))}
+                </div>
+            </BottomSheet>
 
             {/* Invite bottom sheet */}
             <BottomSheet

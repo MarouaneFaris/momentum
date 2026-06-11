@@ -1,18 +1,13 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MobileMembersView } from './MobileMembersView'
 import type { Member, InvitationOwnerView } from '../types'
-
-type InvitationsResult = { data: InvitationOwnerView[] | null | undefined }
+import type { useInvitationsTable } from '../hooks/useInvitationsTable'
 
 const mockNavigate = vi.fn()
 
 vi.mock('react-router', () => ({
     useNavigate: () => mockNavigate,
-}))
-
-vi.mock('@tanstack/react-query', () => ({
-    useQueryClient: () => ({ invalidateQueries: vi.fn() }),
 }))
 
 vi.mock('sonner', () => ({
@@ -32,6 +27,7 @@ vi.mock('@/components/BottomSheet', () => ({
 }))
 
 const mockHandleRemove = vi.fn()
+const mockHandleRoleChange = vi.fn()
 
 vi.mock('../hooks/useMemberList', () => ({
     useMemberList: () => ({
@@ -41,19 +37,19 @@ vi.mock('../hooks/useMemberList', () => ({
         isChanging: false,
         isLeaving: false,
         handleRemove: mockHandleRemove,
-        handleRoleChange: vi.fn(),
+        handleRoleChange: mockHandleRoleChange,
         handleLeave: vi.fn(),
     }),
 }))
 
-const mockCancelMutate = vi.fn()
-const mockUseWorkspaceInvitations =
-    vi.fn<(workspaceId: string, enabled?: boolean) => InvitationsResult>()
+const mockHandleCancel = vi.fn()
+const mockHandleResend = vi.fn()
+const mockHandleReinvite = vi.fn()
+const mockHandleDelete = vi.fn()
+const mockUseInvitationsTable = vi.fn<typeof useInvitationsTable>()
 
-vi.mock('../queries', () => ({
-    useWorkspaceInvitations: (workspaceId: string, enabled?: boolean) =>
-        mockUseWorkspaceInvitations(workspaceId, enabled),
-    useCancelInvitation: () => ({ mutate: mockCancelMutate, isPending: false }),
+vi.mock('../hooks/useInvitationsTable', () => ({
+    useInvitationsTable: (workspaceId: string) => mockUseInvitationsTable(workspaceId),
 }))
 
 vi.mock('../hooks/useInviteForm', () => ({
@@ -105,6 +101,30 @@ const pendingInvitations: InvitationOwnerView[] = [
     },
 ]
 
+const expiredInvitations: InvitationOwnerView[] = [
+    {
+        id: 'inv-2',
+        invitee: { id: 'u5', name: 'Old User', email: 'old@example.com' },
+        role: 'guest',
+        status: 'expired',
+        expiresAt: '2026-05-01T00:00:00Z',
+        createdAt: '2026-04-24T00:00:00Z',
+    },
+]
+
+const defaultHookResult: ReturnType<typeof useInvitationsTable> = {
+    invitations: [...pendingInvitations, ...expiredInvitations],
+    isLoading: false,
+    isCancelling: false,
+    isResending: false,
+    isReinviting: false,
+    isDeleting: false,
+    handleCancel: mockHandleCancel,
+    handleResend: mockHandleResend,
+    handleReinvite: mockHandleReinvite,
+    handleDelete: mockHandleDelete,
+}
+
 const defaultProps = {
     workspaceId: 'ws-1',
     workspaceName: 'Acme workspace',
@@ -114,7 +134,7 @@ const defaultProps = {
 
 beforeEach(() => {
     vi.clearAllMocks()
-    mockUseWorkspaceInvitations.mockReturnValue({ data: pendingInvitations })
+    mockUseInvitationsTable.mockReturnValue(defaultHookResult)
 })
 
 describe('MobileMembersView — topbar', () => {
@@ -162,8 +182,30 @@ describe('MobileMembersView — members list', () => {
     })
 })
 
+describe('MobileMembersView — change role', () => {
+    it('opens role picker when "Change role" is clicked', async () => {
+        render(<MobileMembersView {...defaultProps} />)
+        const [menuBtn] = screen.getAllByRole('button', { name: /member actions/i })
+        await userEvent.click(menuBtn)
+        await userEvent.click(screen.getByText('Change role'))
+        const dialog = screen.getByRole('dialog')
+        // Both role options shown inside the sheet
+        expect(within(dialog).getByRole('button', { name: /^member$/i })).toBeInTheDocument()
+        expect(within(dialog).getByRole('button', { name: /^guest$/i })).toBeInTheDocument()
+    })
+
+    it('calls handleRoleChange with new role when option selected', async () => {
+        render(<MobileMembersView {...defaultProps} />)
+        const [menuBtn] = screen.getAllByRole('button', { name: /member actions/i })
+        await userEvent.click(menuBtn)
+        await userEvent.click(screen.getByText('Change role'))
+        await userEvent.click(screen.getByRole('button', { name: /^guest$/i }))
+        expect(mockHandleRoleChange).toHaveBeenCalledWith('u2', 'guest')
+    })
+})
+
 describe('MobileMembersView — pending invitations', () => {
-    it('shows pending invitations section for owner with pending invitations', () => {
+    it('shows pending invitations section for owner', () => {
         render(<MobileMembersView {...defaultProps} />)
         expect(screen.getByText(/pending invitations/i)).toBeInTheDocument()
         expect(screen.getByText('alice@acme.com')).toBeInTheDocument()
@@ -174,19 +216,68 @@ describe('MobileMembersView — pending invitations', () => {
         expect(screen.queryByText(/pending invitations/i)).not.toBeInTheDocument()
     })
 
-    it('hides pending invitations section when list is empty', () => {
-        mockUseWorkspaceInvitations.mockReturnValueOnce({ data: [] })
+    it('hides pending invitations section when none pending', () => {
+        mockUseInvitationsTable.mockReturnValueOnce({
+            ...defaultHookResult,
+            invitations: expiredInvitations,
+        })
         render(<MobileMembersView {...defaultProps} />)
         expect(screen.queryByText(/pending invitations/i)).not.toBeInTheDocument()
     })
+
+    it('fires resend mutation from ⋯ > Resend on pending row', async () => {
+        render(<MobileMembersView {...defaultProps} />)
+        const [invBtn] = screen.getAllByRole('button', { name: /invitation actions/i })
+        await userEvent.click(invBtn)
+        await userEvent.click(screen.getByText('Resend'))
+        expect(mockHandleResend).toHaveBeenCalledWith('inv-1')
+    })
+
+    it('fires cancel mutation from ⋯ > Cancel on pending row', async () => {
+        render(<MobileMembersView {...defaultProps} />)
+        const [invBtn] = screen.getAllByRole('button', { name: /invitation actions/i })
+        await userEvent.click(invBtn)
+        await userEvent.click(screen.getByRole('menuitem', { name: /cancel/i }))
+        expect(mockHandleCancel).toHaveBeenCalledWith('inv-1')
+    })
 })
 
-describe('MobileMembersView — cancel invitation', () => {
-    it('fires cancel mutation when Cancel button is clicked on an invitation row', async () => {
+describe('MobileMembersView — expired invitations', () => {
+    it('shows expired invitations section for owner', () => {
         render(<MobileMembersView {...defaultProps} />)
-        const cancelBtn = screen.getByRole('button', { name: /cancel/i })
-        await userEvent.click(cancelBtn)
-        expect(mockCancelMutate).toHaveBeenCalledWith('inv-1', expect.any(Object))
+        expect(screen.getByText(/expired invitations/i)).toBeInTheDocument()
+        expect(screen.getByText('old@example.com')).toBeInTheDocument()
+    })
+
+    it('hides expired invitations section for non-owner', () => {
+        render(<MobileMembersView {...defaultProps} isOwner={false} />)
+        expect(screen.queryByText(/expired invitations/i)).not.toBeInTheDocument()
+    })
+
+    it('hides expired invitations section when none expired', () => {
+        mockUseInvitationsTable.mockReturnValueOnce({
+            ...defaultHookResult,
+            invitations: pendingInvitations,
+        })
+        render(<MobileMembersView {...defaultProps} />)
+        expect(screen.queryByText(/expired invitations/i)).not.toBeInTheDocument()
+    })
+
+    it('fires reinvite mutation from ⋯ > Reinvite on expired row', async () => {
+        render(<MobileMembersView {...defaultProps} />)
+        const invBtns = screen.getAllByRole('button', { name: /invitation actions/i })
+        // Second button is the expired invitation row
+        await userEvent.click(invBtns[1])
+        await userEvent.click(screen.getByText('Reinvite'))
+        expect(mockHandleReinvite).toHaveBeenCalledWith('old@example.com', 'guest')
+    })
+
+    it('fires delete mutation from ⋯ > Delete on expired row', async () => {
+        render(<MobileMembersView {...defaultProps} />)
+        const invBtns = screen.getAllByRole('button', { name: /invitation actions/i })
+        await userEvent.click(invBtns[1])
+        await userEvent.click(screen.getByText('Delete'))
+        expect(mockHandleDelete).toHaveBeenCalledWith('inv-2')
     })
 })
 
