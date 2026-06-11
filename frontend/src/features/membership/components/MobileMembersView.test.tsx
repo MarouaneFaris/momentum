@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { MobileMembersView } from './MobileMembersView'
 import type { Member, InvitationOwnerView } from '../types'
 
+type InvitationsResult = { data: InvitationOwnerView[] | null | undefined }
+
 const mockNavigate = vi.fn()
 
 vi.mock('react-router', () => ({
@@ -45,13 +47,12 @@ vi.mock('../hooks/useMemberList', () => ({
 }))
 
 const mockCancelMutate = vi.fn()
-const mockUseWorkspaceInvitations = vi.fn()
+const mockUseWorkspaceInvitations =
+    vi.fn<(workspaceId: string, enabled?: boolean) => InvitationsResult>()
 
 vi.mock('../queries', () => ({
-    useWorkspaceInvitations: (workspaceId: string, enabled?: boolean) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return mockUseWorkspaceInvitations(workspaceId, enabled)
-    },
+    useWorkspaceInvitations: (workspaceId: string, enabled?: boolean) =>
+        mockUseWorkspaceInvitations(workspaceId, enabled),
     useCancelInvitation: () => ({ mutate: mockCancelMutate, isPending: false }),
 }))
 
