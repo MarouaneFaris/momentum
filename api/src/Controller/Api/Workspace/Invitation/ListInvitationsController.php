@@ -30,7 +30,7 @@ final class ListInvitationsController extends AbstractController
         ClockInterface $clock,
     ): JsonResponse {
         $now = $clock->now();
-        $invitations = $invitationRepository->findAllByWorkspace($workspace);
+        $invitations = $invitationRepository->findPendingByWorkspace($workspace, $now);
 
         return $this->json(
             array_map(
