@@ -9,6 +9,8 @@ import { useWorkspaceMembers, useWorkspaceInvitations } from '@/features/members
 import { MembersTable } from '@/features/membership/components/MembersTable'
 import { InvitationsTable } from '@/features/membership/components/InvitationsTable'
 import { InviteForm } from '@/features/membership/components/InviteForm'
+import { MobileMembersView } from '@/features/membership/components/MobileMembersView'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 export default function WorkspaceMembersPage() {
     const { id } = useParams<{ id: string }>()
@@ -17,8 +19,20 @@ export default function WorkspaceMembersPage() {
     const isOwner = workspace?.role === 'owner'
     const { data: members } = useWorkspaceMembers(id!)
     const { data: invitations } = useWorkspaceInvitations(id!, isOwner)
+    const isMobile = useIsMobile()
 
     const pendingCount = invitations?.filter((inv) => inv.status === 'pending').length ?? 0
+
+    if (isMobile) {
+        return (
+            <MobileMembersView
+                workspaceId={id!}
+                workspaceName={workspace?.name ?? ''}
+                isOwner={isOwner}
+                currentUserId={String(user?.id ?? '')}
+            />
+        )
+    }
 
     return (
         <div className="flex flex-col gap-6 p-6">
