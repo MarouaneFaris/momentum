@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { useWorkspaceMembers } from '@/features/membership/queries'
 import { cn } from '@/lib/utils'
@@ -20,32 +21,32 @@ export function AssigneeChips({
         <div className="flex flex-col gap-1.5">
             <Label>Assignee</Label>
             <div className="flex [scrollbar-width:none] gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-                <button
+                <Button
                     type="button"
                     onClick={() => onChange('')}
                     className={cn(
-                        'rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
+                        'h-auto rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
                         value === ''
                             ? 'border-primary bg-primary text-primary-foreground'
                             : 'border-border bg-muted text-muted-foreground',
                     )}
                 >
                     Unassigned
-                </button>
+                </Button>
                 {assignable.map((m) => (
-                    <button
+                    <Button
                         key={m.id}
                         type="button"
                         onClick={() => onChange(m.id)}
                         className={cn(
-                            'rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
+                            'h-auto rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors',
                             value === m.id
                                 ? 'border-primary bg-primary text-primary-foreground'
                                 : 'border-border bg-muted text-muted-foreground',
                         )}
                     >
                         {m.name}
-                    </button>
+                    </Button>
                 ))}
             </div>
         </div>
