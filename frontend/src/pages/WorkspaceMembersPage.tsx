@@ -56,7 +56,7 @@ export default function WorkspaceMembersPage() {
                         >
                             Invitations
                             {pendingCount > 0 && (
-                                <Badge className="h-4 min-w-4 px-1 text-[10px]">
+                                <Badge className="ml-0.5 h-4 min-w-4 px-2 text-[10px]">
                                     {pendingCount}
                                 </Badge>
                             )}
