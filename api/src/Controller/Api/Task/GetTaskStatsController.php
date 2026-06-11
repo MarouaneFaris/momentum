@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Task;
 
+use App\DTO\Response\TaskStatsResponse;
 use App\Entity\User;
 use App\Entity\Workspace;
 use App\Repository\TaskRepository;
 use App\Security\Voter\WorkspaceVoter;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class GetTaskStatsController extends AbstractController
@@ -28,14 +31,7 @@ final class GetTaskStatsController extends AbstractController
             new OA\Response(
                 response: 200,
                 description: 'Task stats',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'open', type: 'integer'),
-                        new OA\Property(property: 'in_progress', type: 'integer'),
-                        new OA\Property(property: 'done_this_week', type: 'integer'),
-                    ],
-                    type: 'object'
-                )
+                content: new OA\JsonContent(ref: new Model(type: TaskStatsResponse::class))
             ),
             new OA\Response(response: 401, description: 'Not authenticated'),
             new OA\Response(response: 403, description: 'Access denied'),
@@ -49,12 +45,12 @@ final class GetTaskStatsController extends AbstractController
     )]
     #[IsGranted(WorkspaceVoter::VIEW, subject: 'workspace')]
     public function __invoke(
+        #[CurrentUser] User $user,
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         TaskRepository $taskRepository,
     ): JsonResponse {
-        $user = $this->getUser();
-        assert($user instanceof User);
-
-        return $this->json($taskRepository->getStatsByWorkspaceAndUser($workspace, $user));
+        return $this->json(TaskStatsResponse::fromArray(
+            $taskRepository->getStatsByWorkspaceAndUser($workspace, $user),
+        ));
     }
 }
