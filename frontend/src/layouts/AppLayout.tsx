@@ -79,19 +79,6 @@ export default function AppLayout() {
                                 Dashboard
                             </NavLink>
                             <NavLink
-                                to={`/workspaces/${workspaceId}/projects`}
-                                className={({ isActive }) =>
-                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                        isActive
-                                            ? 'bg-primary/10 text-primary font-medium'
-                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                    }`
-                                }
-                            >
-                                <FolderOpen className="h-4 w-4 shrink-0" />
-                                Projects
-                            </NavLink>
-                            <NavLink
                                 to={`/workspaces/${workspaceId}/my-tasks`}
                                 className={({ isActive }) =>
                                     `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
