@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button'
+import { Fab } from '@/components/Fab'
+import { FilterChips } from '@/components/FilterChips'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectCard } from '@/features/project/components/ProjectCard'
 import { ProjectEmptyState } from '@/features/project/components/ProjectEmptyState'
@@ -6,6 +8,7 @@ import { ProjectFormModal } from '@/features/project/components/ProjectFormModal
 import { ProjectMembersDialog } from '@/features/project/components/ProjectMembersDialog'
 import { useWorkspaceProjectsPage } from '@/features/project/hooks/useWorkspaceProjectsPage'
 import type { ProjectStatus } from '@/features/project/types'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { Plus, PlusCircle } from 'lucide-react'
 import { useState } from 'react'
 
@@ -38,6 +41,7 @@ export default function WorkspaceProjectsPage() {
     } = useWorkspaceProjectsPage()
 
     const [filter, setFilter] = useState<Filter>('all')
+    const isMobile = useIsMobile()
 
     if (isLoading) return null
 
@@ -45,13 +49,13 @@ export default function WorkspaceProjectsPage() {
         filter === 'all' ? (projects ?? []) : (projects ?? []).filter((p) => p.status === filter)
 
     return (
-        <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-4 p-4 md:gap-5 md:p-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-base font-semibold tracking-tight">Projects</h1>
                 {canCreateProject() && (
                     <Button
                         size="lg"
-                        className="cursor-pointer"
+                        className="hidden cursor-pointer md:flex"
                         onClick={() => setCreateOpen(true)}
                     >
                         <Plus />
@@ -60,26 +64,14 @@ export default function WorkspaceProjectsPage() {
                 )}
             </div>
 
-            <div className="flex items-center gap-2">
-                {FILTERS.map(({ value, label }) => (
-                    <Button
-                        key={value}
-                        size="sm"
-                        onClick={() => setFilter(value)}
-                        className={`h-7 cursor-pointer rounded-full px-2.5 text-xs font-medium ${
-                            filter === value
-                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:bg-primary/20 dark:border-primary/50 dark:hover:bg-primary/25'
-                                : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-transparent dark:hover:bg-transparent'
-                        }`}
-                        variant="outline"
-                    >
-                        {label}
-                    </Button>
-                ))}
-            </div>
+            <FilterChips
+                options={FILTERS as unknown as { label: string; value: string }[]}
+                value={filter}
+                onChange={(v) => setFilter(v as Filter)}
+            />
 
             {filtered.length > 0 ? (
-                <div className="grid [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))] gap-3">
+                <div className="grid grid-cols-1 gap-3 md:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
                     {filtered.map((project) => (
                         <ProjectCard
                             key={project.id}
@@ -95,7 +87,7 @@ export default function WorkspaceProjectsPage() {
                             }
                         />
                     ))}
-                    {canCreateProject() && (
+                    {canCreateProject() && !isMobile && (
                         <Button
                             variant="outline"
                             onClick={() => setCreateOpen(true)}
@@ -112,6 +104,10 @@ export default function WorkspaceProjectsPage() {
                 />
             ) : (
                 <p className="text-muted-foreground text-sm">No projects match this filter.</p>
+            )}
+
+            {canCreateProject() && (
+                <Fab icon={Plus} onClick={() => setCreateOpen(true)} hidden={!isMobile} />
             )}
 
             <ProjectFormModal
