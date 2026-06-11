@@ -8,7 +8,7 @@ import { NotificationBell } from '@/features/notification/components/Notificatio
 import { useNotifications } from '@/features/notification/hooks/useNotifications'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
-import { FolderOpen, LayoutDashboard, Mail, Settings, Users } from 'lucide-react'
+import { FolderOpen, LayoutDashboard, ListTodo, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 
@@ -81,6 +81,19 @@ export default function AppLayout() {
                             >
                                 <FolderOpen className="h-4 w-4 shrink-0" />
                                 Projects
+                            </NavLink>
+                            <NavLink
+                                to={`/workspaces/${workspaceId}/my-tasks`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 text-primary font-medium'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <ListTodo className="h-4 w-4 shrink-0" />
+                                My tasks
                             </NavLink>
                         </>
                     )}
@@ -186,6 +199,27 @@ export default function AppLayout() {
                                     className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                                 >
                                     Projects
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink
+                        to={`/workspaces/${workspaceId}/my-tasks`}
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <ListTodo
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    My tasks
                                 </span>
                             </>
                         )}
