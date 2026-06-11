@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 type Option = {
@@ -13,20 +14,22 @@ type Props = {
 
 export function FilterChips({ options, value, onChange }: Props) {
     return (
-        <div className="flex [scrollbar-width:none] gap-0.5 overflow-x-auto [&::-webkit-scrollbar]:hidden">
+        <div className="flex [scrollbar-width:none] items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
             {options.map((opt) => (
-                <button
+                <Button
                     key={opt.value}
+                    size="sm"
+                    variant="ghost"
                     onClick={() => onChange(opt.value)}
                     className={cn(
-                        'rounded-full border px-2.5 py-0.5 text-[10px] font-medium whitespace-nowrap',
+                        'h-7 cursor-pointer rounded-full border px-2.5 text-xs font-medium whitespace-nowrap',
                         opt.value === value
-                            ? 'border-primary/30 bg-primary/10 text-primary'
-                            : 'border-border bg-muted text-muted-foreground',
+                            ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:border-primary/50 dark:bg-primary/20 dark:hover:bg-primary/25'
+                            : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-transparent dark:hover:bg-transparent',
                     )}
                 >
                     {opt.label}
-                </button>
+                </Button>
             ))}
         </div>
     )

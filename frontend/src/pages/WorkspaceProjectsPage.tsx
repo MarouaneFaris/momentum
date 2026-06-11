@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Fab } from '@/components/Fab'
+import { FilterChips } from '@/components/FilterChips'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectCard } from '@/features/project/components/ProjectCard'
 import { ProjectEmptyState } from '@/features/project/components/ProjectEmptyState'
@@ -63,23 +64,11 @@ export default function WorkspaceProjectsPage() {
                 )}
             </div>
 
-            <div className="flex [scrollbar-width:none] items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-                {FILTERS.map(({ value, label }) => (
-                    <Button
-                        key={value}
-                        size="sm"
-                        onClick={() => setFilter(value)}
-                        className={`h-7 cursor-pointer rounded-full px-2.5 text-xs font-medium ${
-                            filter === value
-                                ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:bg-primary/20 dark:border-primary/50 dark:hover:bg-primary/25'
-                                : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground dark:bg-transparent dark:hover:bg-transparent'
-                        }`}
-                        variant="outline"
-                    >
-                        {label}
-                    </Button>
-                ))}
-            </div>
+            <FilterChips
+                options={FILTERS as unknown as { label: string; value: string }[]}
+                value={filter}
+                onChange={(v) => setFilter(v as Filter)}
+            />
 
             {filtered.length > 0 ? (
                 <div className="grid grid-cols-1 gap-3 md:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
