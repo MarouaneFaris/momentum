@@ -1,7 +1,13 @@
 import api from '@/lib/api'
 import { useSettledQuery } from '@/lib/useSettledQuery'
 import { useMutation } from '@tanstack/react-query'
-import type { InvitationInviteeView, InvitationOwnerView, InvitationRole, Member } from './types'
+import type {
+    AssignableMemberRole,
+    InvitationInviteeView,
+    InvitationOwnerView,
+    InvitationRole,
+    Member,
+} from './types'
 
 export const useWorkspaceInvitations = (workspaceId: string, enabled = true) =>
     useSettledQuery({
@@ -36,7 +42,7 @@ export const useWorkspaceMembers = (workspaceId: string) =>
 
 export const useChangeMemberRole = (workspaceId: string) =>
     useMutation({
-        mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+        mutationFn: ({ userId, role }: { userId: string; role: AssignableMemberRole }) =>
             api.patch<Member>(`/workspaces/${workspaceId}/members/${userId}`, { role }),
     })
 

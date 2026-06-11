@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MembersTable } from './MembersTable'
 import type { Member } from '../types'
@@ -134,7 +134,8 @@ describe('MembersTable', () => {
             />,
         )
         await user.click(screen.getByRole('button', { name: /remove/i }))
-        await user.click(screen.getByRole('button', { name: /cancel/i }))
+        const dialog = screen.getByRole('alertdialog')
+        await user.click(within(dialog).getByRole('button', { name: /cancel/i }))
         expect(mockHandleRemove).not.toHaveBeenCalled()
         expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     })

@@ -37,6 +37,7 @@ export const useInvitationsTable = (workspaceId: string) => {
     const handleResend = (invitationId: string) => {
         resend(invitationId, {
             onSuccess: () => {
+                void invalidate()
                 toast.success('Invitation resent')
             },
             onError: (err) => {

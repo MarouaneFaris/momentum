@@ -2,6 +2,8 @@ export type InvitationRole = 'member' | 'guest'
 
 export type WorkspaceRole = 'owner' | 'member' | 'guest'
 
+export type AssignableMemberRole = Exclude<WorkspaceRole, 'owner'>
+
 export type InvitationInvitee = {
     id: string
     name: string

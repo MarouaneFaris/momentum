@@ -19,7 +19,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { useMemberList } from '../hooks/useMemberList'
-import type { Member } from '../types'
+import type { AssignableMemberRole, Member } from '../types'
 
 type Props = {
     workspaceId: string
@@ -123,7 +123,10 @@ export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceNam
                                                 value={member.role}
                                                 disabled={isChanging}
                                                 onValueChange={(role) =>
-                                                    handleRoleChange(member.id, role)
+                                                    handleRoleChange(
+                                                        member.id,
+                                                        role as AssignableMemberRole,
+                                                    )
                                                 }
                                             >
                                                 <SelectTrigger

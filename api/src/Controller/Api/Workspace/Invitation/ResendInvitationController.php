@@ -29,7 +29,7 @@ final class ResendInvitationController extends AbstractController
         #[MapEntity(mapping: ['invitationId' => 'id'])] WorkspaceInvitation $invitation,
         MembershipService $membershipService,
     ): JsonResponse {
-        $membershipService->resend($invitation);
+        $membershipService->resend($workspace, $invitation);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }

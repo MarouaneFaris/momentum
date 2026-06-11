@@ -8,6 +8,7 @@ import {
     useRemoveMember,
     useWorkspaceMembers,
 } from '../queries'
+import type { AssignableMemberRole } from '../types'
 
 export const useMemberList = (workspaceId: string) => {
     const { data: members, isLoading } = useWorkspaceMembers(workspaceId)
@@ -17,7 +18,7 @@ export const useMemberList = (workspaceId: string) => {
     const queryClient = useQueryClient()
     const navigate = useNavigate()
 
-    const handleRoleChange = (userId: string, role: string) => {
+    const handleRoleChange = (userId: string, role: AssignableMemberRole) => {
         changeRole(
             { userId, role },
             {
