@@ -75,7 +75,7 @@ export function ProjectCard({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-muted-foreground hover:text-foreground size-6 shrink-0 cursor-pointer opacity-0 transition-opacity group-hover:opacity-100"
+                                className="text-muted-foreground hover:text-foreground size-6 shrink-0 cursor-pointer opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
                                 onClick={(e) => e.preventDefault()}
                             >
                                 <EllipsisIcon className="size-3.5" />
