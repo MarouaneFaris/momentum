@@ -1,5 +1,11 @@
 export type TaskStatus = 'todo' | 'in-progress' | 'done'
 
+export type TaskStats = {
+    open: number
+    in_progress: number
+    done_this_week: number
+}
+
 export type TaskAssignee = {
     id: string
     name: string
