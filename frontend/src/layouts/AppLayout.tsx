@@ -214,27 +214,6 @@ export default function AppLayout() {
                         )}
                     </NavLink>
                     <NavLink
-                        to={`/workspaces/${workspaceId}/projects`}
-                        className={({ isActive }) =>
-                            `flex flex-1 flex-col items-center gap-0.5 ${
-                                isActive ? 'text-primary' : 'text-muted-foreground'
-                            }`
-                        }
-                    >
-                        {({ isActive }) => (
-                            <>
-                                <FolderOpen
-                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                                />
-                                <span
-                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                                >
-                                    Projects
-                                </span>
-                            </>
-                        )}
-                    </NavLink>
-                    <NavLink
                         to={`/workspaces/${workspaceId}/my-tasks`}
                         className={({ isActive }) =>
                             `flex flex-1 flex-col items-center gap-0.5 ${
@@ -251,6 +230,27 @@ export default function AppLayout() {
                                     className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
                                 >
                                     My tasks
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink
+                        to={`/workspaces/${workspaceId}/projects`}
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <FolderOpen
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    Projects
                                 </span>
                             </>
                         )}
