@@ -23,8 +23,8 @@ export function FilterChips({ options, value, onChange }: Props) {
                     className={cn(
                         'h-auto cursor-pointer rounded-full border px-1.5 py-0.5 text-[9px] font-medium whitespace-nowrap md:h-7 md:px-2.5 md:text-[11px]',
                         opt.value === value
-                            ? '!border-primary/30 !bg-primary/10 text-primary hover:!bg-primary/15 hover:text-primary dark:!border-primary/50 dark:!bg-primary/20 dark:hover:!bg-primary/25'
-                            : '!border-border !bg-muted text-muted-foreground hover:!bg-muted hover:text-foreground dark:!bg-transparent dark:hover:!bg-transparent',
+                            ? 'border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary dark:border-primary/50 dark:bg-primary/20 dark:hover:bg-primary/25'
+                            : 'border-border bg-muted text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
                 >
                     {opt.label}
