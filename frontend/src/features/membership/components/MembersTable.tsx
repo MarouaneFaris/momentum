@@ -45,7 +45,10 @@ function MemberAvatar({ name }: { name: string }) {
 function RoleBadge({ role }: { role: Member['role'] }) {
     if (role === 'owner')
         return (
-            <Badge variant="secondary" className="capitalize">
+            <Badge
+                variant="outline"
+                className="border-primary/25 bg-primary/10 text-primary capitalize"
+            >
                 Owner
             </Badge>
         )
