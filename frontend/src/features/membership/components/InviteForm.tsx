@@ -38,7 +38,7 @@ export function InviteForm({ workspaceId }: Props) {
                         id="invite-email"
                         type="email"
                         placeholder="colleague@company.com"
-                        className="h-8 w-56 text-sm"
+                        className="bg-background h-8 w-72 text-sm"
                         {...register('email')}
                     />
                     {errors.email && (
@@ -55,7 +55,11 @@ export function InviteForm({ workspaceId }: Props) {
                     name="role"
                     render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger id="invite-role" size="sm" className="w-28">
+                            <SelectTrigger
+                                id="invite-role"
+                                size="sm"
+                                className="bg-background w-28"
+                            >
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
