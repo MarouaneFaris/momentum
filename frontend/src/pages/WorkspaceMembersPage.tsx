@@ -43,9 +43,17 @@ export default function WorkspaceMembersPage() {
 
             {isOwner ? (
                 <Tabs defaultValue="members">
-                    <TabsList>
-                        <TabsTrigger value="members">Members</TabsTrigger>
-                        <TabsTrigger value="invitations" className="gap-1.5">
+                    <TabsList className="h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
+                        <TabsTrigger
+                            value="members"
+                            className="data-[state=active]:border-primary data-[state=active]:text-primary -mb-px rounded-none border-b-2 border-transparent px-4 py-2.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                        >
+                            Members
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="invitations"
+                            className="data-[state=active]:border-primary data-[state=active]:text-primary -mb-px gap-1.5 rounded-none border-b-2 border-transparent px-4 py-2.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                        >
                             Invitations
                             {pendingCount > 0 && (
                                 <Badge className="h-4 min-w-4 px-1 text-[10px]">
