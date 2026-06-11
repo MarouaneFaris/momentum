@@ -14,9 +14,9 @@ export default function WorkspaceMembersPage() {
     const { id } = useParams<{ id: string }>()
     const { user } = useContext(AuthContext)
     const { data: workspace } = useWorkspace(id!)
+    const isOwner = workspace?.role === 'owner'
     const { data: members } = useWorkspaceMembers(id!)
     const { data: invitations } = useWorkspaceInvitations(id!, isOwner)
-    const isOwner = workspace?.role === 'owner'
 
     const pendingCount = invitations?.filter((inv) => inv.status === 'pending').length ?? 0
 
