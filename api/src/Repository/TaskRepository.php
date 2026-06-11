@@ -105,4 +105,26 @@ class TaskRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return Task[] */
+    public function findByWorkspaceAndUser(Workspace $workspace, User $user, ?int $limit = null): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->leftJoin('t.assignee', 'a')
+            ->addSelect('a')
+            ->leftJoin('t.creator', 'c')
+            ->addSelect('c')
+            ->join('t.project', 'p')
+            ->where('IDENTITY(p.workspace) = :workspaceId')
+            ->andWhere('IDENTITY(t.assignee) = :userId')
+            ->setParameter('workspaceId', $workspace->getId(), UuidType::NAME)
+            ->setParameter('userId', $user->getId(), UuidType::NAME)
+            ->orderBy('t.updatedAt', 'DESC');
+
+        if ($limit !== null) {
+            $qb->setMaxResults($limit);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

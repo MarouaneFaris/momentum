@@ -9,6 +9,15 @@ export const useWorkspaceTaskStats = (workspaceId: string) =>
         queryFn: () => api.get<TaskStats>(`/workspaces/${workspaceId}/tasks/stats`),
     })
 
+export const useWorkspaceMyTasks = (workspaceId: string, limit?: number) =>
+    useSettledQuery({
+        queryKey: ['workspaces', workspaceId, 'tasks', 'my', limit],
+        queryFn: () => {
+            const params = limit !== undefined ? `?limit=${limit}` : ''
+            return api.get<Task[]>(`/workspaces/${workspaceId}/tasks${params}`)
+        },
+    })
+
 export const useWorkspaceProjectTasks = (workspaceId: string, projectId: string) =>
     useSettledQuery({
         queryKey: ['workspaces', workspaceId, 'projects', projectId, 'tasks'],
