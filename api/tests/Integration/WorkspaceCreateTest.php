@@ -93,6 +93,9 @@ final class WorkspaceCreateTest extends IntegrationTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
     }
 
     public function testBlankNameReturns422(): void

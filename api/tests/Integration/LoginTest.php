@@ -72,6 +72,9 @@ final class LoginTest extends IntegrationTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('AUTH_INVALID_CREDENTIALS', $body['code']);
     }
 
     public function testUnknownEmailReturns401(): void
@@ -88,6 +91,9 @@ final class LoginTest extends IntegrationTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNAUTHORIZED);
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('AUTH_INVALID_CREDENTIALS', $body['code']);
     }
 
     private function authenticate(string $email, string $password): KernelBrowser

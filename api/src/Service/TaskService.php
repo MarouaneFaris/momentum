@@ -11,13 +11,14 @@ use App\Entity\User;
 use App\Entity\Workspace;
 use App\Enum\TaskStatus;
 use App\Enum\WorkspaceRole;
+use App\Error\ErrorCode;
 use App\Event\TaskAssigned;
 use App\Event\TaskStatusChanged;
+use App\Exception\ApiException;
 use App\Repository\UserWorkspaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class TaskService
 {
@@ -68,7 +69,7 @@ final readonly class TaskService
         ]);
 
         if ($membership === null) {
-            throw new AccessDeniedException();
+            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Access denied.', [], Response::HTTP_FORBIDDEN);
         }
 
         $isOwner = $membership->getRole() === WorkspaceRole::Owner;
@@ -79,7 +80,7 @@ final readonly class TaskService
         $hasFullAccess = $isOwner || $isCreator;
 
         if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee)) {
-            throw new AccessDeniedException('Only status updates are allowed for this role');
+            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Only status updates are allowed for this role.', [], Response::HTTP_FORBIDDEN);
         }
 
         $oldStatus = $task->getStatus();
@@ -137,11 +138,11 @@ final readonly class TaskService
         ]);
 
         if ($membership === null) {
-            throw new UnprocessableEntityHttpException('Assignee is not a workspace member');
+            throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee is not a workspace member.', ['field' => 'assigneeId']);
         }
 
         if ($membership->getRole() === WorkspaceRole::Guest) {
-            throw new UnprocessableEntityHttpException('Guests cannot be assigned tasks');
+            throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Guests cannot be assigned tasks.', ['field' => 'assigneeId']);
         }
     }
 }

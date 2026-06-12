@@ -12,6 +12,8 @@ use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\TaskStatus;
 use App\Enum\WorkspaceRole;
+use App\Error\ErrorCode;
+use App\Exception\ApiException;
 use App\Repository\UserWorkspaceRepository;
 use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,8 +22,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class TaskServiceTest extends TestCase
 {
@@ -103,10 +103,25 @@ final class TaskServiceTest extends TestCase
         $assignee = new User();
         $this->workspaceRepo->method('findOneBy')->willReturn(null);
 
-        $this->expectException(UnprocessableEntityHttpException::class);
-        $this->expectExceptionMessage('Assignee is not a workspace member');
+        $this->expectException(ApiException::class);
+        $this->expectExceptionMessage('Assignee is not a workspace member.');
 
         $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCreateThrowsWhenAssigneeNotWorkspaceMemberHasValidationCode(): void
+    {
+        $assignee = new User();
+        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+
+        try {
+            $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+            self::fail('Expected ApiException');
+        } catch (ApiException $e) {
+            self::assertSame(ErrorCode::VALIDATION_FAILED, $e->errorCode);
+            self::assertSame(['field' => 'assigneeId'], $e->context);
+        }
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -116,8 +131,8 @@ final class TaskServiceTest extends TestCase
         $membership = $this->makeMembership(WorkspaceRole::Guest, $assignee);
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
-        $this->expectException(UnprocessableEntityHttpException::class);
-        $this->expectExceptionMessage('Guests cannot be assigned tasks');
+        $this->expectException(ApiException::class);
+        $this->expectExceptionMessage('Guests cannot be assigned tasks.');
 
         $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
     }
@@ -196,7 +211,7 @@ final class TaskServiceTest extends TestCase
         $dto = new UpdateTaskDTO(title: 'Forbidden');
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
-        $this->expectException(AccessDeniedException::class);
+        $this->expectException(ApiException::class);
 
         $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }
@@ -210,7 +225,7 @@ final class TaskServiceTest extends TestCase
         $dto = new UpdateTaskDTO(description: 'Forbidden');
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
-        $this->expectException(AccessDeniedException::class);
+        $this->expectException(ApiException::class);
 
         $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }
@@ -224,7 +239,7 @@ final class TaskServiceTest extends TestCase
         $dto = new UpdateTaskDTO(assigneeId: 'some-uuid');
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
-        $this->expectException(AccessDeniedException::class);
+        $this->expectException(ApiException::class);
 
         $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }
@@ -272,7 +287,7 @@ final class TaskServiceTest extends TestCase
         $dto = new UpdateTaskDTO(removeAssignee: true);
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
-        $this->expectException(AccessDeniedException::class);
+        $this->expectException(ApiException::class);
 
         $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
     }

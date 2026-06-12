@@ -176,6 +176,9 @@ final class TaskCreateTest extends IntegrationTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
     }
 
     public function testAssigningNonWorkspaceMemberReturns422(): void
@@ -198,6 +201,9 @@ final class TaskCreateTest extends IntegrationTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('VALIDATION_FAILED', $body['code']);
     }
 
     public function testMissingTitleReturns422(): void
