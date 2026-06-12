@@ -13,6 +13,11 @@ const schema = z.object({
     password: z.string().min(12, 'Password must be at least 12 characters'),
 })
 
+const navigateToLogin = (navigate: ReturnType<typeof useNavigate>, message?: string) => {
+    if (message) toast(message)
+    void navigate('/login')
+}
+
 export const useRegisterForm = () => {
     const { mutate } = useRegister()
     const navigate = useNavigate()
@@ -20,7 +25,6 @@ export const useRegisterForm = () => {
     const {
         handleSubmit,
         register,
-        setError,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(schema),
@@ -32,16 +36,13 @@ export const useRegisterForm = () => {
                 { name, email, password },
                 {
                     onSuccess: (data) => {
-                        if (data) {
-                            toast(data.message)
-                        }
-
-                        void navigate('/login')
+                        navigateToLogin(navigate, data?.message)
                     },
                     onError: (error) => {
                         if (error instanceof ApiError) {
+                            // AUTH_DUPLICATE_EMAIL is intentionally treated as success to prevent email enumeration
                             if (error.code === 'AUTH_DUPLICATE_EMAIL') {
-                                setError('email', { message: copyFor(error.code) })
+                                navigateToLogin(navigate)
                                 return
                             }
                             toast.error(copyFor(error.code))

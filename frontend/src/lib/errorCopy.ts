@@ -1,5 +1,4 @@
 const COPY: Record<string, string> = {
-    AUTH_DUPLICATE_EMAIL: 'That email is already registered.',
     AUTH_INVALID_CREDENTIALS: 'Email or password is incorrect.',
     AUTH_NOT_AUTHENTICATED: 'You must be logged in to do that.',
     WORKSPACE_NAME_TOO_LONG: 'Workspace name must be 64 characters or fewer.',
