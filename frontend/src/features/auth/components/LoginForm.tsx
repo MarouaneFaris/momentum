@@ -6,7 +6,7 @@ import { Link } from 'react-router'
 import { useLoginForm } from '../hooks/useLoginForm'
 
 export default function LoginForm() {
-    const { register, handleOnSubmit } = useLoginForm()
+    const { register, handleOnSubmit, errors } = useLoginForm()
 
     return (
         <div className="flex flex-col gap-5">
@@ -28,6 +28,9 @@ export default function LoginForm() {
                 <div className="flex flex-col gap-1.5">
                     <Label htmlFor="password">Password</Label>
                     <PasswordInput id="password" {...register('password')} />
+                    {errors.password && (
+                        <p className="text-destructive text-sm">{errors.password.message}</p>
+                    )}
                 </div>
                 <Button type="submit" className="w-full">
                     Sign in

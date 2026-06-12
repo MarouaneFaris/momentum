@@ -1,4 +1,5 @@
 import ApiError from '@/lib/ApiError'
+import { copyFor } from '@/lib/errorCopy'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
@@ -11,6 +12,11 @@ const schema = z.object({
     email: z.email(),
     password: z.string().min(12, 'Password must be at least 12 characters'),
 })
+
+const navigateToLogin = (navigate: ReturnType<typeof useNavigate>, message?: string) => {
+    if (message) toast(message)
+    void navigate('/login')
+}
 
 export const useRegisterForm = () => {
     const { mutate } = useRegister()
@@ -30,15 +36,16 @@ export const useRegisterForm = () => {
                 { name, email, password },
                 {
                     onSuccess: (data) => {
-                        if (data) {
-                            toast(data.message)
-                        }
-
-                        void navigate('/login')
+                        navigateToLogin(navigate, data?.message)
                     },
                     onError: (error) => {
                         if (error instanceof ApiError) {
-                            toast.error(error.message)
+                            // AUTH_DUPLICATE_EMAIL is intentionally treated as success to prevent email enumeration
+                            if (error.code === 'AUTH_DUPLICATE_EMAIL') {
+                                navigateToLogin(navigate)
+                                return
+                            }
+                            toast.error(copyFor(error.code))
                         }
                     },
                 },
