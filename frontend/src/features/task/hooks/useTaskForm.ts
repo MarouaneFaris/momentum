@@ -1,10 +1,10 @@
-import ApiError from '@/lib/ApiError'
+import api from '@/lib/api'
+import { useFormMutation } from '@/hooks/useFormMutation'
+import type { ApiRoute } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import z from 'zod'
-import { useCreateTask, useUpdateTask } from '../queries'
+import type { Task } from '../types'
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or fewer'),
@@ -14,6 +14,15 @@ const schema = z.object({
 })
 
 export type TaskFormValues = z.infer<typeof schema>
+
+type CreatePayload = { title: string; description?: string; assigneeId?: string }
+type UpdatePayload = {
+    title?: string
+    description?: string
+    status?: string
+    assigneeId?: string
+    removeAssignee?: boolean
+}
 
 export type UseTaskFormOptions = {
     workspaceId: string
@@ -25,32 +34,34 @@ export type UseTaskFormOptions = {
 )
 
 export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseTaskFormOptions) {
-    const queryClient = useQueryClient()
-    const createMutation = useCreateTask(workspaceId, projectId)
-    const updateMutation = useUpdateTask(
-        workspaceId,
-        projectId,
-        rest.mode === 'edit' ? rest.taskId : '',
-    )
-
     const isEdit = rest.mode === 'edit'
+    const taskBase = `/workspaces/${workspaceId}/projects/${projectId}/tasks` as ApiRoute
+    const invalidateKey = ['workspaces', workspaceId, 'projects', projectId, 'tasks']
 
     const form = useForm<TaskFormValues>({
         resolver: zodResolver(schema),
-        defaultValues: isEdit
-            ? rest.initialValues
-            : {
-                  title: '',
-                  description: '',
-                  assigneeId: '',
-              },
+        defaultValues: isEdit ? rest.initialValues : { title: '', description: '', assigneeId: '' },
+    })
+
+    const createMutation = useFormMutation({
+        mutationFn: (data: CreatePayload) => api.post<Task>(taskBase, data),
+        invalidateKey,
+        onSuccess: () => {
+            onSuccess()
+            form.reset()
+        },
+    })
+
+    const updateMutation = useFormMutation({
+        mutationFn: (data: UpdatePayload) =>
+            api.patch<Task>(`${taskBase}/${isEdit ? rest.taskId : ''}` as ApiRoute, data),
+        invalidateKey,
+        onSuccess,
     })
 
     const isPending = isEdit ? updateMutation.isPending : createMutation.isPending
 
     const onSubmit = (values: TaskFormValues) => {
-        const invalidateKey = ['workspaces', workspaceId, 'projects', projectId, 'tasks']
-
         const assigneePayload: { assigneeId?: string; removeAssignee?: boolean } =
             isEdit && values.assigneeId === ''
                 ? { removeAssignee: true }
@@ -62,29 +73,16 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
             ...(values.status ? { status: values.status } : {}),
             ...assigneePayload,
         }
-        const onError = (error: Error) => {
-            if (error instanceof ApiError) toast.error(error.message)
-        }
 
         if (isEdit) {
-            updateMutation.mutate(payload, {
-                onSuccess: () => {
-                    void queryClient.invalidateQueries({ queryKey: invalidateKey })
-                    onSuccess()
-                },
-                onError,
+            updateMutation.mutate(payload)
+        } else {
+            createMutation.mutate({
+                title: payload.title,
+                description: payload.description,
+                assigneeId: payload.assigneeId,
             })
-            return
         }
-
-        createMutation.mutate(payload, {
-            onSuccess: () => {
-                void queryClient.invalidateQueries({ queryKey: invalidateKey })
-                onSuccess()
-                form.reset()
-            },
-            onError,
-        })
     }
 
     return { form, isPending, onSubmit }
