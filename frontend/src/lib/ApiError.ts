@@ -1,10 +1,19 @@
 export default class ApiError extends Error {
+    code: string
+    httpStatus: number
+    devMessage: string
+    context: Record<string, unknown>
+
     constructor(
-        public code: string,
-        public httpStatus: number,
-        public devMessage: string,
-        public context: Record<string, unknown> = {},
+        code: string,
+        httpStatus: number,
+        devMessage: string,
+        context: Record<string, unknown> = {},
     ) {
         super(devMessage)
+        this.code = code
+        this.httpStatus = httpStatus
+        this.devMessage = devMessage
+        this.context = context
     }
 }
