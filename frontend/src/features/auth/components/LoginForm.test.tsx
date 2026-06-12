@@ -18,7 +18,7 @@ vi.mock('react-router', () => ({
     ),
 }))
 vi.mock('@/features/auth/hooks/useLoginForm', () => ({
-    useLoginForm: () => ({ register: () => ({}), handleOnSubmit: vi.fn() }),
+    useLoginForm: () => ({ register: () => ({}), handleOnSubmit: vi.fn(), errors: {} }),
 }))
 
 describe('LoginForm', () => {
