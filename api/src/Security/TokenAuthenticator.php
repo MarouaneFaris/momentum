@@ -68,7 +68,7 @@ class TokenAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $response = $this->errorFactory->build(ErrorCode::AUTH_NOT_AUTHENTICATED, 'Authentication required.', [], 401);
+        $response = $this->errorFactory->build(ErrorCode::AUTH_NOT_AUTHENTICATED, 'Authentication required.', [], Response::HTTP_UNAUTHORIZED);
         $response->headers->setCookie(AuthTokenManager::createClearCookie());
 
         return $response;

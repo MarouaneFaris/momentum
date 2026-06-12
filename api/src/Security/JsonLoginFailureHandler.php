@@ -17,6 +17,6 @@ final readonly class JsonLoginFailureHandler implements AuthenticationFailureHan
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        return $this->factory->build(ErrorCode::AUTH_INVALID_CREDENTIALS, 'Invalid credentials.', [], 401);
+        return $this->factory->build(ErrorCode::AUTH_INVALID_CREDENTIALS, 'Invalid credentials.', [], Response::HTTP_UNAUTHORIZED);
     }
 }

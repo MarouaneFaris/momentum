@@ -9,6 +9,7 @@ use App\Error\ErrorResponseFactory;
 use App\Exception\ApiException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -43,11 +44,11 @@ final readonly class JsonExceptionListener
 
             if (!$isAuthenticated) {
                 $event->setResponse(
-                    $this->factory->build(ErrorCode::AUTH_NOT_AUTHENTICATED, 'Authentication required.', [], 401),
+                    $this->factory->build(ErrorCode::AUTH_NOT_AUTHENTICATED, 'Authentication required.', [], Response::HTTP_UNAUTHORIZED),
                 );
             } else {
                 $event->setResponse(
-                    $this->factory->build(ErrorCode::WORKSPACE_FORBIDDEN, 'Access denied.', [], 403),
+                    $this->factory->build(ErrorCode::WORKSPACE_FORBIDDEN, 'Access denied.', [], Response::HTTP_FORBIDDEN),
                 );
             }
 
@@ -56,7 +57,7 @@ final readonly class JsonExceptionListener
 
         if ($exception instanceof AuthenticationException) {
             $event->setResponse(
-                $this->factory->build(ErrorCode::AUTH_NOT_AUTHENTICATED, 'Authentication required.', [], 401),
+                $this->factory->build(ErrorCode::AUTH_NOT_AUTHENTICATED, 'Authentication required.', [], Response::HTTP_UNAUTHORIZED),
             );
 
             return;
@@ -72,7 +73,7 @@ final readonly class JsonExceptionListener
 
             $event->setResponse($response);
 
-            if ($exception->getStatusCode() >= 500) {
+            if ($exception->getStatusCode() >= Response::HTTP_INTERNAL_SERVER_ERROR) {
                 $this->logError($event, $exception);
             }
 
@@ -81,18 +82,18 @@ final readonly class JsonExceptionListener
 
         $this->logError($event, $exception);
         $event->setResponse(
-            $this->factory->build(ErrorCode::INTERNAL_ERROR, 'An unexpected error occurred.', [], 500),
+            $this->factory->build(ErrorCode::INTERNAL_ERROR, 'An unexpected error occurred.', [], Response::HTTP_INTERNAL_SERVER_ERROR),
         );
     }
 
     private function codeForStatus(int $status): ErrorCode
     {
         return match (true) {
-            $status === 401 => ErrorCode::AUTH_NOT_AUTHENTICATED,
-            $status === 403 => ErrorCode::WORKSPACE_FORBIDDEN,
-            $status === 404 => ErrorCode::WORKSPACE_NOT_FOUND,
-            $status === 429 => ErrorCode::RATE_LIMITED,
-            $status >= 400 && $status < 500 => ErrorCode::VALIDATION_FAILED,
+            $status === Response::HTTP_UNAUTHORIZED => ErrorCode::AUTH_NOT_AUTHENTICATED,
+            $status === Response::HTTP_FORBIDDEN => ErrorCode::WORKSPACE_FORBIDDEN,
+            $status === Response::HTTP_NOT_FOUND => ErrorCode::WORKSPACE_NOT_FOUND,
+            $status === Response::HTTP_TOO_MANY_REQUESTS => ErrorCode::RATE_LIMITED,
+            $status >= Response::HTTP_BAD_REQUEST && $status < Response::HTTP_INTERNAL_SERVER_ERROR => ErrorCode::VALIDATION_FAILED,
             default => ErrorCode::INTERNAL_ERROR,
         };
     }

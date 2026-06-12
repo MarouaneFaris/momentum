@@ -18,6 +18,7 @@ use App\Exception\ApiException;
 use App\Repository\UserWorkspaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class TaskService
 {
@@ -68,7 +69,7 @@ final readonly class TaskService
         ]);
 
         if ($membership === null) {
-            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Access denied.', [], 403);
+            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Access denied.', [], Response::HTTP_FORBIDDEN);
         }
 
         $isOwner = $membership->getRole() === WorkspaceRole::Owner;
@@ -79,7 +80,7 @@ final readonly class TaskService
         $hasFullAccess = $isOwner || $isCreator;
 
         if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee)) {
-            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Only status updates are allowed for this role.', [], 403);
+            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Only status updates are allowed for this role.', [], Response::HTTP_FORBIDDEN);
         }
 
         $oldStatus = $task->getStatus();
