@@ -1,4 +1,5 @@
 import ApiError from '@/lib/ApiError'
+import { copyFor } from '@/lib/errorCopy'
 import queryClient from '@/lib/queryClient'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -14,7 +15,7 @@ const schema = z.object({
 export const useLoginForm = () => {
     const { mutate } = useLogin()
 
-    const { handleSubmit, register } = useForm({
+    const { handleSubmit, register, setError } = useForm({
         resolver: zodResolver(schema),
     })
 
@@ -27,7 +28,11 @@ export const useLoginForm = () => {
                 },
                 onError: (error) => {
                     if (error instanceof ApiError) {
-                        toast.error(error.message)
+                        if (error.code === 'AUTH_INVALID_CREDENTIALS') {
+                            setError('password', { message: copyFor(error.code) })
+                            return
+                        }
+                        toast.error(copyFor(error.code))
                     }
                 },
             }),

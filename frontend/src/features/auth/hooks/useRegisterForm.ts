@@ -1,4 +1,5 @@
 import ApiError from '@/lib/ApiError'
+import { copyFor } from '@/lib/errorCopy'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
@@ -19,6 +20,7 @@ export const useRegisterForm = () => {
     const {
         handleSubmit,
         register,
+        setError,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(schema),
@@ -38,7 +40,11 @@ export const useRegisterForm = () => {
                     },
                     onError: (error) => {
                         if (error instanceof ApiError) {
-                            toast.error(error.message)
+                            if (error.code === 'AUTH_DUPLICATE_EMAIL') {
+                                setError('email', { message: copyFor(error.code) })
+                                return
+                            }
+                            toast.error(copyFor(error.code))
                         }
                     },
                 },
