@@ -16,13 +16,7 @@ const schema = z.object({
 export type TaskFormValues = z.infer<typeof schema>
 
 type CreatePayload = { title: string; description?: string; assigneeId?: string }
-type UpdatePayload = {
-    title?: string
-    description?: string
-    status?: string
-    assigneeId?: string
-    removeAssignee?: boolean
-}
+type UpdatePayload = CreatePayload & { status?: string; removeAssignee?: boolean }
 
 export type UseTaskFormOptions = {
     workspaceId: string
