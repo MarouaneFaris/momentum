@@ -9,6 +9,8 @@ use App\DTO\Response\TaskListItemResponse;
 use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\Workspace;
+use App\Error\ErrorCode;
+use App\Exception\ApiException;
 use App\Repository\UserRepository;
 use App\Security\Voter\TaskVoter;
 use App\Service\TaskService;
@@ -21,7 +23,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -76,7 +77,7 @@ final class CreateTaskController extends AbstractController
         if ($dto->assigneeId !== null) {
             $assignee = $userRepository->find($dto->assigneeId);
             if ($assignee === null) {
-                throw new UnprocessableEntityHttpException('Assignee not found');
+                throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee not found.', ['field' => 'assigneeId']);
             }
         }
 
