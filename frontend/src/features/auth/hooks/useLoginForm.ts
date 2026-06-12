@@ -15,7 +15,12 @@ const schema = z.object({
 export const useLoginForm = () => {
     const { mutate } = useLogin()
 
-    const { handleSubmit, register, setError } = useForm({
+    const {
+        handleSubmit,
+        register,
+        setError,
+        formState: { errors },
+    } = useForm({
         resolver: zodResolver(schema),
     })
 
@@ -39,5 +44,5 @@ export const useLoginForm = () => {
         )(e)
     }
 
-    return { register, handleOnSubmit }
+    return { register, handleOnSubmit, errors }
 }
