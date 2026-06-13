@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/EmptyState'
 import { Fab } from '@/components/Fab'
 import { FilterChips } from '@/components/FilterChips'
 import { Button } from '@/components/ui/button'
@@ -51,19 +52,19 @@ export function MobileTaskList({
             />
 
             {isEmpty ? (
-                <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-                    <ClipboardList className="text-border size-10" />
-                    <div className="text-foreground text-sm font-medium">No tasks yet</div>
-                    <div className="text-muted-foreground text-[13px]">
-                        Create a task to start tracking work for this project.
-                    </div>
-                    {!isGuest && (
-                        <Button size="lg" className="mt-1" onClick={onNewTask}>
-                            <Plus />
-                            New task
-                        </Button>
-                    )}
-                </div>
+                <EmptyState
+                    icon={ClipboardList}
+                    title="No tasks yet"
+                    description="Create a task to start tracking work for this project."
+                    action={
+                        !isGuest && (
+                            <Button size="lg" onClick={onNewTask}>
+                                <Plus />
+                                New task
+                            </Button>
+                        )
+                    }
+                />
             ) : filtered.length === 0 ? (
                 <p className="text-muted-foreground py-8 text-center text-sm">
                     No tasks match this filter.
