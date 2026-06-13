@@ -29,7 +29,8 @@ import { useInviteForm } from '../hooks/useInviteForm'
 import { useInvitationsTable } from '../hooks/useInvitationsTable'
 import type { Member } from '../types'
 import { MobileMemberRow } from './MobileMemberRow'
-import { MobileExpiredInvitationRow, MobilePendingInvitationRow } from './MobileInvitationRow'
+import { MobileExpiredInvitationRow } from './MobileExpiredInvitationRow'
+import { MobilePendingInvitationRow } from './MobilePendingInvitationRow'
 
 type Props = {
     workspaceId: string
