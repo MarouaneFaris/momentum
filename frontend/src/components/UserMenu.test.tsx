@@ -38,9 +38,9 @@ describe('UserMenu', () => {
         expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('AL')
     })
 
-    it('falls back to email initials when name is empty', () => {
+    it('falls back to "U" when name is empty', () => {
         render(<UserMenu />, { wrapper: makeWrapper('john.doe@example.com', '') })
-        expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('JO')
+        expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('U')
     })
 
     it('renders fallback initials "U" when no user', () => {
@@ -48,9 +48,9 @@ describe('UserMenu', () => {
         expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('U')
     })
 
-    it('derives initials from different email formats when no name', () => {
+    it('falls back to "U" for any email when name is empty', () => {
         render(<UserMenu />, { wrapper: makeWrapper('ab@example.com', '') })
-        expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('AB')
+        expect(screen.getByRole('button', { name: /user menu/i })).toHaveTextContent('U')
     })
 
     it('clicking avatar opens dropdown with logout item', async () => {

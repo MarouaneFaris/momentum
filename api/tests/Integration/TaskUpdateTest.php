@@ -145,6 +145,9 @@ final class TaskUpdateTest extends IntegrationTestCase
         );
 
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('WORKSPACE_FORBIDDEN', $body['code']);
     }
 
     public function testTaskFromDifferentProjectReturns404(): void

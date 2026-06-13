@@ -1,12 +1,4 @@
-import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { useDeleteProjectAction } from '../hooks/useDeleteProjectAction'
 import type { Project } from '../types'
 
@@ -25,33 +17,18 @@ export function DeleteProjectDialog({ open, onOpenChange, workspaceId, project }
     })
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Delete project</DialogTitle>
-                    <DialogDescription>
-                        Delete <strong>{project.name}</strong>? This cannot be undone.
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        disabled={isPending}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={confirm}
-                        disabled={isPending}
-                    >
-                        Delete
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <ConfirmDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title="Delete project"
+            description={
+                <>
+                    Delete <strong>{project.name}</strong>? This cannot be undone.
+                </>
+            }
+            confirmLabel="Delete"
+            onConfirm={confirm}
+            isPending={isPending}
+        />
     )
 }

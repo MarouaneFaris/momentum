@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
+import { UserAvatar } from '@/components/UserAvatar'
 import type { Task } from '../types'
-import { MiniAvatar } from './MiniAvatar'
 import { StatusBadge } from './StatusBadge'
 import { StatusCircle } from './StatusCircle'
 
@@ -16,7 +16,7 @@ export function TaskRow({ task, onClick }: { task: Task; onClick: () => void }) 
                 {task.title}
             </span>
             <StatusBadge status={task.status} />
-            {task.assignee && <MiniAvatar name={task.assignee.name} />}
+            {task.assignee && <UserAvatar name={task.assignee.name} size="sm" />}
         </Button>
     )
 }

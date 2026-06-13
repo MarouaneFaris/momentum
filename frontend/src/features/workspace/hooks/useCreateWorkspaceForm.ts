@@ -1,11 +1,11 @@
-import ApiError from '@/lib/ApiError'
-import { useQueryClient } from '@tanstack/react-query'
+import api from '@/lib/api'
+import { useFormMutation } from '@/hooks/useFormMutation'
+import { ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
-import { toast } from 'sonner'
 import z from 'zod'
-import { useCreateWorkspace } from '../queries'
+import type { Workspace } from '../types'
 import { workspaceStorage } from '../workspaceStorage'
 
 const schema = z.object({
@@ -15,29 +15,24 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export const useCreateWorkspaceForm = (onSuccess: () => void) => {
-    const { mutate, isPending } = useCreateWorkspace()
     const navigate = useNavigate()
-    const queryClient = useQueryClient()
+
+    const { mutate, isPending } = useFormMutation({
+        mutationFn: (data: FormValues) => api.post<Workspace>(ROUTES.workspaces, data),
+        invalidateKey: ['workspaces'],
+        onSuccess: (workspace) => {
+            if (workspace) {
+                workspaceStorage.write(workspace.id)
+                onSuccess()
+                void navigate(`/workspaces/${workspace.id}/dashboard`)
+            }
+        },
+    })
 
     const form = useForm<FormValues>({ resolver: zodResolver(schema) })
 
     const onSubmit = (values: FormValues) => {
-        mutate(values, {
-            onSuccess: (workspace) => {
-                void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-                if (workspace) {
-                    workspaceStorage.write(workspace.id)
-                    onSuccess()
-                    form.reset()
-                    void navigate(`/workspaces/${workspace.id}/dashboard`)
-                }
-            },
-            onError: (error) => {
-                if (error instanceof ApiError) {
-                    toast.error(error.message)
-                }
-            },
-        })
+        mutate(values)
     }
 
     return { form, isPending, onSubmit }

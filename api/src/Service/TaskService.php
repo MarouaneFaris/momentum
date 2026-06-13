@@ -11,13 +11,16 @@ use App\Entity\User;
 use App\Entity\Workspace;
 use App\Enum\TaskStatus;
 use App\Enum\WorkspaceRole;
+use App\Error\ErrorCode;
 use App\Event\TaskAssigned;
 use App\Event\TaskStatusChanged;
+use App\Exception\ApiException;
+use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
+use App\Utils\UuidHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\Response;
 
 final readonly class TaskService
 {
@@ -25,6 +28,7 @@ final readonly class TaskService
         private EntityManagerInterface $em,
         private UserWorkspaceRepository $userWorkspaceRepository,
         private EventDispatcherInterface $eventDispatcher,
+        private UserRepository $userRepository,
     ) {}
 
     public function create(
@@ -32,9 +36,14 @@ final readonly class TaskService
         User $creator,
         string $title,
         ?string $description,
-        ?User $assignee,
+        ?string $assigneeId,
     ): Task {
-        if ($assignee !== null) {
+        $assignee = null;
+        if ($assigneeId !== null) {
+            $assignee = $this->userRepository->find($assigneeId);
+            if ($assignee === null) {
+                throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee not found.', ['field' => 'assigneeId']);
+            }
             $this->validateAssignee($project, $assignee);
         }
 
@@ -60,7 +69,6 @@ final readonly class TaskService
         User $caller,
         Workspace $workspace,
         UpdateTaskDTO $dto,
-        ?User $newAssignee,
     ): Task {
         $membership = $this->userWorkspaceRepository->findOneBy([
             'user' => $caller,
@@ -68,18 +76,16 @@ final readonly class TaskService
         ]);
 
         if ($membership === null) {
-            throw new AccessDeniedException();
+            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Access denied.', [], Response::HTTP_FORBIDDEN);
         }
 
         $isOwner = $membership->getRole() === WorkspaceRole::Owner;
-        $creatorId = $task->getCreator()->getId();
-        $callerId = $caller->getId();
         $isCreator = $task->getCreator() === $caller
-            || ($creatorId !== null && $callerId !== null && $creatorId->equals($callerId));
+            || UuidHelper::equals($task->getCreator()->getId(), $caller->getId());
         $hasFullAccess = $isOwner || $isCreator;
 
         if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee)) {
-            throw new AccessDeniedException('Only status updates are allowed for this role');
+            throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Only status updates are allowed for this role.', [], Response::HTTP_FORBIDDEN);
         }
 
         $oldStatus = $task->getStatus();
@@ -101,9 +107,11 @@ final readonly class TaskService
             if ($dto->removeAssignee) {
                 $task->setAssignee(null);
             } elseif ($dto->assigneeId !== null) {
-                if ($newAssignee !== null) {
-                    $this->validateAssignee($task->getProject(), $newAssignee);
+                $newAssignee = $this->userRepository->find($dto->assigneeId);
+                if ($newAssignee === null) {
+                    throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee not found.', ['field' => 'assigneeId']);
                 }
+                $this->validateAssignee($task->getProject(), $newAssignee);
                 $task->setAssignee($newAssignee);
             }
         }
@@ -137,11 +145,11 @@ final readonly class TaskService
         ]);
 
         if ($membership === null) {
-            throw new UnprocessableEntityHttpException('Assignee is not a workspace member');
+            throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee is not a workspace member.', ['field' => 'assigneeId']);
         }
 
         if ($membership->getRole() === WorkspaceRole::Guest) {
-            throw new UnprocessableEntityHttpException('Guests cannot be assigned tasks');
+            throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Guests cannot be assigned tasks.', ['field' => 'assigneeId']);
         }
     }
 }

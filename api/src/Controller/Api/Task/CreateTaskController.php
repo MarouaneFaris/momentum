@@ -9,24 +9,20 @@ use App\DTO\Response\TaskListItemResponse;
 use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\Workspace;
-use App\Repository\UserRepository;
 use App\Security\Voter\TaskVoter;
 use App\Service\TaskService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-final class CreateTaskController extends AbstractController
+final class CreateTaskController extends AbstractTaskController
 {
     #[OA\Post(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks',
@@ -64,28 +60,15 @@ final class CreateTaskController extends AbstractController
         #[MapRequestPayload] CreateTaskDTO $dto,
         #[CurrentUser] User $user,
         TaskService $taskService,
-        UserRepository $userRepository,
     ): JsonResponse {
-        $projectWorkspaceId = $project->getWorkspace()->getId();
-        $workspaceId = $workspace->getId();
-        if ($projectWorkspaceId === null || $workspaceId === null || !$projectWorkspaceId->equals($workspaceId)) {
-            throw new NotFoundHttpException();
-        }
-
-        $assignee = null;
-        if ($dto->assigneeId !== null) {
-            $assignee = $userRepository->find($dto->assigneeId);
-            if ($assignee === null) {
-                throw new UnprocessableEntityHttpException('Assignee not found');
-            }
-        }
+        $this->assertProjectBelongsToWorkspace($project, $workspace);
 
         $task = $taskService->create(
             $project,
             $user,
             $dto->title,
             $dto->description,
-            $assignee,
+            $dto->assigneeId,
         );
 
         return $this->json(TaskListItemResponse::fromTask($task), Response::HTTP_CREATED);

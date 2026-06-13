@@ -10,24 +10,20 @@ use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Entity\Workspace;
-use App\Repository\UserRepository;
 use App\Security\Voter\TaskVoter;
 use App\Service\TaskService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-final class UpdateTaskController extends AbstractController
+final class UpdateTaskController extends AbstractTaskController
 {
     #[OA\Patch(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}',
@@ -67,29 +63,11 @@ final class UpdateTaskController extends AbstractController
         #[MapRequestPayload] UpdateTaskDTO $dto,
         #[CurrentUser] User $user,
         TaskService $taskService,
-        UserRepository $userRepository,
     ): JsonResponse {
-        $projectWorkspaceId = $project->getWorkspace()->getId();
-        $workspaceId = $workspace->getId();
-        if ($projectWorkspaceId === null || $workspaceId === null || !$projectWorkspaceId->equals($workspaceId)) {
-            throw new NotFoundHttpException();
-        }
+        $this->assertProjectBelongsToWorkspace($project, $workspace);
+        $this->assertTaskBelongsToProject($task, $project);
 
-        $taskProjectId = $task->getProject()->getId();
-        $projectId = $project->getId();
-        if ($taskProjectId === null || $projectId === null || !$taskProjectId->equals($projectId)) {
-            throw new NotFoundHttpException();
-        }
-
-        $newAssignee = null;
-        if ($dto->assigneeId !== null) {
-            $newAssignee = $userRepository->find($dto->assigneeId);
-            if ($newAssignee === null) {
-                throw new UnprocessableEntityHttpException('Assignee not found');
-            }
-        }
-
-        $task = $taskService->update($task, $user, $workspace, $dto, $newAssignee);
+        $task = $taskService->update($task, $user, $workspace, $dto);
 
         return $this->json(TaskDetailResponse::fromTask($task), Response::HTTP_OK);
     }

@@ -1,12 +1,20 @@
+import { useState } from 'react'
+import { EmptyState } from '@/components/EmptyState'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { MailOpen } from 'lucide-react'
 import { useInvitationsTable } from '../hooks/useInvitationsTable'
+import type { InvitationOwnerView } from '../types'
+
+type ConfirmAction = { type: 'cancel' | 'delete'; inv: InvitationOwnerView }
 
 type Props = {
     workspaceId: string
+    workspaceName: string
 }
 
-export function InvitationsTable({ workspaceId }: Props) {
+export function InvitationsTable({ workspaceId, workspaceName }: Props) {
     const {
         invitations,
         isLoading,
@@ -19,14 +27,17 @@ export function InvitationsTable({ workspaceId }: Props) {
         handleReinvite,
         handleDelete,
     } = useInvitationsTable(workspaceId)
+    const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
 
     if (isLoading) return <p className="text-muted-foreground text-sm">Loading invitations…</p>
 
     if (!invitations || invitations.length === 0) {
         return (
-            <p className="text-muted-foreground text-sm">
-                No invitations yet. Use the invite form above to add members.
-            </p>
+            <EmptyState
+                icon={MailOpen}
+                title="No invitations yet"
+                description="Invite members from the Members tab."
+            />
         )
     }
 
@@ -104,7 +115,9 @@ export function InvitationsTable({ workspaceId }: Props) {
                                                 size="sm"
                                                 className="text-destructive hover:text-destructive"
                                                 disabled={isCancelling}
-                                                onClick={() => handleCancel(inv.id)}
+                                                onClick={() =>
+                                                    setConfirmAction({ type: 'cancel', inv })
+                                                }
                                             >
                                                 Cancel
                                             </Button>
@@ -126,7 +139,9 @@ export function InvitationsTable({ workspaceId }: Props) {
                                                 size="sm"
                                                 className="text-destructive hover:text-destructive"
                                                 disabled={isDeleting}
-                                                onClick={() => handleDelete(inv.id)}
+                                                onClick={() =>
+                                                    setConfirmAction({ type: 'delete', inv })
+                                                }
                                             >
                                                 Delete
                                             </Button>
@@ -138,6 +153,32 @@ export function InvitationsTable({ workspaceId }: Props) {
                     ))}
                 </tbody>
             </table>
+
+            <ConfirmDialog
+                open={confirmAction !== null}
+                onOpenChange={(open) => {
+                    if (!open) setConfirmAction(null)
+                }}
+                title={
+                    confirmAction?.type === 'cancel' ? 'Cancel invitation?' : 'Delete invitation?'
+                }
+                description={
+                    confirmAction?.type === 'cancel'
+                        ? `${confirmAction.inv.invitee.email} will no longer be able to join ${workspaceName}.`
+                        : 'This cannot be undone.'
+                }
+                confirmLabel={confirmAction?.type === 'cancel' ? 'Cancel invitation' : 'Delete'}
+                onConfirm={() => {
+                    if (!confirmAction) return
+                    if (confirmAction.type === 'cancel') {
+                        handleCancel(confirmAction.inv.id)
+                    } else {
+                        handleDelete(confirmAction.inv.id)
+                    }
+                    setConfirmAction(null)
+                }}
+                isPending={confirmAction?.type === 'cancel' ? isCancelling : isDeleting}
+            />
         </div>
     )
 }

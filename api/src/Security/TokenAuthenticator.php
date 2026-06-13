@@ -2,8 +2,9 @@
 
 namespace App\Security;
 
+use App\Error\ErrorCode;
+use App\Error\ErrorResponseFactory;
 use App\Service\AuthTokenManager;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -20,6 +21,7 @@ class TokenAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
         private readonly AuthTokenManager $authTokenManager,
+        private readonly ErrorResponseFactory $errorFactory,
     ) {}
 
     /**
@@ -66,10 +68,7 @@ class TokenAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $response = new JsonResponse(
-            ['message' => strtr($exception->getMessageKey(), $exception->getMessageData())],
-            Response::HTTP_UNAUTHORIZED,
-        );
+        $response = $this->errorFactory->build(ErrorCode::AUTH_NOT_AUTHENTICATED, 'Authentication required.', [], Response::HTTP_UNAUTHORIZED);
         $response->headers->setCookie(AuthTokenManager::createClearCookie());
 
         return $response;

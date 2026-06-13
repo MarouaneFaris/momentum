@@ -1,37 +1,13 @@
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2, X } from 'lucide-react'
-import type { TaskDetail, TaskStatus } from '../types'
-
-function StatusBadge({ status }: { status: TaskStatus }) {
-    const className = {
-        todo: 'bg-muted text-muted-foreground border-border',
-        'in-progress': 'bg-primary/10 text-primary border-primary/25',
-        done: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30',
-    }[status]
-
-    const label = { todo: 'Todo', 'in-progress': 'In progress', done: 'Done' }[status]
-
-    return (
-        <Badge variant="outline" className={className}>
-            {label}
-        </Badge>
-    )
-}
+import { UserAvatar } from '@/components/UserAvatar'
+import type { TaskDetail } from '../types'
+import { StatusBadge } from './StatusBadge'
 
 function UserSummary({ user }: { user: { id: string; name: string } }) {
-    const initials = user.name
-        .split(' ')
-        .map((p) => p[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
-
     return (
         <div className="flex items-center gap-1.5">
-            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
-                {initials}
-            </div>
+            <UserAvatar name={user.name} size="sm" />
             <span className="text-foreground text-[13px]">{user.name}</span>
         </div>
     )

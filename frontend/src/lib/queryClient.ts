@@ -10,7 +10,7 @@ const queryClient = new QueryClient({
                 return
             }
 
-            if (error.status === 401 && query.queryKey[0] !== 'me') {
+            if (error.httpStatus === 401 && query.queryKey[0] !== 'me') {
                 void queryClient.invalidateQueries({ queryKey: ['me'] })
                 return
             }

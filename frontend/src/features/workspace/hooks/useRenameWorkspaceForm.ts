@@ -1,10 +1,9 @@
-import ApiError from '@/lib/ApiError'
-import { useQueryClient } from '@tanstack/react-query'
+import api from '@/lib/api'
+import { useFormMutation } from '@/hooks/useFormMutation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
-import { useRenameWorkspace } from '../queries'
 import type { Workspace } from '../types'
 
 const schema = z.object({
@@ -14,8 +13,13 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>
 
 export const useRenameWorkspaceForm = (workspace: Workspace) => {
-    const { mutate, isPending } = useRenameWorkspace(workspace.id)
-    const queryClient = useQueryClient()
+    const { mutate, isPending } = useFormMutation({
+        mutationFn: (data: FormValues) => api.patch<Workspace>(`/workspaces/${workspace.id}`, data),
+        invalidateKey: ['workspaces'],
+        onSuccess: () => {
+            toast.success('Workspace renamed')
+        },
+    })
 
     const form = useForm<FormValues>({
         resolver: zodResolver(schema),
@@ -23,17 +27,7 @@ export const useRenameWorkspaceForm = (workspace: Workspace) => {
     })
 
     const onSubmit = (values: FormValues) => {
-        mutate(values, {
-            onSuccess: () => {
-                void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-                toast.success('Workspace renamed')
-            },
-            onError: (error) => {
-                if (error instanceof ApiError) {
-                    toast.error(error.message)
-                }
-            },
-        })
+        mutate(values)
     }
 
     return { form, isPending, onSubmit }

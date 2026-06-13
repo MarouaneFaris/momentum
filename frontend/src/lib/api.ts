@@ -21,8 +21,15 @@ const apiFetch = async <T>(url: ApiRoute, options: RequestInit = {}): Promise<T 
     const json = (await response.json().catch(() => null)) as T | null
 
     if (!response.ok) {
-        const errorResponse = json as { error?: string } | null
-        throw new ApiError(response.status, errorResponse?.error ?? 'Network response was not ok')
+        const err = json as {
+            code?: string
+            message?: string
+            context?: Record<string, unknown>
+        } | null
+        const code = err?.code ?? 'UNKNOWN'
+        const message = err?.message ?? 'Network response was not ok'
+        const context = err?.context ?? {}
+        throw new ApiError(code, response.status, message, context)
     }
 
     return json
