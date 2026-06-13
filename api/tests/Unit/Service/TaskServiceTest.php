@@ -14,6 +14,7 @@ use App\Enum\TaskStatus;
 use App\Enum\WorkspaceRole;
 use App\Error\ErrorCode;
 use App\Exception\ApiException;
+use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,6 +30,7 @@ final class TaskServiceTest extends TestCase
     private EntityManagerInterface&MockObject $em;
     private UserWorkspaceRepository&Stub $workspaceRepo;
     private EventDispatcherInterface&Stub $eventDispatcher;
+    private UserRepository&Stub $userRepository;
     private Project $project;
     private User $creator;
 
@@ -37,7 +39,8 @@ final class TaskServiceTest extends TestCase
         $this->em = $this->createMock(EntityManagerInterface::class);
         $this->workspaceRepo = $this->createStub(UserWorkspaceRepository::class);
         $this->eventDispatcher = $this->createStub(EventDispatcherInterface::class);
-        $this->service = new TaskService($this->em, $this->workspaceRepo, $this->eventDispatcher);
+        $this->userRepository = $this->createStub(UserRepository::class);
+        $this->service = new TaskService($this->em, $this->workspaceRepo, $this->eventDispatcher, $this->userRepository);
 
         $workspace = new Workspace();
         $this->project = new Project();
@@ -73,12 +76,13 @@ final class TaskServiceTest extends TestCase
     {
         $assignee = new User();
         $membership = $this->makeMembership(WorkspaceRole::Member, $assignee);
+        $this->userRepository->method('find')->willReturn($assignee);
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('persist');
         $this->em->expects($this->once())->method('flush');
 
-        $task = $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+        $task = $this->service->create($this->project, $this->creator, 'Task', null, 'some-uuid');
 
         self::assertSame($assignee, $task->getAssignee());
     }
@@ -87,36 +91,50 @@ final class TaskServiceTest extends TestCase
     {
         $assignee = new User();
         $membership = $this->makeMembership(WorkspaceRole::Owner, $assignee);
+        $this->userRepository->method('find')->willReturn($assignee);
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->em->expects($this->once())->method('persist');
         $this->em->expects($this->once())->method('flush');
 
-        $task = $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+        $task = $this->service->create($this->project, $this->creator, 'Task', null, 'some-uuid');
 
         self::assertSame($assignee, $task->getAssignee());
+    }
+
+    #[AllowMockObjectsWithoutExpectations]
+    public function testCreateThrowsWhenAssigneeNotFound(): void
+    {
+        $this->userRepository->method('find')->willReturn(null);
+
+        $this->expectException(ApiException::class);
+        $this->expectExceptionMessage('Assignee not found.');
+
+        $this->service->create($this->project, $this->creator, 'Task', null, 'unknown-uuid');
     }
 
     #[AllowMockObjectsWithoutExpectations]
     public function testCreateThrowsWhenAssigneeNotWorkspaceMember(): void
     {
         $assignee = new User();
+        $this->userRepository->method('find')->willReturn($assignee);
         $this->workspaceRepo->method('findOneBy')->willReturn(null);
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('Assignee is not a workspace member.');
 
-        $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+        $this->service->create($this->project, $this->creator, 'Task', null, 'some-uuid');
     }
 
     #[AllowMockObjectsWithoutExpectations]
     public function testCreateThrowsWhenAssigneeNotWorkspaceMemberHasValidationCode(): void
     {
         $assignee = new User();
+        $this->userRepository->method('find')->willReturn($assignee);
         $this->workspaceRepo->method('findOneBy')->willReturn(null);
 
         try {
-            $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+            $this->service->create($this->project, $this->creator, 'Task', null, 'some-uuid');
             self::fail('Expected ApiException');
         } catch (ApiException $e) {
             self::assertSame(ErrorCode::VALIDATION_FAILED, $e->errorCode);
@@ -129,12 +147,13 @@ final class TaskServiceTest extends TestCase
     {
         $assignee = new User();
         $membership = $this->makeMembership(WorkspaceRole::Guest, $assignee);
+        $this->userRepository->method('find')->willReturn($assignee);
         $this->workspaceRepo->method('findOneBy')->willReturn($membership);
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('Guests cannot be assigned tasks.');
 
-        $this->service->create($this->project, $this->creator, 'Task', null, $assignee);
+        $this->service->create($this->project, $this->creator, 'Task', null, 'some-uuid');
     }
 
     // update() tests
@@ -149,7 +168,7 @@ final class TaskServiceTest extends TestCase
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto, null);
+        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto);
 
         self::assertSame('New title', $updated->getTitle());
         self::assertSame('New desc', $updated->getDescription());
@@ -165,7 +184,7 @@ final class TaskServiceTest extends TestCase
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto, null);
+        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto);
 
         self::assertSame('Creator update', $updated->getTitle());
         self::assertSame(TaskStatus::Done, $updated->getStatus());
@@ -182,7 +201,7 @@ final class TaskServiceTest extends TestCase
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $assignee, $this->project->getWorkspace(), $dto, null);
+        $updated = $this->service->update($task, $assignee, $this->project->getWorkspace(), $dto);
 
         self::assertSame(TaskStatus::InProgress, $updated->getStatus());
     }
@@ -197,7 +216,7 @@ final class TaskServiceTest extends TestCase
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
+        $updated = $this->service->update($task, $member, $this->project->getWorkspace(), $dto);
 
         self::assertSame(TaskStatus::Done, $updated->getStatus());
     }
@@ -213,7 +232,7 @@ final class TaskServiceTest extends TestCase
 
         $this->expectException(ApiException::class);
 
-        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -227,7 +246,7 @@ final class TaskServiceTest extends TestCase
 
         $this->expectException(ApiException::class);
 
-        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto);
     }
 
     #[AllowMockObjectsWithoutExpectations]
@@ -241,7 +260,7 @@ final class TaskServiceTest extends TestCase
 
         $this->expectException(ApiException::class);
 
-        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto);
     }
 
     public function testOwnerCanUpdateAssignee(): void
@@ -251,13 +270,14 @@ final class TaskServiceTest extends TestCase
         $task = $this->makeTask($this->creator);
         $membership = $this->makeMembership(WorkspaceRole::Owner, $owner);
         $assigneeMembership = $this->makeMembership(WorkspaceRole::Member, $newAssignee);
+        $this->userRepository->method('find')->willReturn($newAssignee);
         $this->workspaceRepo->method('findOneBy')->willReturnOnConsecutiveCalls($membership, $assigneeMembership);
 
         $dto = new UpdateTaskDTO(assigneeId: 'some-uuid');
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto, $newAssignee);
+        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto);
 
         self::assertSame($newAssignee, $updated->getAssignee());
     }
@@ -273,7 +293,7 @@ final class TaskServiceTest extends TestCase
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto, null);
+        $updated = $this->service->update($task, $owner, $this->project->getWorkspace(), $dto);
 
         self::assertNull($updated->getAssignee());
     }
@@ -289,7 +309,7 @@ final class TaskServiceTest extends TestCase
 
         $this->expectException(ApiException::class);
 
-        $this->service->update($task, $member, $this->project->getWorkspace(), $dto, null);
+        $this->service->update($task, $member, $this->project->getWorkspace(), $dto);
     }
 
     public function testDescriptionEmptyStringClearsIt(): void
@@ -302,7 +322,7 @@ final class TaskServiceTest extends TestCase
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto, null);
+        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto);
 
         self::assertNull($updated->getDescription());
     }
@@ -318,7 +338,7 @@ final class TaskServiceTest extends TestCase
 
         $this->em->expects($this->once())->method('flush');
 
-        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto, null);
+        $updated = $this->service->update($task, $this->creator, $this->project->getWorkspace(), $dto);
 
         self::assertSame('Original', $updated->getTitle());
         self::assertSame(TaskStatus::Todo, $updated->getStatus());
