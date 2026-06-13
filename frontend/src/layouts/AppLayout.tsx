@@ -61,13 +61,16 @@ export default function AppLayout() {
             </header>
             {/* Mobile topbar */}
             <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4 md:hidden">
-                <Link to="/" className="flex items-center gap-3">
-                    <MomentumLogo size="sm" />
-                    <span className="text-sm font-semibold tracking-tight">
-                        <span className="text-primary">m</span>omentum
-                    </span>
-                </Link>
-                <MobileWorkspaceSwitcher />
+                {workspaceId ? (
+                    <MobileWorkspaceSwitcher />
+                ) : (
+                    <Link to="/" className="flex items-center gap-3">
+                        <MomentumLogo size="sm" />
+                        <span className="text-sm font-semibold tracking-tight">
+                            <span className="text-primary">m</span>omentum
+                        </span>
+                    </Link>
+                )}
                 <span className="flex-1" />
                 <ThemeToggleSwitch />
                 <NotificationBell />
