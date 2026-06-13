@@ -7,6 +7,7 @@ export const useProjects = (workspaceId: string) =>
     useSettledQuery({
         queryKey: ['workspaces', workspaceId, 'projects'],
         queryFn: () => api.get<Project[]>(`/workspaces/${workspaceId}/projects`),
+        enabled: !!workspaceId,
     })
 
 export const useCreateProject = (workspaceId: string) =>

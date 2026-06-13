@@ -13,9 +13,18 @@ import { MobileWorkspaceSwitcher } from '@/features/workspace/components/MobileW
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
 import { useWorkspace } from '@/features/workspace/queries'
-import { FolderOpen, LayoutDashboard, ListTodo, Mail, Plus, Settings, Users } from 'lucide-react'
+import {
+    FolderOpen,
+    Home,
+    LayoutDashboard,
+    ListTodo,
+    Mail,
+    Plus,
+    Settings,
+    Users,
+} from 'lucide-react'
 import { useContext } from 'react'
-import { NavLink, Navigate, Outlet } from 'react-router'
+import { Link, NavLink, Navigate, Outlet } from 'react-router'
 
 export default function AppLayout() {
     const auth = useContext(AuthContext)
@@ -37,10 +46,12 @@ export default function AppLayout() {
         <div className="flex h-screen flex-col">
             {/* Desktop topbar */}
             <header className="bg-sidebar hidden h-12 shrink-0 items-center gap-3 border-b px-4 md:flex">
-                <MomentumLogo size="sm" />
-                <span className="text-sm font-semibold tracking-tight">
-                    <span className="text-primary">m</span>omentum
-                </span>
+                <Link to="/" className="flex items-center gap-3">
+                    <MomentumLogo size="sm" />
+                    <span className="text-sm font-semibold tracking-tight">
+                        <span className="text-primary">m</span>omentum
+                    </span>
+                </Link>
                 <span className="bg-border mx-1 h-5 w-px" />
                 <WorkspaceSwitcher />
                 <span className="flex-1" />
@@ -50,7 +61,16 @@ export default function AppLayout() {
             </header>
             {/* Mobile topbar */}
             <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4 md:hidden">
-                <MobileWorkspaceSwitcher />
+                {workspaceId ? (
+                    <MobileWorkspaceSwitcher />
+                ) : (
+                    <Link to="/" className="flex items-center gap-3">
+                        <MomentumLogo size="sm" />
+                        <span className="text-sm font-semibold tracking-tight">
+                            <span className="text-primary">m</span>omentum
+                        </span>
+                    </Link>
+                )}
                 <span className="flex-1" />
                 <ThemeToggleSwitch />
                 <NotificationBell />
@@ -62,6 +82,22 @@ export default function AppLayout() {
                     <p className="text-muted-foreground px-2 py-1 text-[10px] font-medium tracking-[0.08em] uppercase">
                         Main
                     </p>
+                    {!workspaceId && (
+                        <NavLink
+                            to="/"
+                            end
+                            className={({ isActive }) =>
+                                `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                    isActive
+                                        ? 'bg-primary/10 text-primary font-medium'
+                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                }`
+                            }
+                        >
+                            <Home className="h-4 w-4 shrink-0" />
+                            Home
+                        </NavLink>
+                    )}
                     {workspaceId && (
                         <>
                             <NavLink
@@ -189,6 +225,58 @@ export default function AppLayout() {
                 </main>
             </div>
             {/* Bottom tab bar — mobile only */}
+            {!workspaceId && (
+                <nav className="bg-card fixed right-0 bottom-0 left-0 z-50 flex h-14 shrink-0 items-center justify-around border-t px-2 pb-1 md:hidden">
+                    <NavLink
+                        to="/"
+                        end
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <Home
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    Home
+                                </span>
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink
+                        to="/invitations"
+                        className={({ isActive }) =>
+                            `flex flex-1 flex-col items-center gap-0.5 ${
+                                isActive ? 'text-primary' : 'text-muted-foreground'
+                            }`
+                        }
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <Mail
+                                    className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                />
+                                <span
+                                    className={`text-[9px] font-medium ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                                >
+                                    Invitations
+                                </span>
+                                {pendingCount > 0 && (
+                                    <Badge className="absolute top-1 ml-6 h-4 min-w-4 px-1 text-[9px]">
+                                        {pendingCount}
+                                    </Badge>
+                                )}
+                            </>
+                        )}
+                    </NavLink>
+                </nav>
+            )}
             {workspaceId && (
                 <nav className="bg-card fixed right-0 bottom-0 left-0 z-50 flex h-14 shrink-0 items-center justify-around border-t px-2 pb-1 md:hidden">
                     <NavLink
