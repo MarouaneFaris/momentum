@@ -13,14 +13,12 @@ use App\Security\Voter\TaskVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-final class ListTasksController extends AbstractController
+final class ListTasksController extends AbstractTaskController
 {
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks',
@@ -54,11 +52,7 @@ final class ListTasksController extends AbstractController
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
         TaskRepository $taskRepository,
     ): JsonResponse {
-        $projectWorkspaceId = $project->getWorkspace()->getId();
-        $workspaceId = $workspace->getId();
-        if ($projectWorkspaceId === null || $workspaceId === null || !$projectWorkspaceId->equals($workspaceId)) {
-            throw new NotFoundHttpException();
-        }
+        $this->assertProjectBelongsToWorkspace($project, $workspace);
 
         $tasks = $taskRepository->findByProject($project);
 

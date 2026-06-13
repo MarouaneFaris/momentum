@@ -17,17 +17,15 @@ use App\Service\TaskService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-final class CreateTaskController extends AbstractController
+final class CreateTaskController extends AbstractTaskController
 {
     #[OA\Post(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks',
@@ -67,11 +65,7 @@ final class CreateTaskController extends AbstractController
         TaskService $taskService,
         UserRepository $userRepository,
     ): JsonResponse {
-        $projectWorkspaceId = $project->getWorkspace()->getId();
-        $workspaceId = $workspace->getId();
-        if ($projectWorkspaceId === null || $workspaceId === null || !$projectWorkspaceId->equals($workspaceId)) {
-            throw new NotFoundHttpException();
-        }
+        $this->assertProjectBelongsToWorkspace($project, $workspace);
 
         $assignee = null;
         if ($dto->assigneeId !== null) {
