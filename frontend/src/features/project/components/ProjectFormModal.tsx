@@ -80,7 +80,7 @@ export function ProjectFormModal({ open, onOpenChange, workspaceId, project }: P
                                 backgroundColor: PROJECT_COLOR_MAP[key],
                                 outline:
                                     selectedColor === key
-                                        ? '2px solid hsl(var(--foreground))'
+                                        ? '2px solid var(--foreground)'
                                         : '2px solid transparent',
                                 outlineOffset: selectedColor === key ? '2px' : '0px',
                             }}
