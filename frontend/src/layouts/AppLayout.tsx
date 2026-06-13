@@ -8,6 +8,7 @@ import { NotificationBell } from '@/features/notification/components/Notificatio
 import { useNotifications } from '@/features/notification/hooks/useNotifications'
 import { getProjectColor } from '@/features/project/projectColor'
 import { useProjects } from '@/features/project/queries'
+import { MobileWorkspaceSwitcher } from '@/features/workspace/components/MobileWorkspaceSwitcher'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
 import { useWorkspace } from '@/features/workspace/queries'
@@ -48,10 +49,7 @@ export default function AppLayout() {
             </header>
             {/* Mobile topbar */}
             <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4 md:hidden">
-                <MomentumLogo size="sm" />
-                <span className="text-sm font-semibold tracking-tight">
-                    <span className="text-primary">m</span>omentum
-                </span>
+                <MobileWorkspaceSwitcher />
                 <span className="flex-1" />
                 <ThemeToggle />
                 <NotificationBell />
