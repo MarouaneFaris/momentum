@@ -5,27 +5,15 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { getInitials } from '@/lib/initials'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useLogoutAction } from '@/features/auth/hooks/useLogoutAction'
 import { useContext } from 'react'
 
-function getInitials(name?: string | null, email?: string | null): string {
-    if (name) {
-        const parts = name.trim().split(/\s+/)
-        if (parts.length >= 2) {
-            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-        }
-        return name.slice(0, 2).toUpperCase()
-    }
-    if (!email) return 'U'
-    const local = email.split('@')[0]
-    return local.slice(0, 2).toUpperCase()
-}
-
 export function UserMenu() {
     const { user } = useContext(AuthContext)
     const { handleOnLogout } = useLogoutAction()
-    const initials = getInitials(user?.name, user?.email)
+    const initials = user?.name ? getInitials(user.name) : 'U'
 
     return (
         <DropdownMenu>

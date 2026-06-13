@@ -1,18 +1,10 @@
 import { cn } from '@/lib/utils'
+import { getInitials } from '@/lib/initials'
 
 type Props = {
     name: string
     size?: 'sm' | 'md'
     className?: string
-}
-
-function getInitials(name: string): string {
-    return name
-        .split(' ')
-        .map((w) => w[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
 }
 
 export function UserAvatar({ name, size = 'md', className }: Props) {
