@@ -16,18 +16,16 @@ use App\Service\TaskService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-final class UpdateTaskController extends AbstractController
+final class UpdateTaskController extends AbstractTaskController
 {
     #[OA\Patch(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}',
@@ -69,17 +67,8 @@ final class UpdateTaskController extends AbstractController
         TaskService $taskService,
         UserRepository $userRepository,
     ): JsonResponse {
-        $projectWorkspaceId = $project->getWorkspace()->getId();
-        $workspaceId = $workspace->getId();
-        if ($projectWorkspaceId === null || $workspaceId === null || !$projectWorkspaceId->equals($workspaceId)) {
-            throw new NotFoundHttpException();
-        }
-
-        $taskProjectId = $task->getProject()->getId();
-        $projectId = $project->getId();
-        if ($taskProjectId === null || $projectId === null || !$taskProjectId->equals($projectId)) {
-            throw new NotFoundHttpException();
-        }
+        $this->assertProjectBelongsToWorkspace($project, $workspace);
+        $this->assertTaskBelongsToProject($task, $project);
 
         $newAssignee = null;
         if ($dto->assigneeId !== null) {
