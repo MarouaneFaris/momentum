@@ -14,10 +14,10 @@ export function MobileWorkspaceSwitcher() {
 
     return (
         <>
-            <button
-                type="button"
+            <Button
+                variant="ghost"
+                className="h-auto gap-1 px-2 py-1 text-sm font-medium"
                 onClick={() => setSheetOpen(true)}
-                className="flex items-center gap-1 text-sm font-medium"
             >
                 <span
                     className="text-primary flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded text-[9px] font-semibold"
@@ -29,19 +29,19 @@ export function MobileWorkspaceSwitcher() {
                     {current?.name ?? 'Select workspace'}
                 </span>
                 <ChevronDown className="text-muted-foreground h-3 w-3 shrink-0" />
-            </button>
+            </Button>
 
             <BottomSheet open={sheetOpen} onOpenChange={setSheetOpen} title="Workspaces">
                 <div className="flex flex-col pb-6">
                     {workspaces?.map((workspace) => (
-                        <button
+                        <Button
                             key={workspace.id}
-                            type="button"
+                            variant="ghost"
+                            className="h-auto justify-start gap-3 rounded-none px-4 py-3"
                             onClick={() => {
                                 handleSelect(workspace.id)
                                 setSheetOpen(false)
                             }}
-                            className="hover:bg-muted flex items-center gap-3 px-4 py-3 text-left"
                         >
                             <span
                                 className="text-primary flex h-7 w-7 shrink-0 items-center justify-center rounded text-xs font-semibold"
@@ -55,7 +55,7 @@ export function MobileWorkspaceSwitcher() {
                             <span className="text-muted-foreground text-xs capitalize">
                                 {workspace.role}
                             </span>
-                        </button>
+                        </Button>
                     ))}
                     <div className="border-border mx-4 my-2 border-t" />
                     <Button
