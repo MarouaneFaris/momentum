@@ -7,20 +7,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { UserAvatar } from '@/components/UserAvatar'
 import type { Member } from '../types'
-
-function MemberAvatar({ name }: { name: string }) {
-    const initials = name
-        .split(' ')
-        .slice(0, 2)
-        .map((w) => w[0]?.toUpperCase() ?? '')
-        .join('')
-    return (
-        <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium">
-            {initials}
-        </div>
-    )
-}
 
 function RoleBadge({ role }: { role: Member['role'] }) {
     if (role === 'owner')
@@ -58,7 +46,7 @@ export function MobileMemberRow({
 }) {
     return (
         <div className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0">
-            <MemberAvatar name={member.name} />
+            <UserAvatar name={member.name} size="md" />
             <div className="min-w-0 flex-1">
                 <p className="text-foreground truncate text-xs font-medium">{member.name}</p>
                 <p className="text-muted-foreground truncate text-xs">{member.email}</p>

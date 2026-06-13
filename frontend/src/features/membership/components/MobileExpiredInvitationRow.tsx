@@ -7,6 +7,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { UserAvatar } from '@/components/UserAvatar'
 import type { InvitationOwnerView, InvitationRole } from '../types'
 
 export function MobileExpiredInvitationRow({
@@ -24,9 +25,7 @@ export function MobileExpiredInvitationRow({
 }) {
     return (
         <div className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0">
-            <div className="bg-muted border-border text-muted-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-medium">
-                ?
-            </div>
+            <UserAvatar name="" size="md" />
             <div className="min-w-0 flex-1">
                 <p className="text-muted-foreground truncate text-xs">{inv.invitee.email}</p>
             </div>

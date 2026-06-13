@@ -7,6 +7,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { UserAvatar } from '@/components/UserAvatar'
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
 import type { Task } from '../types'
 import { STATUS_OPTIONS } from '../taskStatus'
@@ -17,18 +18,9 @@ function Assignee({ assignee }: { assignee: Task['assignee'] }) {
         return <span className="text-muted-foreground text-[11px]">—</span>
     }
 
-    const initials = assignee.name
-        .split(' ')
-        .map((p) => p[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
-
     return (
         <div className="flex items-center gap-1">
-            <div className="bg-primary/15 border-primary/30 text-primary flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
-                {initials}
-            </div>
+            <UserAvatar name={assignee.name} size="sm" />
             <span className="text-muted-foreground text-[11px]">{assignee.name.split(' ')[0]}</span>
         </div>
     )
