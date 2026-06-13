@@ -1,3 +1,4 @@
+import { CardSkeleton } from '@/components/skeletons/CardSkeleton'
 import { PageHeader } from '@/components/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { useMyInvitations } from '@/features/membership/queries'
@@ -15,7 +16,15 @@ export default function WorkspaceSettingsPage() {
     const { data: invitations } = useMyInvitations()
     const pendingCount = invitations?.length ?? 0
 
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) {
+        return (
+            <div className="flex flex-col gap-8 p-4 md:p-6">
+                <PageHeader title="Settings" />
+                <CardSkeleton />
+                <CardSkeleton />
+            </div>
+        )
+    }
     if (!workspace) return null
 
     return (

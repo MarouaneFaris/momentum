@@ -20,6 +20,7 @@ import {
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { RoleBadge } from '@/components/RoleBadge'
 import { UserAvatar } from '@/components/UserAvatar'
+import { TableRowSkeleton } from '@/components/skeletons/TableRowSkeleton'
 import { useMemberList } from '../hooks/useMemberList'
 import type { AssignableMemberRole, Member } from '../types'
 
@@ -44,7 +45,19 @@ export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceNam
     const [removingMember, setRemovingMember] = useState<Member | null>(null)
     const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
 
-    if (isLoading) return <p className="text-muted-foreground text-sm">Loading members…</p>
+    if (isLoading) {
+        return (
+            <div className="rounded-md border">
+                <table className="w-full text-sm">
+                    <tbody>
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <TableRowSkeleton key={i} />
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
 
     if (!members || members.length === 0) {
         return <p className="text-muted-foreground text-sm">No members.</p>

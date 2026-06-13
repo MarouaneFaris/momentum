@@ -10,9 +10,7 @@ export default function LandingPage() {
     const { data: workspaces, isLoading, isError } = useWorkspaces()
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    if (isLoading) {
-        return <div>Loading...</div>
-    }
+    if (isLoading) return null
 
     if (isError) {
         return <div>Failed to load workspaces. Please refresh.</div>
