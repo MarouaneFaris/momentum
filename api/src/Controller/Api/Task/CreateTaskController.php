@@ -9,9 +9,6 @@ use App\DTO\Response\TaskListItemResponse;
 use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\Workspace;
-use App\Error\ErrorCode;
-use App\Exception\ApiException;
-use App\Repository\UserRepository;
 use App\Security\Voter\TaskVoter;
 use App\Service\TaskService;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -63,24 +60,15 @@ final class CreateTaskController extends AbstractTaskController
         #[MapRequestPayload] CreateTaskDTO $dto,
         #[CurrentUser] User $user,
         TaskService $taskService,
-        UserRepository $userRepository,
     ): JsonResponse {
         $this->assertProjectBelongsToWorkspace($project, $workspace);
-
-        $assignee = null;
-        if ($dto->assigneeId !== null) {
-            $assignee = $userRepository->find($dto->assigneeId);
-            if ($assignee === null) {
-                throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee not found.', ['field' => 'assigneeId']);
-            }
-        }
 
         $task = $taskService->create(
             $project,
             $user,
             $dto->title,
             $dto->description,
-            $assignee,
+            $dto->assigneeId,
         );
 
         return $this->json(TaskListItemResponse::fromTask($task), Response::HTTP_CREATED);

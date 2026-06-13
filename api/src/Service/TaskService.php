@@ -15,6 +15,7 @@ use App\Error\ErrorCode;
 use App\Event\TaskAssigned;
 use App\Event\TaskStatusChanged;
 use App\Exception\ApiException;
+use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -26,6 +27,7 @@ final readonly class TaskService
         private EntityManagerInterface $em,
         private UserWorkspaceRepository $userWorkspaceRepository,
         private EventDispatcherInterface $eventDispatcher,
+        private UserRepository $userRepository,
     ) {}
 
     public function create(
@@ -33,9 +35,14 @@ final readonly class TaskService
         User $creator,
         string $title,
         ?string $description,
-        ?User $assignee,
+        ?string $assigneeId,
     ): Task {
-        if ($assignee !== null) {
+        $assignee = null;
+        if ($assigneeId !== null) {
+            $assignee = $this->userRepository->find($assigneeId);
+            if ($assignee === null) {
+                throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee not found.', ['field' => 'assigneeId']);
+            }
             $this->validateAssignee($project, $assignee);
         }
 
@@ -61,7 +68,6 @@ final readonly class TaskService
         User $caller,
         Workspace $workspace,
         UpdateTaskDTO $dto,
-        ?User $newAssignee,
     ): Task {
         $membership = $this->userWorkspaceRepository->findOneBy([
             'user' => $caller,
@@ -102,9 +108,11 @@ final readonly class TaskService
             if ($dto->removeAssignee) {
                 $task->setAssignee(null);
             } elseif ($dto->assigneeId !== null) {
-                if ($newAssignee !== null) {
-                    $this->validateAssignee($task->getProject(), $newAssignee);
+                $newAssignee = $this->userRepository->find($dto->assigneeId);
+                if ($newAssignee === null) {
+                    throw new ApiException(ErrorCode::VALIDATION_FAILED, 'Assignee not found.', ['field' => 'assigneeId']);
                 }
+                $this->validateAssignee($task->getProject(), $newAssignee);
                 $task->setAssignee($newAssignee);
             }
         }
