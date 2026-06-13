@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { PROJECT_COLOR_KEYS, PROJECT_COLOR_MAP } from '../projectColor'
 import { useProjectForm } from '../hooks/useProjectForm'
 import type { Project } from '../types'
 
@@ -47,6 +48,7 @@ export function ProjectFormModal({ open, onOpenChange, workspaceId, project }: P
     const isEdit = !!project
     const formId = 'project-form'
     const isMobile = useIsMobile()
+    const selectedColor = watch('color') ?? 'blue'
 
     const formFields = (
         <div className="flex flex-col gap-4">
@@ -63,6 +65,28 @@ export function ProjectFormModal({ open, onOpenChange, workspaceId, project }: P
                     rows={3}
                     {...register('description')}
                 />
+            </div>
+            <div className="grid gap-2">
+                <Label>Colour</Label>
+                <div className="flex gap-2">
+                    {PROJECT_COLOR_KEYS.map((key) => (
+                        <button
+                            key={key}
+                            type="button"
+                            aria-label={key}
+                            onClick={() => setValue('color', key)}
+                            className="size-6 cursor-pointer rounded-full transition-[outline,outline-offset]"
+                            style={{
+                                backgroundColor: PROJECT_COLOR_MAP[key],
+                                outline:
+                                    selectedColor === key
+                                        ? '2px solid hsl(var(--foreground))'
+                                        : '2px solid transparent',
+                                outlineOffset: selectedColor === key ? '2px' : '0px',
+                            }}
+                        />
+                    ))}
+                </div>
             </div>
             <div className="grid gap-2">
                 <Label htmlFor="project-status">Status</Label>

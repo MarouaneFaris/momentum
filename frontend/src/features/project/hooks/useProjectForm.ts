@@ -6,14 +6,17 @@ import z from 'zod'
 import type { Project } from '../types'
 import type { UseProjectFormOptions } from '../types'
 
+const COLOR_VALUES = ['blue', 'green', 'amber', 'red', 'purple', 'neutral'] as const
+
 const schema = z.object({
     name: z.string().min(1, 'Name is required').max(255, 'Name must be 255 characters or fewer'),
     description: z.string().optional(),
     status: z.enum(['draft', 'active', 'archived']).optional(),
+    color: z.enum(COLOR_VALUES).optional(),
 })
 
 type FormValues = z.infer<typeof schema>
-type ProjectPayload = { name: string; description?: string; status?: string }
+type ProjectPayload = { name: string; description?: string; status?: string; color?: string }
 
 export const useProjectForm = ({ workspaceId, project, onSuccess }: UseProjectFormOptions) => {
     const form = useForm<FormValues>({
@@ -22,6 +25,7 @@ export const useProjectForm = ({ workspaceId, project, onSuccess }: UseProjectFo
             name: project?.name ?? '',
             description: project?.description ?? '',
             status: project?.status ?? 'active',
+            color: project?.color ?? 'blue',
         },
     })
 
@@ -52,6 +56,7 @@ export const useProjectForm = ({ workspaceId, project, onSuccess }: UseProjectFo
             name: values.name,
             description: values.description,
             status: values.status,
+            color: values.color,
         }
         if (project) {
             updateMutation.mutate(payload)

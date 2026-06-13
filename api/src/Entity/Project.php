@@ -41,6 +41,9 @@ class Project
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $logoUrl = null;
 
+    #[ORM\Column(length: 20, options: ['default' => 'blue'])]
+    private string $color = 'blue';
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -144,5 +147,17 @@ class Project
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+
+    public function setColor(string $color): static
+    {
+        $this->color = $color;
+
+        return $this;
     }
 }

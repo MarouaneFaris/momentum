@@ -1,13 +1,16 @@
-const PROJECT_COLORS = [
-    'oklch(0.488 0.243 264.376)',
-    'oklch(0.55 0.15 145)',
-    'oklch(0.6 0.15 55)',
-    'oklch(0.55 0.18 20)',
-    'oklch(0.55 0.15 300)',
-    'oklch(0.6 0.15 200)',
-]
+export type ProjectColorKey = 'blue' | 'green' | 'amber' | 'red' | 'purple' | 'neutral'
 
-export function getProjectColor(id: string): string {
-    const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
-    return PROJECT_COLORS[hash % PROJECT_COLORS.length]
+export const PROJECT_COLOR_MAP: Record<ProjectColorKey, string> = {
+    blue: 'oklch(0.488 0.243 264.376)',
+    green: 'oklch(0.55 0.15 145)',
+    amber: 'oklch(0.6 0.15 55)',
+    red: 'oklch(0.55 0.18 20)',
+    purple: 'oklch(0.55 0.15 300)',
+    neutral: 'oklch(0.6 0.15 200)',
+}
+
+export const PROJECT_COLOR_KEYS = Object.keys(PROJECT_COLOR_MAP) as ProjectColorKey[]
+
+export function projectColorValue(key: ProjectColorKey): string {
+    return PROJECT_COLOR_MAP[key]
 }
