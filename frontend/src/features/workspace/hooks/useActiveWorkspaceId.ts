@@ -8,17 +8,19 @@ export const useActiveWorkspaceId = (): string | undefined => {
     const { data: workspaces } = useWorkspaces()
 
     const stored = workspaceStorage.read() ?? undefined
-    // Treat stored as valid only while workspaces are loading or stored ID is in the list.
-    // This evicts a stale ID left by a previous user (e.g. after dev login switch).
-    const storedIsValid =
-        workspaces === undefined || workspaces === null || workspaces.some((w) => w.id === stored)
+    // Only trust stored after the workspaces list has loaded and validated the ID.
+    // Without this gate, a stale stored ID (e.g. a deleted workspace) drives 404
+    // fetches in useWorkspace/useProjects before the list comes back.
+    const storedIsValid = workspaces?.some((w) => w.id === stored) ?? false
     const resolved = id ?? (storedIsValid ? stored : undefined) ?? workspaces?.[0]?.id
 
     useEffect(() => {
         if (resolved && resolved !== stored) {
             workspaceStorage.write(resolved)
+        } else if (!resolved && stored && workspaces && !storedIsValid) {
+            workspaceStorage.clear()
         }
-    }, [resolved, stored])
+    }, [resolved, stored, workspaces, storedIsValid])
 
     return resolved
 }

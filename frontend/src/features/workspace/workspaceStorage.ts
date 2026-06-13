@@ -5,4 +5,7 @@ export const workspaceStorage = {
     write: (id: string): void => {
         localStorage.setItem(STORAGE_KEY, id)
     },
+    clear: (): void => {
+        localStorage.removeItem(STORAGE_KEY)
+    },
 }
