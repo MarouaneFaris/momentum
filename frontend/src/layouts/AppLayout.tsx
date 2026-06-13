@@ -15,7 +15,7 @@ import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorksp
 import { useWorkspace } from '@/features/workspace/queries'
 import { FolderOpen, LayoutDashboard, ListTodo, Mail, Plus, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
-import { NavLink, Navigate, Outlet } from 'react-router'
+import { Link, NavLink, Navigate, Outlet } from 'react-router'
 
 export default function AppLayout() {
     const auth = useContext(AuthContext)
@@ -37,10 +37,12 @@ export default function AppLayout() {
         <div className="flex h-screen flex-col">
             {/* Desktop topbar */}
             <header className="bg-sidebar hidden h-12 shrink-0 items-center gap-3 border-b px-4 md:flex">
-                <MomentumLogo size="sm" />
-                <span className="text-sm font-semibold tracking-tight">
-                    <span className="text-primary">m</span>omentum
-                </span>
+                <Link to="/" className="flex items-center gap-3">
+                    <MomentumLogo size="sm" />
+                    <span className="text-sm font-semibold tracking-tight">
+                        <span className="text-primary">m</span>omentum
+                    </span>
+                </Link>
                 <span className="bg-border mx-1 h-5 w-px" />
                 <WorkspaceSwitcher />
                 <span className="flex-1" />
@@ -50,6 +52,12 @@ export default function AppLayout() {
             </header>
             {/* Mobile topbar */}
             <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4 md:hidden">
+                <Link to="/" className="flex items-center gap-3">
+                    <MomentumLogo size="sm" />
+                    <span className="text-sm font-semibold tracking-tight">
+                        <span className="text-primary">m</span>omentum
+                    </span>
+                </Link>
                 <MobileWorkspaceSwitcher />
                 <span className="flex-1" />
                 <ThemeToggleSwitch />

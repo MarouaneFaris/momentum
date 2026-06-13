@@ -20,6 +20,7 @@ export const useWorkspace = (workspaceId: string) =>
     useSettledQuery({
         queryKey: ['workspaces', workspaceId],
         queryFn: () => api.get<Workspace>(`${ROUTES.workspaces}/${workspaceId}`),
+        enabled: !!workspaceId,
     })
 
 export const useRenameWorkspace = (workspaceId: string) =>
