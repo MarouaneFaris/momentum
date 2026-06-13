@@ -1,4 +1,4 @@
-import { CardSkeleton } from '@/components/skeletons/CardSkeleton'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { CreateWorkspaceModal } from '@/features/workspace/components/CreateWorkspaceModal'
 import { useWorkspaces } from '@/features/workspace/queries'
@@ -13,10 +13,10 @@ export default function LandingPage() {
 
     if (isLoading) {
         return (
-            <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
-                <CardSkeleton />
-                <CardSkeleton />
-                <CardSkeleton />
+            <div className="flex flex-col items-center gap-4">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-64" />
+                <Skeleton className="h-10 w-40 rounded-md" />
             </div>
         )
     }
