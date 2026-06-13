@@ -185,7 +185,7 @@ export default function AppLayout() {
                         </p>
                     </div>
                 </aside>
-                <main className="bg-background flex-1 overflow-auto p-8 pb-14 md:pb-8">
+                <main className="bg-background flex-1 overflow-auto pb-14 md:pb-0">
                     <Outlet />
                 </main>
             </div>
