@@ -52,26 +52,26 @@ beforeEach(() => {
 
 describe('InvitationsTable', () => {
     it('shows Resend and Cancel for pending invitation', () => {
-        render(<InvitationsTable workspaceId="ws-1" />)
+        render(<InvitationsTable workspaceId="ws-1" workspaceName="Acme" />)
         expect(screen.getByRole('button', { name: /resend/i })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument()
     })
 
     it('shows Reinvite and Delete for expired invitation', () => {
-        render(<InvitationsTable workspaceId="ws-1" />)
+        render(<InvitationsTable workspaceId="ws-1" workspaceName="Acme" />)
         expect(screen.getByRole('button', { name: /reinvite/i })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument()
     })
 
     it('renders Pending and Expired status badges', () => {
-        render(<InvitationsTable workspaceId="ws-1" />)
+        render(<InvitationsTable workspaceId="ws-1" workspaceName="Acme" />)
         expect(screen.getByText('Pending')).toBeInTheDocument()
         expect(screen.getByText('Expired')).toBeInTheDocument()
     })
 
     it('shows empty state when no invitations', () => {
         mockHook.mockReturnValueOnce({ ...defaultHookResult, invitations: [] })
-        render(<InvitationsTable workspaceId="ws-1" />)
+        render(<InvitationsTable workspaceId="ws-1" workspaceName="Acme" />)
         expect(screen.getByText(/no invitations yet/i)).toBeInTheDocument()
     })
 })

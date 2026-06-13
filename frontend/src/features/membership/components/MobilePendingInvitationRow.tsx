@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,6 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { UserAvatar } from '@/components/UserAvatar'
 import type { InvitationOwnerView } from '../types'
 
@@ -27,42 +29,59 @@ export function MobilePendingInvitationRow({
     onResend: (id: string) => void
     onCancel: (id: string) => void
 }) {
+    const [confirmOpen, setConfirmOpen] = useState(false)
+
     return (
-        <div className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0">
-            <UserAvatar name="" size="md" />
-            <div className="min-w-0 flex-1">
-                <p className="text-muted-foreground truncate text-xs">{inv.invitee.email}</p>
-                <p className="text-muted-foreground truncate text-xs">
-                    Expires in {daysUntilExpiry(inv.expiresAt)} days
-                </p>
+        <>
+            <div className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0">
+                <UserAvatar name="" size="md" />
+                <div className="min-w-0 flex-1">
+                    <p className="text-muted-foreground truncate text-xs">{inv.invitee.email}</p>
+                    <p className="text-muted-foreground truncate text-xs">
+                        Expires in {daysUntilExpiry(inv.expiresAt)} days
+                    </p>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                    Pending
+                </Badge>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0"
+                            aria-label="Invitation actions"
+                        >
+                            <MoreHorizontal size={15} />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem disabled={isResending} onClick={() => onResend(inv.id)}>
+                            Resend
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            className="text-destructive"
+                            disabled={isCancelling}
+                            onClick={() => setConfirmOpen(true)}
+                        >
+                            Cancel
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
-            <Badge variant="secondary" className="text-xs">
-                Pending
-            </Badge>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 shrink-0"
-                        aria-label="Invitation actions"
-                    >
-                        <MoreHorizontal size={15} />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem disabled={isResending} onClick={() => onResend(inv.id)}>
-                        Resend
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        className="text-destructive"
-                        disabled={isCancelling}
-                        onClick={() => onCancel(inv.id)}
-                    >
-                        Cancel
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+
+            <ConfirmDialog
+                open={confirmOpen}
+                onOpenChange={setConfirmOpen}
+                title="Cancel invitation?"
+                description={`${inv.invitee.email} will no longer be able to join this workspace.`}
+                confirmLabel="Cancel invitation"
+                onConfirm={() => {
+                    onCancel(inv.id)
+                    setConfirmOpen(false)
+                }}
+                isPending={isCancelling}
+            />
+        </>
     )
 }

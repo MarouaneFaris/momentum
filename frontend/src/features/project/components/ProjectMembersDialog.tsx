@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
     Select,
@@ -9,7 +11,7 @@ import {
 } from '@/components/ui/select'
 import { UserMinusIcon } from 'lucide-react'
 import { useProjectMembersDialog } from '../hooks/useProjectMembersDialog'
-import type { Project } from '../types'
+import type { Project, ProjectMember } from '../types'
 
 type Props = {
     open: boolean
@@ -29,69 +31,88 @@ export function ProjectMembersDialog({ open, onOpenChange, workspaceId, project 
         isAssignPending,
         isRemovePending,
     } = useProjectMembersDialog(workspaceId, project)
+    const [removingMember, setRemovingMember] = useState<ProjectMember | null>(null)
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Members — {project.name}</DialogTitle>
-                </DialogHeader>
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Members — {project.name}</DialogTitle>
+                    </DialogHeader>
 
-                <div className="flex flex-col gap-4">
-                    {members.length > 0 ? (
-                        <ul className="flex flex-col gap-2">
-                            {members.map((member) => (
-                                <li
-                                    key={member.id}
-                                    className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
-                                >
-                                    <div className="flex flex-col">
-                                        <span className="font-medium">{member.name}</span>
-                                        <span className="text-muted-foreground text-xs">
-                                            {member.email}
-                                        </span>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        disabled={isRemovePending}
-                                        onClick={() => handleRemove(member.id)}
-                                        aria-label={`Remove ${member.name}`}
+                    <div className="flex flex-col gap-4">
+                        {members.length > 0 ? (
+                            <ul className="flex flex-col gap-2">
+                                {members.map((member) => (
+                                    <li
+                                        key={member.id}
+                                        className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
                                     >
-                                        <UserMinusIcon className="size-4" />
-                                    </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-muted-foreground text-sm">No guests assigned yet.</p>
-                    )}
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">{member.name}</span>
+                                            <span className="text-muted-foreground text-xs">
+                                                {member.email}
+                                            </span>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            disabled={isRemovePending}
+                                            onClick={() => setRemovingMember(member)}
+                                            aria-label={`Remove ${member.name}`}
+                                        >
+                                            <UserMinusIcon className="size-4" />
+                                        </Button>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-muted-foreground text-sm">No guests assigned yet.</p>
+                        )}
 
-                    {availableGuests.length > 0 && (
-                        <div className="flex gap-2">
-                            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                                <SelectTrigger className="flex-1">
-                                    <SelectValue placeholder="Add a guest..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableGuests.map((g) => (
-                                        <SelectItem key={g.id} value={g.id}>
-                                            {g.name} — {g.email}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Button
-                                type="button"
-                                disabled={!selectedUserId || isAssignPending}
-                                onClick={handleAssign}
-                            >
-                                Add
-                            </Button>
-                        </div>
-                    )}
-                </div>
-            </DialogContent>
-        </Dialog>
+                        {availableGuests.length > 0 && (
+                            <div className="flex gap-2">
+                                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                                    <SelectTrigger className="flex-1">
+                                        <SelectValue placeholder="Add a guest..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableGuests.map((g) => (
+                                            <SelectItem key={g.id} value={g.id}>
+                                                {g.name} — {g.email}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Button
+                                    type="button"
+                                    disabled={!selectedUserId || isAssignPending}
+                                    onClick={handleAssign}
+                                >
+                                    Add
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <ConfirmDialog
+                open={removingMember !== null}
+                onOpenChange={(open) => {
+                    if (!open) setRemovingMember(null)
+                }}
+                title={`Remove ${removingMember?.name ?? ''}?`}
+                description={`${removingMember?.name ?? ''} will lose access to ${project.name} and all its tasks.`}
+                confirmLabel="Remove"
+                onConfirm={() => {
+                    if (!removingMember) return
+                    handleRemove(removingMember.id)
+                    setRemovingMember(null)
+                }}
+                isPending={isRemovePending}
+            />
+        </>
     )
 }
