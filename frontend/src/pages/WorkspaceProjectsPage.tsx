@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Fab } from '@/components/Fab'
 import { FilterChips } from '@/components/FilterChips'
+import { PageHeader } from '@/components/PageHeader'
 import { DeleteProjectDialog } from '@/features/project/components/DeleteProjectDialog'
 import { ProjectCard } from '@/features/project/components/ProjectCard'
 import { ProjectEmptyState } from '@/features/project/components/ProjectEmptyState'
@@ -50,19 +51,21 @@ export default function WorkspaceProjectsPage() {
 
     return (
         <div className="flex flex-col gap-4 p-4 md:gap-5 md:p-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-base font-semibold tracking-tight">Projects</h1>
-                {canCreateProject() && (
-                    <Button
-                        size="lg"
-                        className="hidden cursor-pointer md:flex"
-                        onClick={() => setCreateOpen(true)}
-                    >
-                        <Plus />
-                        New project
-                    </Button>
-                )}
-            </div>
+            <PageHeader
+                title="Projects"
+                actions={
+                    canCreateProject() ? (
+                        <Button
+                            size="lg"
+                            className="hidden cursor-pointer md:flex"
+                            onClick={() => setCreateOpen(true)}
+                        >
+                            <Plus />
+                            New project
+                        </Button>
+                    ) : undefined
+                }
+            />
 
             <FilterChips
                 options={FILTERS as unknown as { label: string; value: string }[]}
