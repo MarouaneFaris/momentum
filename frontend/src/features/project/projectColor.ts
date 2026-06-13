@@ -1,6 +1,6 @@
 import type { ProjectColorKey } from './types'
 
-export const PROJECT_COLOR_MAP: Record<ProjectColorKey, string> = {
+const PROJECT_COLOR_MAP: Record<ProjectColorKey, string> = {
     blue: 'oklch(0.488 0.243 264.376)',
     green: 'oklch(0.55 0.15 145)',
     amber: 'oklch(0.6 0.15 55)',

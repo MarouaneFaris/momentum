@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useIsMobile } from '@/hooks/useIsMobile'
-import { PROJECT_COLOR_KEYS, PROJECT_COLOR_MAP } from '../projectColor'
+import { PROJECT_COLOR_KEYS, projectColorValue } from '../projectColor'
 import { useProjectForm } from '../hooks/useProjectForm'
 import type { Project } from '../types'
 
@@ -77,7 +77,7 @@ export function ProjectFormModal({ open, onOpenChange, workspaceId, project }: P
                             onClick={() => setValue('color', key)}
                             className="size-6 cursor-pointer rounded-full transition-[outline,outline-offset]"
                             style={{
-                                backgroundColor: PROJECT_COLOR_MAP[key],
+                                backgroundColor: projectColorValue(key),
                                 outline:
                                     selectedColor === key
                                         ? '2px solid var(--foreground)'

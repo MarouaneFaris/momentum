@@ -1,5 +1,5 @@
 import { PageHeader } from '@/components/PageHeader'
-import { PROJECT_COLOR_MAP } from '@/features/project/projectColor'
+import { projectColorValue } from '@/features/project/projectColor'
 import { useProjects } from '@/features/project/queries'
 import { MyTasksTable } from '@/features/task/components/MyTasksTable'
 import { StatsRow } from '@/features/task/components/StatsRow'
@@ -54,7 +54,7 @@ export default function WorkspaceDashboardPage() {
                             >
                                 <span
                                     className="h-1.5 w-1.5 shrink-0 rounded-full"
-                                    style={{ background: PROJECT_COLOR_MAP[project.color] }}
+                                    style={{ background: projectColorValue(project.color) }}
                                 />
                                 <span className="text-foreground text-xs font-medium">
                                     {project.name}

@@ -7,7 +7,7 @@ import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useMyInvitations } from '@/features/membership/queries'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
 import { useNotifications } from '@/features/notification/hooks/useNotifications'
-import { PROJECT_COLOR_MAP } from '@/features/project/projectColor'
+import { projectColorValue } from '@/features/project/projectColor'
 import { useProjects } from '@/features/project/queries'
 import { MobileWorkspaceSwitcher } from '@/features/workspace/components/MobileWorkspaceSwitcher'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
@@ -165,7 +165,7 @@ export default function AppLayout() {
                                 >
                                     <span
                                         className="h-1.5 w-1.5 shrink-0 rounded-full"
-                                        style={{ background: PROJECT_COLOR_MAP[project.color] }}
+                                        style={{ background: projectColorValue(project.color) }}
                                     />
                                     <span className="truncate">{project.name}</span>
                                 </NavLink>

@@ -7,7 +7,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { PROJECT_COLOR_MAP } from '@/features/project/projectColor'
+import { projectColorValue } from '@/features/project/projectColor'
 import type { Project, ProjectStatus } from '@/features/project/types'
 import { EllipsisIcon } from 'lucide-react'
 import { Link } from 'react-router'
@@ -122,7 +122,7 @@ export function ProjectCard({
             <div className="relative z-10 flex items-start gap-2">
                 <span
                     className="mt-0.5 size-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: PROJECT_COLOR_MAP[project.color] }}
+                    style={{ backgroundColor: projectColorValue(project.color) }}
                 />
                 <span className="text-foreground min-w-0 flex-1 text-sm leading-snug font-medium">
                     {project.name}
