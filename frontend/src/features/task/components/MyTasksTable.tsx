@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/EmptyState'
 import { ClipboardList } from 'lucide-react'
 import type { Task } from '../types'
 import { MiniAvatar } from './MiniAvatar'
@@ -34,12 +35,7 @@ export function MyTasksTable({
     emptyMessage = 'No tasks assigned to you',
 }: MyTasksTableProps) {
     if (tasks.length === 0) {
-        return (
-            <div className="flex flex-col items-center gap-3 py-10 text-center">
-                <ClipboardList className="text-border size-8" />
-                <p className="text-muted-foreground text-sm">{emptyMessage}</p>
-            </div>
-        )
+        return <EmptyState icon={ClipboardList} title={emptyMessage} className="py-10" />
     }
 
     return (

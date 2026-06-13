@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
 import { PopoverContent } from '@/components/ui/popover'
 import { Bell } from 'lucide-react'
@@ -35,17 +36,12 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
                 )}
             </div>
             {notifications.length === 0 ? (
-                <div className="flex flex-col items-center gap-2 px-5 py-10 text-center">
-                    <div className="bg-muted text-muted-foreground flex h-9 w-9 items-center justify-center rounded-full">
-                        <Bell className="h-[18px] w-[18px]" />
-                    </div>
-                    <p className="text-[13px] font-medium">No notifications</p>
-                    <p className="text-muted-foreground text-xs leading-relaxed">
-                        You&apos;re all caught up.
-                        <br />
-                        Activity will appear here.
-                    </p>
-                </div>
+                <EmptyState
+                    icon={Bell}
+                    title="No notifications"
+                    description="You're all caught up. Activity will appear here."
+                    className="py-10"
+                />
             ) : (
                 <div className="max-h-96 divide-y overflow-y-auto">
                     {notifications.map((n) => (
