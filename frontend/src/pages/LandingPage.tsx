@@ -1,4 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { CreateWorkspaceModal } from '@/features/workspace/components/CreateWorkspaceModal'
 import { useWorkspaces } from '@/features/workspace/queries'
@@ -11,15 +10,7 @@ export default function LandingPage() {
     const { data: workspaces, isLoading, isError } = useWorkspaces()
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    if (isLoading) {
-        return (
-            <div className="flex flex-col items-center gap-4">
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-4 w-64" />
-                <Skeleton className="h-10 w-40 rounded-md" />
-            </div>
-        )
-    }
+    if (isLoading) return null
 
     if (isError) {
         return <div>Failed to load workspaces. Please refresh.</div>
