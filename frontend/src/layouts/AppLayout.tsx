@@ -1,5 +1,6 @@
 import { MomentumLogo } from '@/components/MomentumLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { ThemeToggleSwitch } from '@/components/ThemeToggleSwitch'
 import { Badge } from '@/components/ui/badge'
 import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
@@ -71,6 +72,7 @@ export default function AppLayout() {
                     </Link>
                 )}
                 <span className="flex-1" />
+                <ThemeToggleSwitch />
                 <NotificationBell />
                 <UserMenu />
             </header>
