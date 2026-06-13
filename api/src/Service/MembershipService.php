@@ -19,6 +19,7 @@ use App\Event\WorkspaceInvitationDeclined;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Repository\WorkspaceInvitationRepository;
+use App\Utils\UuidHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -89,7 +90,7 @@ final readonly class MembershipService
             throw new GoneHttpException('Invitation has expired');
         }
 
-        if ((string) $invitation->getInvitee()->getId() !== (string) $currentUser->getId()) {
+        if (!UuidHelper::equals($invitation->getInvitee()->getId(), $currentUser->getId())) {
             throw new AccessDeniedHttpException('This invitation belongs to another user');
         }
 
@@ -107,7 +108,7 @@ final readonly class MembershipService
 
     public function decline(WorkspaceInvitation $invitation, User $currentUser): void
     {
-        if ((string) $invitation->getInvitee()->getId() !== (string) $currentUser->getId()) {
+        if (!UuidHelper::equals($invitation->getInvitee()->getId(), $currentUser->getId())) {
             throw new AccessDeniedHttpException('This invitation belongs to another user');
         }
 
@@ -119,7 +120,7 @@ final readonly class MembershipService
 
     public function resend(Workspace $workspace, WorkspaceInvitation $invitation): void
     {
-        if ((string) $invitation->getWorkspace()->getId() !== (string) $workspace->getId()) {
+        if (!UuidHelper::equals($invitation->getWorkspace()->getId(), $workspace->getId())) {
             throw new NotFoundHttpException('Invitation not found in this workspace');
         }
 
@@ -139,7 +140,7 @@ final readonly class MembershipService
 
     public function cancel(Workspace $workspace, WorkspaceInvitation $invitation, User $actor): void
     {
-        if ((string) $invitation->getWorkspace()->getId() !== (string) $workspace->getId()) {
+        if (!UuidHelper::equals($invitation->getWorkspace()->getId(), $workspace->getId())) {
             throw new NotFoundHttpException('Invitation not found in this workspace');
         }
 
@@ -166,7 +167,7 @@ final readonly class MembershipService
             throw new UnprocessableEntityHttpException('Role owner cannot be assigned via API');
         }
 
-        if ((string) $membership->getUser()->getId() === (string) $actor->getId()) {
+        if (UuidHelper::equals($membership->getUser()->getId(), $actor->getId())) {
             throw new BadRequestHttpException('Owner cannot change their own role');
         }
 

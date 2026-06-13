@@ -17,6 +17,7 @@ use App\Event\TaskStatusChanged;
 use App\Exception\ApiException;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
+use App\Utils\UuidHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -79,10 +80,8 @@ final readonly class TaskService
         }
 
         $isOwner = $membership->getRole() === WorkspaceRole::Owner;
-        $creatorId = $task->getCreator()->getId();
-        $callerId = $caller->getId();
         $isCreator = $task->getCreator() === $caller
-            || ($creatorId !== null && $callerId !== null && $creatorId->equals($callerId));
+            || UuidHelper::equals($task->getCreator()->getId(), $caller->getId());
         $hasFullAccess = $isOwner || $isCreator;
 
         if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee)) {

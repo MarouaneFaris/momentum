@@ -8,6 +8,7 @@ use App\Enum\NotificationType;
 use App\Event\TaskAssigned;
 use App\Service\NotificationPublisher;
 use App\Service\NotificationServiceInterface;
+use App\Utils\UuidHelper;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 #[AsEventListener]
@@ -34,10 +35,8 @@ final readonly class TaskAssignedNotificationHandler
             'workspace_id' => (string) $workspace->getId(),
         ];
 
-        $creatorId = $creator->getId();
-        $assigneeId = $assignee->getId();
         $sameUser = $creator === $assignee
-            || ($creatorId !== null && $assigneeId !== null && $creatorId->equals($assigneeId));
+            || UuidHelper::equals($creator->getId(), $assignee->getId());
 
         $this->notificationPublisher->publishCreated(
             $this->notificationService->create($assignee, NotificationType::TaskAssignedToYou, $basePayload)
