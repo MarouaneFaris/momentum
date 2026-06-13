@@ -1,23 +1,7 @@
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Pencil, Trash2, X } from 'lucide-react'
-import type { TaskDetail, TaskStatus } from '../types'
-
-function StatusBadge({ status }: { status: TaskStatus }) {
-    const className = {
-        todo: 'bg-muted text-muted-foreground border-border',
-        'in-progress': 'bg-primary/10 text-primary border-primary/25',
-        done: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30',
-    }[status]
-
-    const label = { todo: 'Todo', 'in-progress': 'In progress', done: 'Done' }[status]
-
-    return (
-        <Badge variant="outline" className={className}>
-            {label}
-        </Badge>
-    )
-}
+import type { TaskDetail } from '../types'
+import { StatusBadge } from './StatusBadge'
 
 function UserSummary({ user }: { user: { id: string; name: string } }) {
     const initials = user.name

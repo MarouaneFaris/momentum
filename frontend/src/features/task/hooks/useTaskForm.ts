@@ -5,12 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
 import type { Task } from '../types'
+import { taskStatusSchema } from '../taskStatus'
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or fewer'),
     description: z.string().optional(),
     assigneeId: z.string().optional(),
-    status: z.enum(['todo', 'in-progress', 'done']).optional(),
+    status: taskStatusSchema.optional(),
 })
 
 export type TaskFormValues = z.infer<typeof schema>

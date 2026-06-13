@@ -6,17 +6,12 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
-import type { TaskDetail, TaskStatus } from '../types'
+import type { TaskDetail } from '../types'
+import { STATUS_OPTIONS } from '../taskStatus'
 import { ArrowLeft, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { DetailRow } from './DetailRow'
 import { MiniAvatar } from './MiniAvatar'
 import { StatusBadge } from './StatusBadge'
-
-const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-    { value: 'todo', label: 'To do' },
-    { value: 'in-progress', label: 'In progress' },
-    { value: 'done', label: 'Done' },
-]
 
 function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString(undefined, {
