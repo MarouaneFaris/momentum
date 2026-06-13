@@ -1,8 +1,10 @@
+import { ThemeToggleSwitch } from '@/components/ThemeToggleSwitch'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { getInitials } from '@/lib/initials'
@@ -27,6 +29,14 @@ export function UserMenu() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+                <div
+                    className="flex items-center justify-between px-2 py-1.5 text-sm md:hidden"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <span className="text-muted-foreground">Theme</span>
+                    <ThemeToggleSwitch />
+                </div>
+                <DropdownMenuSeparator className="md:hidden" />
                 <DropdownMenuItem onClick={handleOnLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
