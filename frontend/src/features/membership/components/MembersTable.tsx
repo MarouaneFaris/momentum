@@ -17,6 +17,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { RoleBadge } from '@/components/RoleBadge'
 import { UserAvatar } from '@/components/UserAvatar'
 import { useMemberList } from '../hooks/useMemberList'
@@ -30,9 +31,18 @@ type Props = {
 }
 
 export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceName }: Props) {
-    const { members, isLoading, isChanging, isRemoving, handleRoleChange, handleRemove } =
-        useMemberList(workspaceId)
+    const {
+        members,
+        isLoading,
+        isChanging,
+        isRemoving,
+        isLeaving,
+        handleRoleChange,
+        handleRemove,
+        handleLeave,
+    } = useMemberList(workspaceId)
     const [removingMember, setRemovingMember] = useState<Member | null>(null)
+    const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
 
     if (isLoading) return <p className="text-muted-foreground text-sm">Loading members…</p>
 
@@ -121,6 +131,16 @@ export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceNam
                                                 You
                                             </span>
                                         )}
+                                        {isSelf && member.role !== 'owner' && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-destructive hover:text-destructive"
+                                                onClick={() => setLeaveConfirmOpen(true)}
+                                            >
+                                                Leave
+                                            </Button>
+                                        )}
                                         {canManage && (
                                             <Button
                                                 variant="ghost"
@@ -170,6 +190,16 @@ export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceNam
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            <ConfirmDialog
+                open={leaveConfirmOpen}
+                onOpenChange={setLeaveConfirmOpen}
+                title="Leave workspace?"
+                description={`You will lose access to ${workspaceName} and all its projects.`}
+                confirmLabel="Leave workspace"
+                isPending={isLeaving}
+                onConfirm={handleLeave}
+            />
         </>
     )
 }
