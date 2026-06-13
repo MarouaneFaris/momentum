@@ -1,3 +1,4 @@
+import { MobileLayout } from '@/components/MobileLayout'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -8,7 +9,7 @@ import {
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
 import type { TaskDetail } from '../types'
 import { STATUS_OPTIONS } from '../taskStatus'
-import { ArrowLeft, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { DetailRow } from './DetailRow'
 import { UserAvatar } from '@/components/UserAvatar'
 import { StatusBadge } from './StatusBadge'
@@ -45,28 +46,18 @@ export function MobileTaskDetail({
     const { update: changeStatus } = useUpdateTaskStatus(workspaceId, projectId, task.id)
 
     return (
-        <div className="flex flex-col">
-            <div className="bg-background border-border sticky top-0 z-10 flex items-center gap-2 border-b px-4 py-3">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={onBack}
-                    aria-label="Back"
-                    className="-ml-1 h-8 w-8 shrink-0"
-                >
-                    <ArrowLeft size={18} />
-                </Button>
-                <span className="text-foreground flex-1 truncate text-sm font-semibold">
-                    {task.title}
-                </span>
-                {canEdit && (
+        <MobileLayout
+            title={task.title}
+            onBack={onBack}
+            action={
+                canEdit ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 aria-label="Task actions"
-                                className="h-8 w-8 shrink-0"
+                                className="h-8 w-8"
                             >
                                 <MoreHorizontal size={18} />
                             </Button>
@@ -85,9 +76,9 @@ export function MobileTaskDetail({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                )}
-            </div>
-
+                ) : undefined
+            }
+        >
             <div className="flex flex-col gap-4 p-4">
                 <h1 className="text-foreground text-lg leading-snug font-semibold">{task.title}</h1>
 
@@ -168,6 +159,6 @@ export function MobileTaskDetail({
                     </div>
                 )}
             </div>
-        </div>
+        </MobileLayout>
     )
 }
