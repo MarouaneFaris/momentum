@@ -1,3 +1,4 @@
+import { CardSkeleton } from '@/components/skeletons/CardSkeleton'
 import { Button } from '@/components/ui/button'
 import { CreateWorkspaceModal } from '@/features/workspace/components/CreateWorkspaceModal'
 import { useWorkspaces } from '@/features/workspace/queries'
@@ -11,7 +12,13 @@ export default function LandingPage() {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     if (isLoading) {
-        return <div>Loading...</div>
+        return (
+            <div className="mx-auto flex w-full max-w-sm flex-col gap-4">
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+            </div>
+        )
     }
 
     if (isError) {

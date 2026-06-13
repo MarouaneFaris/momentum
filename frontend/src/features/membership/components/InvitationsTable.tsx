@@ -4,6 +4,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { MailOpen } from 'lucide-react'
+import { TableRowSkeleton } from '@/components/skeletons/TableRowSkeleton'
 import { useInvitationsTable } from '../hooks/useInvitationsTable'
 import type { InvitationOwnerView } from '../types'
 
@@ -29,7 +30,19 @@ export function InvitationsTable({ workspaceId, workspaceName }: Props) {
     } = useInvitationsTable(workspaceId)
     const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null)
 
-    if (isLoading) return <p className="text-muted-foreground text-sm">Loading invitations…</p>
+    if (isLoading) {
+        return (
+            <div className="rounded-md border">
+                <table className="w-full text-sm">
+                    <tbody>
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <TableRowSkeleton key={i} />
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
 
     if (!invitations || invitations.length === 0) {
         return (
