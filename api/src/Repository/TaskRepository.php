@@ -91,6 +91,57 @@ class TaskRepository extends ServiceEntityRepository
         ];
     }
 
+    /**
+     * @param Project[] $projects
+     *
+     * @return array<string, array{total: int, done: int, open: int}> keyed by project uuid string
+     */
+    public function getStatsForProjects(array $projects): array
+    {
+        if ($projects === []) {
+            return [];
+        }
+
+        $binaryToUuid = [];
+        $projectIds = [];
+        foreach ($projects as $p) {
+            $id = $p->getId();
+            if ($id !== null) {
+                $binary = $id->toBinary();
+                $projectIds[] = $binary;
+                $binaryToUuid[$binary] = (string) $id;
+            }
+        }
+
+        if ($projectIds === []) {
+            return [];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $rows = $conn->fetchAllAssociative(
+            'SELECT project_id, COUNT(*) AS total, SUM(status = :done) AS done
+             FROM task
+             WHERE project_id IN (:projectIds)
+             GROUP BY project_id',
+            ['done' => TaskStatus::Done->value, 'projectIds' => $projectIds],
+            ['projectIds' => ArrayParameterType::BINARY],
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $uuid = $binaryToUuid[$row['project_id']] ?? null;
+            if ($uuid === null) {
+                continue;
+            }
+            $total = (int) $row['total'];
+            $done = (int) $row['done'];
+            $result[$uuid] = ['total' => $total, 'done' => $done, 'open' => $total - $done];
+        }
+
+        return $result;
+    }
+
     /** @return Task[] */
     public function findByProject(Project $project): array
     {

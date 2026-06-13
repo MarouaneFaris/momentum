@@ -7,6 +7,18 @@ namespace App\DTO\Response;
 use App\Entity\Project;
 use OpenApi\Attributes as OA;
 
+final readonly class ProjectTaskStats
+{
+    public function __construct(
+        #[OA\Property(type: 'integer')]
+        public int $total,
+        #[OA\Property(type: 'integer')]
+        public int $done,
+        #[OA\Property(type: 'integer')]
+        public int $open,
+    ) {}
+}
+
 final readonly class ProjectListItemResponse
 {
     public function __construct(
@@ -26,10 +38,21 @@ final readonly class ProjectListItemResponse
         public string $updatedAt,
         #[OA\Property(type: 'string', enum: ['blue', 'green', 'amber', 'red', 'purple', 'neutral'], example: 'blue')]
         public string $color,
+        #[OA\Property(ref: '#/components/schemas/ProjectTaskStats')]
+        public ProjectTaskStats $taskStats,
+        /** @var list<string> */
+        #[OA\Property(type: 'array', items: new OA\Items(type: 'string'), example: ['Alice Johnson', 'Bob Smith'])]
+        public array $memberNames,
     ) {}
 
-    public static function fromProject(Project $project): self
+    /**
+     * @param array{total: int, done: int, open: int}|null $taskStats
+     * @param list<string>                                 $memberNames
+     */
+    public static function fromProject(Project $project, ?array $taskStats = null, array $memberNames = []): self
     {
+        $stats = $taskStats ?? ['total' => 0, 'done' => 0, 'open' => 0];
+
         return new self(
             id: (string) $project->getId(),
             name: $project->getName(),
@@ -39,6 +62,12 @@ final readonly class ProjectListItemResponse
             createdAt: $project->getCreatedAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $project->getUpdatedAt()->format(\DateTimeInterface::ATOM),
             color: $project->getColor(),
+            taskStats: new ProjectTaskStats(
+                total: $stats['total'],
+                done: $stats['done'],
+                open: $stats['open'],
+            ),
+            memberNames: $memberNames,
         );
     }
 }
