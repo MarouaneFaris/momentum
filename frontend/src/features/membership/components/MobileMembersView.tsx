@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ArrowLeft, Check, MoreHorizontal } from 'lucide-react'
+import { ArrowLeft, Check } from 'lucide-react'
 import { Controller } from 'react-hook-form'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,12 +13,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -35,52 +28,14 @@ import { useMemberList } from '../hooks/useMemberList'
 import { useInviteForm } from '../hooks/useInviteForm'
 import { useInvitationsTable } from '../hooks/useInvitationsTable'
 import type { Member } from '../types'
+import { MobileMemberRow } from './MobileMemberRow'
+import { MobileExpiredInvitationRow, MobilePendingInvitationRow } from './MobileInvitationRow'
 
 type Props = {
     workspaceId: string
     workspaceName: string
     isOwner: boolean
     currentUserId: string
-}
-
-function MemberAvatar({ name }: { name: string }) {
-    const initials = name
-        .split(' ')
-        .slice(0, 2)
-        .map((w) => w[0]?.toUpperCase() ?? '')
-        .join('')
-    return (
-        <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium">
-            {initials}
-        </div>
-    )
-}
-
-function RoleBadge({ role }: { role: Member['role'] }) {
-    if (role === 'owner')
-        return (
-            <Badge
-                variant="outline"
-                className="border-primary/25 bg-primary/10 text-primary capitalize"
-            >
-                Owner
-            </Badge>
-        )
-    if (role === 'member')
-        return (
-            <Badge variant="outline" className="capitalize">
-                Member
-            </Badge>
-        )
-    return (
-        <Badge variant="outline" className="text-muted-foreground capitalize">
-            Guest
-        </Badge>
-    )
-}
-
-function daysUntilExpiry(expiresAt: string): number {
-    return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000))
 }
 
 export function MobileMembersView({ workspaceId, workspaceName, isOwner, currentUserId }: Props) {
@@ -146,56 +101,17 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                     {(members?.length ?? 0) !== 1 ? 's' : ''}
                 </p>
                 <div className="rounded-md border">
-                    {members?.map((member) => {
-                        const canManage =
-                            isOwner && member.id !== currentUserId && member.role !== 'owner'
-                        return (
-                            <div
-                                key={member.id}
-                                className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0"
-                            >
-                                <MemberAvatar name={member.name} />
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-foreground truncate text-xs font-medium">
-                                        {member.name}
-                                    </p>
-                                    <p className="text-muted-foreground truncate text-xs">
-                                        {member.email}
-                                    </p>
-                                </div>
-                                <RoleBadge role={member.role} />
-                                {canManage ? (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-7 w-7 shrink-0"
-                                                aria-label="Member actions"
-                                            >
-                                                <MoreHorizontal size={15} />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem
-                                                onClick={() => setChangingRoleMember(member)}
-                                            >
-                                                Change role
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem
-                                                className="text-destructive"
-                                                onClick={() => setRemovingMember(member)}
-                                            >
-                                                Remove
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                ) : (
-                                    <span className="w-7 shrink-0" aria-hidden />
-                                )}
-                            </div>
-                        )
-                    })}
+                    {members?.map((member) => (
+                        <MobileMemberRow
+                            key={member.id}
+                            member={member}
+                            canManage={
+                                isOwner && member.id !== currentUserId && member.role !== 'owner'
+                            }
+                            onChangeRole={setChangingRoleMember}
+                            onRemove={setRemovingMember}
+                        />
+                    ))}
                 </div>
             </div>
 
@@ -205,52 +121,14 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                     <p className="text-muted-foreground text-xs font-medium">Pending invitations</p>
                     <div className="rounded-md border">
                         {pendingInvitations.map((inv) => (
-                            <div
+                            <MobilePendingInvitationRow
                                 key={inv.id}
-                                className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0"
-                            >
-                                <div className="bg-muted border-border text-muted-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-medium">
-                                    ?
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-muted-foreground truncate text-xs">
-                                        {inv.invitee.email}
-                                    </p>
-                                    <p className="text-muted-foreground truncate text-xs">
-                                        Expires in {daysUntilExpiry(inv.expiresAt)} days
-                                    </p>
-                                </div>
-                                <Badge variant="secondary" className="text-xs">
-                                    Pending
-                                </Badge>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-7 w-7 shrink-0"
-                                            aria-label="Invitation actions"
-                                        >
-                                            <MoreHorizontal size={15} />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem
-                                            disabled={isResending}
-                                            onClick={() => handleResend(inv.id)}
-                                        >
-                                            Resend
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className="text-destructive"
-                                            disabled={isCancelling}
-                                            onClick={() => handleCancel(inv.id)}
-                                        >
-                                            Cancel
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
+                                inv={inv}
+                                isResending={isResending}
+                                isCancelling={isCancelling}
+                                onResend={handleResend}
+                                onCancel={handleCancel}
+                            />
                         ))}
                     </div>
                 </div>
@@ -262,51 +140,14 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                     <p className="text-muted-foreground text-xs font-medium">Expired invitations</p>
                     <div className="rounded-md border">
                         {expiredInvitations.map((inv) => (
-                            <div
+                            <MobileExpiredInvitationRow
                                 key={inv.id}
-                                className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0"
-                            >
-                                <div className="bg-muted border-border text-muted-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-medium">
-                                    ?
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-muted-foreground truncate text-xs">
-                                        {inv.invitee.email}
-                                    </p>
-                                </div>
-                                <Badge variant="outline" className="text-muted-foreground text-xs">
-                                    Expired
-                                </Badge>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-7 w-7 shrink-0"
-                                            aria-label="Invitation actions"
-                                        >
-                                            <MoreHorizontal size={15} />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem
-                                            disabled={isReinviting}
-                                            onClick={() =>
-                                                handleReinvite(inv.invitee.email, inv.role)
-                                            }
-                                        >
-                                            Reinvite
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            className="text-destructive"
-                                            disabled={isDeleting}
-                                            onClick={() => handleDelete(inv.id)}
-                                        >
-                                            Delete
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
+                                inv={inv}
+                                isReinviting={isReinviting}
+                                isDeleting={isDeleting}
+                                onReinvite={handleReinvite}
+                                onDelete={handleDelete}
+                            />
                         ))}
                     </div>
                 </div>
