@@ -28,6 +28,7 @@ vi.mock('@/components/BottomSheet', () => ({
 
 const mockHandleRemove = vi.fn()
 const mockHandleRoleChange = vi.fn()
+const mockHandleLeave = vi.fn()
 
 vi.mock('../hooks/useMemberList', () => ({
     useMemberList: () => ({
@@ -38,7 +39,7 @@ vi.mock('../hooks/useMemberList', () => ({
         isLeaving: false,
         handleRemove: mockHandleRemove,
         handleRoleChange: mockHandleRoleChange,
-        handleLeave: vi.fn(),
+        handleLeave: mockHandleLeave,
     }),
 }))
 
@@ -280,6 +281,32 @@ describe('MobileMembersView — expired invitations', () => {
         await userEvent.click(screen.getByText('Delete'))
         await userEvent.click(screen.getByRole('button', { name: /^delete$/i }))
         expect(mockHandleDelete).toHaveBeenCalledWith('inv-2')
+    })
+})
+
+describe('MobileMembersView — leave workspace', () => {
+    it('shows Leave button for non-owner current user', () => {
+        render(<MobileMembersView {...defaultProps} isOwner={false} currentUserId="u2" />)
+        expect(screen.getByRole('button', { name: /leave/i })).toBeInTheDocument()
+    })
+
+    it('does not show Leave button for owner', () => {
+        render(<MobileMembersView {...defaultProps} currentUserId="u1" />)
+        expect(screen.queryByRole('button', { name: /^leave$/i })).not.toBeInTheDocument()
+    })
+
+    it('opens leave confirm dialog when Leave is clicked', async () => {
+        render(<MobileMembersView {...defaultProps} isOwner={false} currentUserId="u2" />)
+        await userEvent.click(screen.getByRole('button', { name: /leave/i }))
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+        expect(screen.getByText(/leave workspace\?/i)).toBeInTheDocument()
+    })
+
+    it('calls handleLeave when leave is confirmed', async () => {
+        render(<MobileMembersView {...defaultProps} isOwner={false} currentUserId="u2" />)
+        await userEvent.click(screen.getByRole('button', { name: /^leave$/i }))
+        await userEvent.click(screen.getByRole('button', { name: /leave workspace/i }))
+        expect(mockHandleLeave).toHaveBeenCalled()
     })
 })
 

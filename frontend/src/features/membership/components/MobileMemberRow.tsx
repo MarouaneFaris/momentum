@@ -15,11 +15,13 @@ export function MobileMemberRow({
     canManage,
     onChangeRole,
     onRemove,
+    onLeave,
 }: {
     member: Member
     canManage: boolean
     onChangeRole: (member: Member) => void
     onRemove: (member: Member) => void
+    onLeave?: () => void
 }) {
     return (
         <div className="border-border flex items-center gap-3 border-b px-3 py-2.5 last:border-0">
@@ -53,6 +55,15 @@ export function MobileMemberRow({
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
+            ) : onLeave ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive h-7 shrink-0 px-2 text-xs"
+                    onClick={onLeave}
+                >
+                    Leave
+                </Button>
             ) : (
                 <span className="w-7 shrink-0" aria-hidden />
             )}
