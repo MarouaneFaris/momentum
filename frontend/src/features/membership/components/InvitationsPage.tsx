@@ -1,4 +1,6 @@
+import { EmptyState } from '@/components/EmptyState'
 import { Button } from '@/components/ui/button'
+import { MailOpen } from 'lucide-react'
 import { useInvitationActions } from '../hooks/useInvitationActions'
 
 export function InvitationsPage() {
@@ -8,7 +10,13 @@ export function InvitationsPage() {
     if (isLoading) return <p className="text-muted-foreground text-sm">Loading…</p>
 
     if (!invitations || invitations.length === 0) {
-        return <p className="text-muted-foreground text-sm">No pending invitations.</p>
+        return (
+            <EmptyState
+                icon={MailOpen}
+                title="No pending invitations"
+                description="You have no workspace invitations at the moment."
+            />
+        )
     }
 
     return (
