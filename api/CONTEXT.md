@@ -196,6 +196,19 @@ Note: `api/.env.test` uses `SYMFONY_TRUSTED_PROXIES=10.0.0.0/8` instead of `REMO
 
 See `docs/adr/` for full decision records.
 
+## Observability
+
+### Sentry
+
+DSN configured via `SENTRY_DSN` env var (optional — empty DSN disables Sentry).
+
+**Event filter** (`App\Sentry\EventFilter`, wired via `before_send` in `sentry.yaml`):
+
+- `AccessDeniedException` / `AuthenticationException` from **anonymous** users → dropped (bot noise).
+- Same exceptions from **authenticated** users → kept (real RBAC bug).
+- `NotFoundHttpException` → kept, tagged `http.404=true` (allows Sentry alert rules to aggregate 404 volume instead of paging per-event).
+- All other exceptions → untouched.
+
 ## Testing
 
 See [ADR-009](../docs/adr/009-testing-strategy.md) for strategy decisions. Implementation conventions:
