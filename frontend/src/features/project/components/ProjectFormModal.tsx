@@ -70,12 +70,14 @@ export function ProjectFormModal({ open, onOpenChange, workspaceId, project }: P
                 <Label>Colour</Label>
                 <div className="flex gap-2">
                     {PROJECT_COLOR_KEYS.map((key) => (
-                        <button
+                        <Button
                             key={key}
                             type="button"
+                            variant="ghost"
+                            size="icon"
                             aria-label={key}
                             onClick={() => setValue('color', key)}
-                            className="size-6 cursor-pointer rounded-full transition-[outline,outline-offset]"
+                            className="size-6 cursor-pointer rounded-full p-0 transition-[outline,outline-offset]"
                             style={{
                                 backgroundColor: projectColorValue(key),
                                 outline:
