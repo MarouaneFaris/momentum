@@ -30,10 +30,9 @@ export function UserMenu() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <div
-                    className="flex items-center justify-between px-2 py-1.5 text-sm md:hidden"
+                    className="flex items-center px-2 py-1.5 md:hidden"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <span className="text-muted-foreground">Theme</span>
                     <ThemeToggleSwitch />
                 </div>
                 <DropdownMenuSeparator className="md:hidden" />
