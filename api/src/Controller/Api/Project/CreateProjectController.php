@@ -70,6 +70,7 @@ final class CreateProjectController extends AbstractController
             $dto->name,
             $dto->description,
             $dto->status !== null ? ProjectStatus::from($dto->status) : ProjectStatus::Active,
+            $dto->color ?? 'blue',
         );
 
         return $this->json(

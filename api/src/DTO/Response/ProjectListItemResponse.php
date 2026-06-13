@@ -24,6 +24,8 @@ final readonly class ProjectListItemResponse
         public string $createdAt,
         #[OA\Property(type: 'string', format: 'date-time', example: '2025-01-01T00:00:00+00:00')]
         public string $updatedAt,
+        #[OA\Property(type: 'string', enum: ['blue', 'green', 'amber', 'red', 'purple', 'neutral'], example: 'blue')]
+        public string $color,
     ) {}
 
     public static function fromProject(Project $project): self
@@ -36,6 +38,7 @@ final readonly class ProjectListItemResponse
             ownerUserId: (string) $project->getOwner()->getUser()->getId(),
             createdAt: $project->getCreatedAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $project->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            color: $project->getColor(),
         );
     }
 }

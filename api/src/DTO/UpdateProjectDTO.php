@@ -26,5 +26,12 @@ final readonly class UpdateProjectDTO
         )]
         #[OA\Property(type: 'string', nullable: true, enum: ['draft', 'active', 'archived'], example: 'active')]
         public ?string $status = null,
+
+        #[Assert\When(
+            expression: 'this.color !== null',
+            constraints: [new Assert\Choice(choices: ['blue', 'green', 'amber', 'red', 'purple', 'neutral'])]
+        )]
+        #[OA\Property(type: 'string', nullable: true, enum: ['blue', 'green', 'amber', 'red', 'purple', 'neutral'], example: 'blue')]
+        public ?string $color = null,
     ) {}
 }
