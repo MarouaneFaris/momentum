@@ -95,7 +95,7 @@ export function MobileTasksView({
                     onOpenChange={(v) => {
                         if (!v) deleteDialog.closeDialog()
                     }}
-                    task={deleteDialog.taskToDelete}
+                    task={deleteDialog.taskToDelete!}
                     isPending={deleteDialog.isPending}
                     onConfirm={deleteDialog.confirmDelete}
                 />
@@ -127,7 +127,7 @@ export function MobileTasksView({
                 onOpenChange={(v) => {
                     if (!v) deleteDialog.closeDialog()
                 }}
-                task={deleteDialog.taskToDelete}
+                task={deleteDialog.taskToDelete!}
                 isPending={deleteDialog.isPending}
                 onConfirm={deleteDialog.confirmDelete}
             />
