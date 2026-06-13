@@ -119,9 +119,9 @@ export function ProjectCard({
                 </div>
             )}
 
-            <div className="relative z-10 flex items-start gap-2">
+            <div className="relative z-10 flex items-center gap-2">
                 <span
-                    className="mt-0.5 size-2 shrink-0 rounded-full"
+                    className="size-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: projectColorValue(project.color) }}
                 />
                 <span className="text-foreground min-w-0 flex-1 text-sm leading-snug font-medium">
