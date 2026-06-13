@@ -24,6 +24,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { BottomSheet } from '@/components/BottomSheet'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { useMemberList } from '../hooks/useMemberList'
 import { useInviteForm } from '../hooks/useInviteForm'
 import { useInvitationsTable } from '../hooks/useInvitationsTable'
@@ -41,8 +42,15 @@ type Props = {
 
 export function MobileMembersView({ workspaceId, workspaceName, isOwner, currentUserId }: Props) {
     const navigate = useNavigate()
-    const { members, isRemoving, isChanging, handleRemove, handleRoleChange } =
-        useMemberList(workspaceId)
+    const {
+        members,
+        isRemoving,
+        isChanging,
+        isLeaving,
+        handleRemove,
+        handleRoleChange,
+        handleLeave,
+    } = useMemberList(workspaceId)
     const {
         invitations,
         isCancelling,
@@ -59,6 +67,7 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
     const [inviteOpen, setInviteOpen] = useState(false)
     const [removingMember, setRemovingMember] = useState<Member | null>(null)
     const [changingRoleMember, setChangingRoleMember] = useState<Member | null>(null)
+    const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
 
     const pendingInvitations = invitations?.filter((inv) => inv.status === 'pending') ?? []
     const expiredInvitations = invitations?.filter((inv) => inv.status === 'expired') ?? []
@@ -111,6 +120,11 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                             }
                             onChangeRole={setChangingRoleMember}
                             onRemove={setRemovingMember}
+                            onLeave={
+                                member.id === currentUserId && member.role !== 'owner'
+                                    ? () => setLeaveConfirmOpen(true)
+                                    : undefined
+                            }
                         />
                     ))}
                 </div>
@@ -186,6 +200,17 @@ export function MobileMembersView({ workspaceId, workspaceName, isOwner, current
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            {/* Leave workspace dialog */}
+            <ConfirmDialog
+                open={leaveConfirmOpen}
+                onOpenChange={setLeaveConfirmOpen}
+                title="Leave workspace?"
+                description={`You will lose access to ${workspaceName} and all its projects.`}
+                confirmLabel="Leave workspace"
+                isPending={isLeaving}
+                onConfirm={handleLeave}
+            />
 
             {/* Change role bottom sheet */}
             <BottomSheet

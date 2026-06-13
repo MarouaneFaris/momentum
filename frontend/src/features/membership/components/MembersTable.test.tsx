@@ -139,4 +139,46 @@ describe('MembersTable', () => {
         expect(mockHandleRemove).not.toHaveBeenCalled()
         expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     })
+
+    it('shows Leave button for non-owner current user', () => {
+        render(
+            <MembersTable
+                workspaceId="ws-1"
+                currentUserId="u2"
+                isOwner={false}
+                workspaceName="Acme Inc."
+            />,
+        )
+        expect(screen.getByRole('button', { name: /leave/i })).toBeInTheDocument()
+    })
+
+    it('opens leave confirm dialog when Leave is clicked', async () => {
+        const user = userEvent.setup()
+        render(
+            <MembersTable
+                workspaceId="ws-1"
+                currentUserId="u2"
+                isOwner={false}
+                workspaceName="Acme Inc."
+            />,
+        )
+        await user.click(screen.getByRole('button', { name: /leave/i }))
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+        expect(screen.getByText(/leave workspace\?/i)).toBeInTheDocument()
+    })
+
+    it('calls handleLeave on confirm', async () => {
+        const user = userEvent.setup()
+        render(
+            <MembersTable
+                workspaceId="ws-1"
+                currentUserId="u2"
+                isOwner={false}
+                workspaceName="Acme Inc."
+            />,
+        )
+        await user.click(screen.getByRole('button', { name: /^leave$/i }))
+        await user.click(screen.getByRole('button', { name: /leave workspace/i }))
+        expect(mockHandleLeave).toHaveBeenCalled()
+    })
 })
