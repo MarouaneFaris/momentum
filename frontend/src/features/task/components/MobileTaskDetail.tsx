@@ -10,7 +10,7 @@ import type { TaskDetail } from '../types'
 import { STATUS_OPTIONS } from '../taskStatus'
 import { ArrowLeft, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { DetailRow } from './DetailRow'
-import { MiniAvatar } from './MiniAvatar'
+import { UserAvatar } from '@/components/UserAvatar'
 import { StatusBadge } from './StatusBadge'
 
 function formatDate(iso: string): string {
@@ -98,7 +98,7 @@ export function MobileTaskDetail({
                     <DetailRow label="Assignee">
                         {task.assignee ? (
                             <div className="flex items-center gap-1.5">
-                                <MiniAvatar name={task.assignee.name} />
+                                <UserAvatar name={task.assignee.name} size="sm" />
                                 <span className="text-foreground text-[13px]">
                                     {task.assignee.name}
                                 </span>
@@ -109,7 +109,7 @@ export function MobileTaskDetail({
                     </DetailRow>
                     <DetailRow label="Creator">
                         <div className="flex items-center gap-1.5">
-                            <MiniAvatar name={task.creator.name} />
+                            <UserAvatar name={task.creator.name} size="sm" />
                             <span className="text-foreground text-[13px]">{task.creator.name}</span>
                         </div>
                     </DetailRow>

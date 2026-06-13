@@ -1,7 +1,7 @@
 import { EmptyState } from '@/components/EmptyState'
 import { ClipboardList } from 'lucide-react'
+import { UserAvatar } from '@/components/UserAvatar'
 import type { Task } from '../types'
-import { MiniAvatar } from './MiniAvatar'
 import { StatusBadge } from './StatusBadge'
 import { StatusCircle } from './StatusCircle'
 
@@ -17,7 +17,7 @@ function MyTaskRow({ task }: { task: Task }) {
                 {task.title}
             </span>
             <StatusBadge status={task.status} />
-            {task.assignee && <MiniAvatar name={task.assignee.name} />}
+            {task.assignee && <UserAvatar name={task.assignee.name} size="sm" />}
             <span className="text-muted-foreground shrink-0 text-[11px]">
                 {formatDate(task.createdAt)}
             </span>

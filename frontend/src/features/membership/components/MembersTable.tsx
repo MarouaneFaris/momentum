@@ -18,6 +18,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { UserAvatar } from '@/components/UserAvatar'
 import { useMemberList } from '../hooks/useMemberList'
 import type { AssignableMemberRole, Member } from '../types'
 
@@ -26,20 +27,6 @@ type Props = {
     currentUserId: string
     isOwner: boolean
     workspaceName: string
-}
-
-function MemberAvatar({ name }: { name: string }) {
-    const initials = name
-        .split(' ')
-        .slice(0, 2)
-        .map((w) => w[0]?.toUpperCase() ?? '')
-        .join('')
-
-    return (
-        <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium">
-            {initials}
-        </div>
-    )
 }
 
 function RoleBadge({ role }: { role: Member['role'] }) {
@@ -108,7 +95,7 @@ export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceNam
                                 >
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-3">
-                                            <MemberAvatar name={member.name} />
+                                            <UserAvatar name={member.name} size="md" />
                                             <div className="flex flex-col gap-0.5">
                                                 <span className="font-medium">{member.name}</span>
                                                 <span className="text-muted-foreground text-xs">
