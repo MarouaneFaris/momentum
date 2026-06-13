@@ -88,7 +88,7 @@ export default function WorkspaceMembersPage() {
                     </TabsContent>
 
                     <TabsContent value="invitations" className="mt-4">
-                        <InvitationsTable workspaceId={id!} />
+                        <InvitationsTable workspaceId={id!} workspaceName={workspace?.name ?? ''} />
                     </TabsContent>
                 </Tabs>
             ) : (
