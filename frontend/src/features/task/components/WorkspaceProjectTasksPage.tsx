@@ -3,7 +3,6 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { ClipboardList, Info, Pencil, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router'
 
-import { Badge } from '@/components/ui/badge'
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -29,8 +28,10 @@ import { useTaskDetail } from '../hooks/useTaskDetail'
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
 import { useWorkspaceProjectTasksPage } from '../hooks/useWorkspaceProjectTasksPage'
 import type { Task, TaskStatus } from '../types'
+import { STATUS_OPTIONS } from '../taskStatus'
 import { DeleteTaskDialog } from './DeleteTaskDialog'
 import { MobileTasksView } from './MobileTasksView'
+import { StatusBadge } from './StatusBadge'
 import TaskDetailPanel from './TaskDetailPanel'
 import { TaskFormModal } from './TaskFormModal'
 
@@ -44,28 +45,6 @@ const COLUMN_EMPTY: Record<TaskStatus, string> = {
     todo: 'No tasks yet.',
     'in-progress': 'Nothing in progress yet.',
     done: 'No completed tasks yet.',
-}
-
-const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-    { value: 'todo', label: 'Todo' },
-    { value: 'in-progress', label: 'In progress' },
-    { value: 'done', label: 'Done' },
-]
-
-function StatusBadge({ status }: { status: TaskStatus }) {
-    const className = {
-        todo: 'bg-muted text-muted-foreground border-border',
-        'in-progress': 'bg-primary/10 text-primary border-primary/25',
-        done: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30',
-    }[status]
-
-    const label = { todo: 'Todo', 'in-progress': 'In progress', done: 'Done' }[status]
-
-    return (
-        <Badge variant="outline" className={className}>
-            {label}
-        </Badge>
-    )
 }
 
 function NewTaskButton({ className, onClick }: { className?: string; onClick: () => void }) {

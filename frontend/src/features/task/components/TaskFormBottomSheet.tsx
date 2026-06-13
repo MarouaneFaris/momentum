@@ -6,14 +6,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import type { UseFormReturn } from 'react-hook-form'
 import type { TaskFormValues } from '../hooks/useTaskForm'
-import type { TaskStatus } from '../types'
+import { STATUS_OPTIONS } from '../taskStatus'
 import { AssigneeChips } from './AssigneeChips'
-
-const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-    { value: 'todo', label: 'To do' },
-    { value: 'in-progress', label: 'In progress' },
-    { value: 'done', label: 'Done' },
-]
 
 export function TaskFormBottomSheet({
     open,
