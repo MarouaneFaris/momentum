@@ -1,5 +1,4 @@
 import { MoreHorizontal } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -7,31 +6,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { RoleBadge } from '@/components/RoleBadge'
 import { UserAvatar } from '@/components/UserAvatar'
 import type { Member } from '../types'
-
-function RoleBadge({ role }: { role: Member['role'] }) {
-    if (role === 'owner')
-        return (
-            <Badge
-                variant="outline"
-                className="border-primary/25 bg-primary/10 text-primary capitalize"
-            >
-                Owner
-            </Badge>
-        )
-    if (role === 'member')
-        return (
-            <Badge variant="outline" className="capitalize">
-                Member
-            </Badge>
-        )
-    return (
-        <Badge variant="outline" className="text-muted-foreground capitalize">
-            Guest
-        </Badge>
-    )
-}
 
 export function MobileMemberRow({
     member,
