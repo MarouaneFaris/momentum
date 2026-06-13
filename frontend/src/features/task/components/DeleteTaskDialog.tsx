@@ -4,7 +4,7 @@ import type { Task } from '../types'
 type Props = {
     open: boolean
     onOpenChange: (open: boolean) => void
-    task: Task
+    task: Task | null
     isPending: boolean
     onConfirm: () => void
 }
@@ -12,8 +12,8 @@ type Props = {
 export function DeleteTaskDialog({ open, onOpenChange, task, isPending, onConfirm }: Props) {
     const description = (
         <>
-            Delete <span className="text-foreground font-medium">{task.title}</span>? This cannot be
-            undone.
+            Delete <span className="text-foreground font-medium">{task?.title}</span>? This cannot
+            be undone.
         </>
     )
 
