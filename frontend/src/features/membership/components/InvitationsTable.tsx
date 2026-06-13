@@ -1,5 +1,7 @@
+import { EmptyState } from '@/components/EmptyState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { MailOpen } from 'lucide-react'
 import { useInvitationsTable } from '../hooks/useInvitationsTable'
 
 type Props = {
@@ -24,9 +26,11 @@ export function InvitationsTable({ workspaceId }: Props) {
 
     if (!invitations || invitations.length === 0) {
         return (
-            <p className="text-muted-foreground text-sm">
-                No invitations yet. Use the invite form above to add members.
-            </p>
+            <EmptyState
+                icon={MailOpen}
+                title="No invitations yet"
+                description="Invite members from the Members tab."
+            />
         )
     }
 

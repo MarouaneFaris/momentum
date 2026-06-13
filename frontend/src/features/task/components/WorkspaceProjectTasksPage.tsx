@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/EmptyState'
 import { useAuth } from '@/features/auth/queries'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { ClipboardList, Info, Pencil, Plus, Trash2 } from 'lucide-react'
@@ -227,14 +228,12 @@ function TaskBoard({
             )}
 
             {isEmpty ? (
-                <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-                    <ClipboardList className="text-border size-10" />
-                    <div className="text-foreground text-sm font-medium">No tasks yet</div>
-                    <div className="text-muted-foreground text-[13px]">
-                        Create a task to start tracking work for this project.
-                    </div>
-                    {!isGuest && <NewTaskButton className="mt-1" onClick={onNewTask} />}
-                </div>
+                <EmptyState
+                    icon={ClipboardList}
+                    title="No tasks yet"
+                    description="Create a task to start tracking work for this project."
+                    action={!isGuest && <NewTaskButton onClick={onNewTask} />}
+                />
             ) : (
                 <div className="grid grid-cols-3 items-start gap-3">
                     {COLUMNS.map(({ status, label }) => {
