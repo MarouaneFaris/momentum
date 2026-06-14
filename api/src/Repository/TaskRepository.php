@@ -98,20 +98,7 @@ class TaskRepository extends ServiceEntityRepository
      */
     public function getStatsForProjects(array $projects): array
     {
-        if ($projects === []) {
-            return [];
-        }
-
-        $binaryToUuid = [];
-        $projectIds = [];
-        foreach ($projects as $p) {
-            $id = $p->getId();
-            if ($id !== null) {
-                $binary = $id->toBinary();
-                $projectIds[] = $binary;
-                $binaryToUuid[$binary] = (string) $id;
-            }
-        }
+        [$binaryToUuid, $projectIds] = $this->projectsToBinaryMap($projects);
 
         if ($projectIds === []) {
             return [];
@@ -149,20 +136,7 @@ class TaskRepository extends ServiceEntityRepository
      */
     public function getAssigneeNamesForProjects(array $projects): array
     {
-        if ($projects === []) {
-            return [];
-        }
-
-        $binaryToUuid = [];
-        $projectIds = [];
-        foreach ($projects as $p) {
-            $id = $p->getId();
-            if ($id !== null) {
-                $binary = $id->toBinary();
-                $projectIds[] = $binary;
-                $binaryToUuid[$binary] = (string) $id;
-            }
-        }
+        [$binaryToUuid, $projectIds] = $this->projectsToBinaryMap($projects);
 
         if ($projectIds === []) {
             return [];
@@ -228,5 +202,27 @@ class TaskRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param Project[] $projects
+     *
+     * @return array{array<string, string>, list<string>} [binaryToUuid, projectIds]
+     */
+    private function projectsToBinaryMap(array $projects): array
+    {
+        $binaryToUuid = [];
+        $projectIds = [];
+
+        foreach ($projects as $p) {
+            $id = $p->getId();
+            if ($id !== null) {
+                $binary = $id->toBinary();
+                $projectIds[] = $binary;
+                $binaryToUuid[$binary] = (string) $id;
+            }
+        }
+
+        return [$binaryToUuid, $projectIds];
     }
 }

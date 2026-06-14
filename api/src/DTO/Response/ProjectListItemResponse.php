@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DTO\Response;
 
 use App\Entity\Project;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
 final readonly class ProjectTaskStats
@@ -38,7 +39,7 @@ final readonly class ProjectListItemResponse
         public string $updatedAt,
         #[OA\Property(type: 'string', enum: ['blue', 'green', 'amber', 'red', 'purple', 'neutral'], example: 'blue')]
         public string $color,
-        #[OA\Property(ref: '#/components/schemas/ProjectTaskStats')]
+        #[OA\Property(ref: new Model(type: ProjectTaskStats::class))]
         public ProjectTaskStats $taskStats,
         /** @var list<string> */
         #[OA\Property(type: 'array', items: new OA\Items(type: 'string'), example: ['Alice Johnson', 'Bob Smith'])]
