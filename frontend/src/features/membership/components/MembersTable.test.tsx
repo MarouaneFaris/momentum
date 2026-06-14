@@ -102,7 +102,7 @@ describe('MembersTable', () => {
             />,
         )
         await user.click(screen.getByRole('button', { name: /remove/i }))
-        expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
         expect(screen.getAllByText(/marie laurent/i).length).toBeGreaterThan(0)
         expect(screen.getByText(/acme inc\./i)).toBeInTheDocument()
     })
@@ -120,7 +120,7 @@ describe('MembersTable', () => {
         await user.click(screen.getByRole('button', { name: /remove/i }))
         await user.click(screen.getByRole('button', { name: /remove member/i }))
         expect(mockHandleRemove).toHaveBeenCalledWith('u2')
-        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
     it('dismisses dialog on cancel without calling handleRemove', async () => {
@@ -134,10 +134,10 @@ describe('MembersTable', () => {
             />,
         )
         await user.click(screen.getByRole('button', { name: /remove/i }))
-        const dialog = screen.getByRole('alertdialog')
+        const dialog = screen.getByRole('dialog')
         await user.click(within(dialog).getByRole('button', { name: /cancel/i }))
         expect(mockHandleRemove).not.toHaveBeenCalled()
-        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
     it('shows Leave button for non-owner current user', () => {
