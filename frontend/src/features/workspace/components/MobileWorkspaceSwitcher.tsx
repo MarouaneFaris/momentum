@@ -16,17 +16,14 @@ export function MobileWorkspaceSwitcher() {
         <>
             <Button
                 variant="ghost"
-                className="h-auto gap-1 px-2 py-1 text-sm font-medium"
+                className="h-auto gap-1 px-1.5 py-1"
                 onClick={() => setSheetOpen(true)}
             >
                 <span
-                    className="text-primary flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded text-[9px] font-semibold"
+                    className="text-primary flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded text-[10px] font-semibold"
                     style={{ background: 'oklch(0.488 0.243 264.376 / 0.15)' }}
                 >
                     {(current?.name?.[0] ?? 'W').toUpperCase()}
-                </span>
-                <span className="text-foreground max-w-[120px] truncate font-medium">
-                    {current?.name ?? 'Select workspace'}
                 </span>
                 <ChevronDown className="text-muted-foreground h-3 w-3 shrink-0" />
             </Button>

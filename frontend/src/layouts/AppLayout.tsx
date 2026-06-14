@@ -48,7 +48,7 @@ export default function AppLayout() {
                 <UserMenu />
             </header>
             {/* Mobile topbar */}
-            <header className="bg-sidebar flex h-12 shrink-0 items-center gap-3 border-b px-4 md:hidden">
+            <header className="bg-sidebar flex h-12 shrink-0 items-center gap-2 border-b px-3 md:hidden">
                 {workspaceId ? (
                     <MobileWorkspaceSwitcher />
                 ) : (
