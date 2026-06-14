@@ -25,6 +25,8 @@ const NOTIFICATION_LABELS: Record<NotificationType, string> = {
 
 export default function DevSpeedDial() {
     const [open, setOpen] = useState(false)
+    const [loginDropOpen, setLoginDropOpen] = useState(false)
+    const [notifyDropOpen, setNotifyDropOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
     const { isAuthenticated } = useContext(AuthContext)
     const { data } = useDevUsers()
@@ -32,8 +34,10 @@ export default function DevSpeedDial() {
     const { handleLoginAs } = useDevLoginAction()
     const { mutate: trigger } = useTriggerNotification()
 
+    const anySubDropOpen = loginDropOpen || notifyDropOpen
+
     useEffect(() => {
-        if (!open) return
+        if (!open || anySubDropOpen) return
         const handler = (e: MouseEvent) => {
             if (ref.current && !ref.current.contains(e.target as Node)) {
                 setOpen(false)
@@ -41,14 +45,14 @@ export default function DevSpeedDial() {
         }
         document.addEventListener('mousedown', handler)
         return () => document.removeEventListener('mousedown', handler)
-    }, [open])
+    }, [open, anySubDropOpen])
 
     return (
         <div ref={ref} className="fixed right-4 bottom-4 z-50 flex flex-col items-end gap-2">
             {open && (
                 <>
                     {isAuthenticated && (
-                        <DropdownMenu>
+                        <DropdownMenu open={notifyDropOpen} onOpenChange={setNotifyDropOpen}>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="outline"
@@ -73,7 +77,7 @@ export default function DevSpeedDial() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}
-                    <DropdownMenu>
+                    <DropdownMenu open={loginDropOpen} onOpenChange={setLoginDropOpen}>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="outline"
