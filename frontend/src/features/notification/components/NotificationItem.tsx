@@ -140,7 +140,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Props) 
                 )}
                 aria-label={isRead ? 'read' : 'unread'}
             />
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 pr-8 md:pr-0">
                 <p
                     className={cn(
                         'text-xs leading-snug',
