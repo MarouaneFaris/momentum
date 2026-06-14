@@ -8,21 +8,22 @@ use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Entity\UserProject;
-use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserProjectRepository;
-use App\Repository\UserWorkspaceRepository;
 use App\Security\Voter\TaskVoter;
+use App\Security\WorkspaceMembership;
+use App\Security\WorkspaceMembershipResolver;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class TaskVoterTest extends TestCase
 {
     private TaskVoter $voter;
-    private UserWorkspaceRepository&Stub $workspaceRepo;
+    private WorkspaceMembershipResolver&Stub $resolver;
     private UserProjectRepository&Stub $projectRepo;
     private User $user;
     private Workspace $workspace;
@@ -30,9 +31,9 @@ final class TaskVoterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->workspaceRepo = $this->createStub(UserWorkspaceRepository::class);
+        $this->resolver = $this->createStub(WorkspaceMembershipResolver::class);
         $this->projectRepo = $this->createStub(UserProjectRepository::class);
-        $this->voter = new TaskVoter($this->workspaceRepo, $this->projectRepo);
+        $this->voter = new TaskVoter($this->resolver, $this->projectRepo);
 
         $this->user = new User();
         $this->workspace = new Workspace();
@@ -52,7 +53,7 @@ final class TaskVoterTest extends TestCase
 
     public function testNonMemberDenied(): void
     {
-        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
 
         $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::VIEW]);
 
@@ -62,8 +63,7 @@ final class TaskVoterTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('provideOwnerMemberRoles')]
     public function testOwnerAndMemberGranted(WorkspaceRole $role): void
     {
-        $membership = $this->makeMembership($role);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership($role));
 
         $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::VIEW]);
 
@@ -79,11 +79,8 @@ final class TaskVoterTest extends TestCase
 
     public function testGuestWithProjectAssignmentGranted(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Guest);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
-
-        $userProject = new UserProject();
-        $this->projectRepo->method('findOneBy')->willReturn($userProject);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
+        $this->projectRepo->method('findOneBy')->willReturn(new UserProject());
 
         $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::VIEW]);
 
@@ -92,8 +89,7 @@ final class TaskVoterTest extends TestCase
 
     public function testGuestWithoutProjectAssignmentDenied(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Guest);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
         $this->projectRepo->method('findOneBy')->willReturn(null);
 
         $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::VIEW]);
@@ -111,8 +107,7 @@ final class TaskVoterTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('provideOwnerMemberRoles')]
     public function testCreateGrantedForOwnerAndMember(WorkspaceRole $role): void
     {
-        $membership = $this->makeMembership($role);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership($role));
 
         $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::CREATE]);
 
@@ -121,8 +116,7 @@ final class TaskVoterTest extends TestCase
 
     public function testCreateDeniedForGuest(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Guest);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
 
         $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::CREATE]);
 
@@ -131,7 +125,7 @@ final class TaskVoterTest extends TestCase
 
     public function testCreateDeniedForNonMember(): void
     {
-        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
 
         $result = $this->voter->vote($this->createToken(), $this->project, [TaskVoter::CREATE]);
 
@@ -140,8 +134,7 @@ final class TaskVoterTest extends TestCase
 
     public function testOwnerGrantedOnTaskSubject(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Owner);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Owner));
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::VIEW]);
@@ -151,7 +144,7 @@ final class TaskVoterTest extends TestCase
 
     public function testNonMemberDeniedOnTaskSubject(): void
     {
-        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::VIEW]);
@@ -164,8 +157,7 @@ final class TaskVoterTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('provideOwnerMemberRoles')]
     public function testEditGrantedForOwnerAndMember(WorkspaceRole $role): void
     {
-        $membership = $this->makeMembership($role);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership($role));
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::EDIT]);
@@ -175,8 +167,7 @@ final class TaskVoterTest extends TestCase
 
     public function testEditDeniedForGuest(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Guest);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::EDIT]);
@@ -186,7 +177,7 @@ final class TaskVoterTest extends TestCase
 
     public function testEditDeniedForNonMember(): void
     {
-        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::EDIT]);
@@ -203,8 +194,7 @@ final class TaskVoterTest extends TestCase
 
     public function testGuestWithProjectAssignmentGrantedOnTaskSubject(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Guest);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
         $this->projectRepo->method('findOneBy')->willReturn(new UserProject());
         $task = $this->makeTask();
 
@@ -215,8 +205,7 @@ final class TaskVoterTest extends TestCase
 
     public function testGuestWithoutProjectAssignmentDeniedOnTaskSubject(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Guest);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
         $this->projectRepo->method('findOneBy')->willReturn(null);
         $task = $this->makeTask();
 
@@ -229,8 +218,7 @@ final class TaskVoterTest extends TestCase
 
     public function testDeleteGrantedForOwner(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Owner);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Owner));
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
@@ -240,8 +228,7 @@ final class TaskVoterTest extends TestCase
 
     public function testDeleteGrantedForCreatorMember(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Member);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
         $task = $this->makeTask(); // creator === $this->user
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
@@ -252,8 +239,7 @@ final class TaskVoterTest extends TestCase
     public function testDeleteDeniedForMemberNonCreator(): void
     {
         $otherUser = new User();
-        $membership = $this->makeMembership(WorkspaceRole::Member);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
 
         $task = new Task();
         $task->setProject($this->project);
@@ -267,8 +253,7 @@ final class TaskVoterTest extends TestCase
 
     public function testDeleteDeniedForGuest(): void
     {
-        $membership = $this->makeMembership(WorkspaceRole::Guest);
-        $this->workspaceRepo->method('findOneBy')->willReturn($membership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
@@ -278,7 +263,7 @@ final class TaskVoterTest extends TestCase
 
     public function testDeleteDeniedForNonMember(): void
     {
-        $this->workspaceRepo->method('findOneBy')->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
         $task = $this->makeTask();
 
         $result = $this->voter->vote($this->createToken(), $task, [TaskVoter::DELETE]);
@@ -311,13 +296,12 @@ final class TaskVoterTest extends TestCase
         return $token;
     }
 
-    private function makeMembership(WorkspaceRole $role): UserWorkspace
+    private function makeMembership(WorkspaceRole $role): WorkspaceMembership
     {
-        $m = new UserWorkspace();
-        $m->setUser($this->user);
-        $m->setWorkspace($this->workspace);
-        $m->setRole($role);
-
-        return $m;
+        return new WorkspaceMembership(
+            userId: Uuid::v7(),
+            workspaceId: Uuid::v7(),
+            role: $role,
+        );
     }
 }

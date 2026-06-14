@@ -6,8 +6,8 @@ namespace App\Security\Voter;
 
 use App\Entity\User;
 use App\Entity\Workspace;
-use App\Enum\WorkspaceRole;
-use App\Repository\UserWorkspaceRepository;
+use App\Security\Capability;
+use App\Security\WorkspaceMembershipResolver;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -38,7 +38,7 @@ final class WorkspaceVoter extends Voter
     ];
 
     public function __construct(
-        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+        private readonly WorkspaceMembershipResolver $resolver,
     ) {}
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -55,23 +55,8 @@ final class WorkspaceVoter extends Voter
 
         /** @var Workspace $workspace */
         $workspace = $subject;
-        $role = $this->userWorkspaceRepository->findRoleByUserAndWorkspace($user, $workspace);
+        $membership = $this->resolver->for($user, $workspace);
 
-        if ($role === null) {
-            return false;
-        }
-
-        return match ($attribute) {
-            self::VIEW => true,
-            self::EDIT,
-            self::DELETE,
-            self::INVITE,
-            self::CANCEL_INVITATION,
-            self::VIEW_INVITATIONS,
-            self::REMOVE_MEMBER,
-            self::CHANGE_ROLE => $role === WorkspaceRole::Owner,
-            self::VIEW_MEMBERS => true,
-            default => false,
-        };
+        return $membership?->can(Capability::from($attribute)) ?? false;
     }
 }
