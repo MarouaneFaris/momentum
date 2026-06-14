@@ -7,16 +7,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { RoleBadge } from '@/components/RoleBadge'
 import { UserAvatar } from '@/components/UserAvatar'
@@ -172,37 +162,23 @@ export function MembersTable({ workspaceId, currentUserId, isOwner, workspaceNam
                 </table>
             </div>
 
-            <AlertDialog
+            <ConfirmDialog
                 open={removingMember !== null}
                 onOpenChange={(open) => {
                     if (!open) setRemovingMember(null)
                 }}
-            >
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Remove {removingMember?.name}?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {removingMember?.name} will lose access to {workspaceName} and all its
-                            projects. Their assigned tasks will be unassigned.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            className="bg-destructive/10 text-destructive hover:bg-destructive/20"
-                            disabled={isRemoving}
-                            onClick={() => {
-                                if (removingMember) {
-                                    handleRemove(removingMember.id)
-                                    setRemovingMember(null)
-                                }
-                            }}
-                        >
-                            Remove member
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                title={`Remove ${removingMember?.name ?? 'member'}?`}
+                description={`${removingMember?.name} will lose access to ${workspaceName} and all its projects. Their assigned tasks will be unassigned.`}
+                confirmLabel="Remove member"
+                variant="destructive"
+                isPending={isRemoving}
+                onConfirm={() => {
+                    if (removingMember) {
+                        handleRemove(removingMember.id)
+                        setRemovingMember(null)
+                    }
+                }}
+            />
 
             <ConfirmDialog
                 open={leaveConfirmOpen}
