@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Uid\Uuid;
 
 final readonly class WorkspaceScopeSubscriber implements EventSubscriberInterface
 {
@@ -36,6 +37,10 @@ final readonly class WorkspaceScopeSubscriber implements EventSubscriberInterfac
         $workspaceId = $event->getRequest()->attributes->get('workspaceId');
         if ($workspaceId === null) {
             return;
+        }
+
+        if (!\is_string($workspaceId) || !Uuid::isValid($workspaceId)) {
+            throw new NotFoundHttpException(sprintf('Workspace "%s" not found.', $workspaceId));
         }
 
         $workspace = $this->workspaceRepository->find($workspaceId);
