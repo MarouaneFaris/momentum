@@ -5,10 +5,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { AuthContext } from '@/contexts/auth/AuthContext'
-import type { NotificationType } from '@/features/notification/types'
 import { useTriggerNotification } from '@/features/dev/queries'
-import { useContext } from 'react'
+import type { NotificationType } from '@/features/notification/types'
+import { Bell } from 'lucide-react'
 
 const NOTIFICATION_LABELS: Record<NotificationType, string> = {
     task_assigned_to_you: 'Task assigned to you',
@@ -21,30 +20,34 @@ const NOTIFICATION_LABELS: Record<NotificationType, string> = {
     invitation_cancelled: 'Invitation cancelled',
 }
 
-export default function DevNotificationsPanel() {
-    const { isAuthenticated } = useContext(AuthContext)
+interface Props {
+    onOpenChange: (open: boolean) => void
+}
+
+export default function DevNotificationsPanel({ onOpenChange }: Props) {
     const { mutate: trigger } = useTriggerNotification()
 
-    if (!import.meta.env.DEV || !isAuthenticated) return null
-
     return (
-        <div className="fixed right-4 bottom-16 z-50">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-xs">
-                        Dev Notify
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-auto">
-                    {(Object.entries(NOTIFICATION_LABELS) as [NotificationType, string][]).map(
-                        ([type, label]) => (
-                            <DropdownMenuItem key={type} onClick={() => trigger(type)}>
-                                {label}
-                            </DropdownMenuItem>
-                        ),
-                    )}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+        <DropdownMenu onOpenChange={onOpenChange}>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1.5 text-xs shadow-md"
+                >
+                    <Bell className="size-3" />
+                    Notify
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-auto">
+                {(Object.entries(NOTIFICATION_LABELS) as [NotificationType, string][]).map(
+                    ([type, label]) => (
+                        <DropdownMenuItem key={type} onClick={() => trigger(type)}>
+                            {label}
+                        </DropdownMenuItem>
+                    ),
+                )}
+            </DropdownMenuContent>
+        </DropdownMenu>
     )
 }

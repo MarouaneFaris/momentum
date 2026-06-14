@@ -24,6 +24,7 @@ final readonly class ProjectService
         string $name,
         ?string $description,
         ProjectStatus $status,
+        string $color = 'blue',
     ): Project {
         $project = new Project();
         $project->setWorkspace($workspace);
@@ -31,6 +32,7 @@ final readonly class ProjectService
         $project->setName($name);
         $project->setDescription($description);
         $project->setStatus($status);
+        $project->setColor($color);
 
         $this->em->persist($project);
         $this->em->flush();
@@ -50,6 +52,7 @@ final readonly class ProjectService
         ?string $name,
         ?string $description,
         ?ProjectStatus $status,
+        ?string $color = null,
     ): void {
         if ($name !== null) {
             $project->setName($name);
@@ -61,6 +64,10 @@ final readonly class ProjectService
 
         if ($status !== null) {
             $project->setStatus($status);
+        }
+
+        if ($color !== null) {
+            $project->setColor($color);
         }
 
         $this->em->flush();

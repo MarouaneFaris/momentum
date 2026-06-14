@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { MobileTaskDetail } from './MobileTaskDetail'
 import { MobileTaskList } from './MobileTaskList'
 import type { Task, TaskDetail } from '../types'
@@ -149,48 +150,53 @@ describe('MobileTaskDetail', () => {
         onDelete: vi.fn(),
     }
 
+    const renderDetail = (props = defaultProps) =>
+        render(
+            <MemoryRouter>
+                <MobileTaskDetail {...props} />
+            </MemoryRouter>,
+        )
+
     it('renders task title', () => {
-        render(<MobileTaskDetail {...defaultProps} />)
+        renderDetail()
         expect(screen.getAllByText('Write tests').length).toBeGreaterThan(0)
     })
 
     it('shows edit and delete in ⋯ menu for owner/creator', async () => {
-        render(<MobileTaskDetail {...defaultProps} canEdit={true} />)
+        renderDetail({ ...defaultProps, canEdit: true })
         await userEvent.click(screen.getByRole('button', { name: /task actions/i }))
         expect(screen.getAllByText('Edit').length).toBeGreaterThan(0)
         expect(screen.getAllByText('Delete').length).toBeGreaterThan(0)
     })
 
     it('hides ⋯ menu for guest (canEdit=false)', () => {
-        render(<MobileTaskDetail {...defaultProps} canEdit={false} />)
+        renderDetail({ ...defaultProps, canEdit: false })
         expect(screen.queryByRole('button', { name: /task actions/i })).not.toBeInTheDocument()
     })
 
     it('hides action row buttons for guest (isGuest=true)', () => {
-        render(<MobileTaskDetail {...defaultProps} isGuest={true} canEdit={false} />)
+        renderDetail({ ...defaultProps, isGuest: true, canEdit: false })
         expect(screen.queryByText('In progress')).not.toBeInTheDocument()
         expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument()
     })
 
     it('calls onBack when back button is clicked', async () => {
         const onBack = vi.fn()
-        render(<MobileTaskDetail {...defaultProps} onBack={onBack} />)
+        renderDetail({ ...defaultProps, onBack })
         await userEvent.click(screen.getByRole('button', { name: /back/i }))
         expect(onBack).toHaveBeenCalledTimes(1)
     })
 
     it('shows project name in detail card', () => {
-        render(<MobileTaskDetail {...defaultProps} projectName="Alpha" />)
+        renderDetail({ ...defaultProps, projectName: 'Alpha' })
         expect(screen.getByText('Alpha')).toBeInTheDocument()
     })
 
     it('shows description when present', () => {
-        render(
-            <MobileTaskDetail
-                {...defaultProps}
-                task={makeDetail({ description: 'Some details here' })}
-            />,
-        )
+        renderDetail({
+            ...defaultProps,
+            task: makeDetail({ description: 'Some details here' }),
+        })
         expect(screen.getByText('Some details here')).toBeInTheDocument()
     })
 })

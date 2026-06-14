@@ -177,9 +177,9 @@ describe('MobileMembersView — members list', () => {
         expect(screen.getAllByRole('button', { name: /member actions/i })).toHaveLength(2)
     })
 
-    it('shows no ⋯ menus for non-owner view', () => {
+    it('shows ⋯ menu only for current user row in non-owner view', () => {
         render(<MobileMembersView {...defaultProps} isOwner={false} currentUserId="u2" />)
-        expect(screen.queryByRole('button', { name: /member actions/i })).not.toBeInTheDocument()
+        expect(screen.getAllByRole('button', { name: /member actions/i })).toHaveLength(1)
     })
 })
 
@@ -285,26 +285,28 @@ describe('MobileMembersView — expired invitations', () => {
 })
 
 describe('MobileMembersView — leave workspace', () => {
-    it('shows Leave button for non-owner current user', () => {
+    it('shows ⋯ menu for non-owner current user row', () => {
         render(<MobileMembersView {...defaultProps} isOwner={false} currentUserId="u2" />)
-        expect(screen.getByRole('button', { name: /leave/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /member actions/i })).toBeInTheDocument()
     })
 
-    it('does not show Leave button for owner', () => {
+    it('does not show leave option for owner', () => {
         render(<MobileMembersView {...defaultProps} currentUserId="u1" />)
-        expect(screen.queryByRole('button', { name: /^leave$/i })).not.toBeInTheDocument()
+        expect(screen.queryByRole('menuitem', { name: /leave workspace/i })).not.toBeInTheDocument()
     })
 
-    it('opens leave confirm dialog when Leave is clicked', async () => {
+    it('opens leave confirm dialog when Leave workspace is clicked in ⋯ menu', async () => {
         render(<MobileMembersView {...defaultProps} isOwner={false} currentUserId="u2" />)
-        await userEvent.click(screen.getByRole('button', { name: /leave/i }))
+        await userEvent.click(screen.getByRole('button', { name: /member actions/i }))
+        await userEvent.click(screen.getByRole('menuitem', { name: /leave workspace/i }))
         expect(screen.getByRole('dialog')).toBeInTheDocument()
         expect(screen.getByText(/leave workspace\?/i)).toBeInTheDocument()
     })
 
     it('calls handleLeave when leave is confirmed', async () => {
         render(<MobileMembersView {...defaultProps} isOwner={false} currentUserId="u2" />)
-        await userEvent.click(screen.getByRole('button', { name: /^leave$/i }))
+        await userEvent.click(screen.getByRole('button', { name: /member actions/i }))
+        await userEvent.click(screen.getByRole('menuitem', { name: /leave workspace/i }))
         await userEvent.click(screen.getByRole('button', { name: /leave workspace/i }))
         expect(mockHandleLeave).toHaveBeenCalled()
     })
@@ -316,7 +318,7 @@ describe('MobileMembersView — remove member', () => {
         const [menuBtn] = screen.getAllByRole('button', { name: /member actions/i })
         await userEvent.click(menuBtn)
         await userEvent.click(screen.getByText('Remove'))
-        expect(screen.getByRole('alertdialog')).toBeInTheDocument()
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
         expect(screen.getAllByText(/marie laurent/i).length).toBeGreaterThan(0)
         expect(screen.getAllByText(/acme workspace/i).length).toBeGreaterThan(0)
     })
@@ -337,6 +339,6 @@ describe('MobileMembersView — remove member', () => {
         await userEvent.click(screen.getByText('Remove'))
         await userEvent.click(screen.getByRole('button', { name: /^cancel$/i }))
         expect(mockHandleRemove).not.toHaveBeenCalled()
-        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 })

@@ -1,4 +1,4 @@
-import queryClient from '@/lib/queryClient'
+import { workspaceStorage } from '@/features/workspace/workspaceStorage'
 import { useLoginAs } from '../queries'
 
 export const useDevLoginAction = () => {
@@ -7,7 +7,8 @@ export const useDevLoginAction = () => {
     const handleLoginAs = (email: string) => {
         loginAs(email, {
             onSuccess: () => {
-                void queryClient.invalidateQueries()
+                workspaceStorage.clear()
+                window.location.assign('/')
             },
         })
     }

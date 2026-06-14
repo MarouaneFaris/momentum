@@ -140,7 +140,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Props) 
                 )}
                 aria-label={isRead ? 'read' : 'unread'}
             />
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 pr-8 md:pr-0">
                 <p
                     className={cn(
                         'text-xs leading-snug',
@@ -158,7 +158,7 @@ export function NotificationItem({ notification, onMarkRead, onDelete }: Props) 
             <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-1.5 right-1.5 hidden h-6 w-6 cursor-pointer group-hover:flex"
+                className="absolute top-1.5 right-1.5 flex h-6 w-6 cursor-pointer md:hidden md:group-hover:flex"
                 onClick={handleDelete}
                 aria-label="Delete notification"
             >

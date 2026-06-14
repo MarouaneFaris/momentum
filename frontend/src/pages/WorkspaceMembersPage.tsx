@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import { useParams } from 'react-router'
 import { Info } from 'lucide-react'
+import { PageHeader } from '@/components/PageHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { AuthContext } from '@/contexts/auth/AuthContext'
@@ -36,17 +37,14 @@ export default function WorkspaceMembersPage() {
 
     return (
         <div className="flex flex-col gap-6 p-6">
-            <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-0.5">
-                    <h1 className="text-xl font-semibold">Members</h1>
-                    {workspace && members && (
-                        <p className="text-muted-foreground text-sm">
-                            {workspace.name} · {members.length} member
-                            {members.length !== 1 ? 's' : ''}
-                        </p>
-                    )}
-                </div>
-            </div>
+            <PageHeader
+                title="Members"
+                subtitle={
+                    workspace && members
+                        ? `${workspace.name} · ${members.length} member${members.length !== 1 ? 's' : ''}`
+                        : undefined
+                }
+            />
 
             {!isOwner && (
                 <div className="border-border bg-muted/50 text-muted-foreground flex items-center gap-2 rounded-md border px-4 py-3 text-sm">

@@ -1,3 +1,4 @@
+import React from 'react'
 import { cn } from '@/lib/utils'
 import { getInitials } from '@/lib/initials'
 
@@ -5,14 +6,16 @@ type Props = {
     name: string
     size?: 'sm' | 'md'
     className?: string
+    style?: React.CSSProperties
 }
 
-export function UserAvatar({ name, size = 'md', className }: Props) {
+export function UserAvatar({ name, size = 'md', className, style }: Props) {
     const isEmpty = !name.trim()
     const initials = isEmpty ? '?' : getInitials(name)
 
     return (
         <div
+            style={style}
             className={cn(
                 'flex shrink-0 items-center justify-center rounded-full',
                 size === 'sm'

@@ -51,7 +51,7 @@ export default function WorkspaceProjectTasksPage() {
 
     return (
         <>
-            <div className="-m-8 flex overflow-hidden" style={{ height: 'calc(100% + 4rem)' }}>
+            <div className="flex h-full overflow-hidden">
                 <div
                     className={[
                         'flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto p-6 transition-[border-color] duration-200',

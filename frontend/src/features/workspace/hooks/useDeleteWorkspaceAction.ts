@@ -18,14 +18,14 @@ export const useDeleteWorkspaceAction = (workspace: Workspace) => {
     const handleDelete = () => {
         mutate(undefined, {
             onSuccess: () => {
-                void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
-                localStorage.removeItem('lastVisitedWorkspaceId')
                 const remaining = workspaces?.filter((w) => w.id !== workspace.id) ?? []
+                queryClient.setQueryData<Workspace[]>(['workspaces'], remaining)
+                workspaceStorage.clear()
                 if (remaining.length > 0) {
                     workspaceStorage.write(remaining[0].id)
-                    void navigate(`/workspaces/${remaining[0].id}/dashboard`)
+                    void navigate(`/workspaces/${remaining[0].id}/dashboard`, { replace: true })
                 } else {
-                    void navigate('/')
+                    void navigate('/', { replace: true })
                 }
             },
             onError: () => {

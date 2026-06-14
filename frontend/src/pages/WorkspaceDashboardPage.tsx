@@ -1,4 +1,5 @@
-import { getProjectColor } from '@/features/project/projectColor'
+import { PageHeader } from '@/components/PageHeader'
+import { projectColorValue } from '@/features/project/projectColor'
 import { useProjects } from '@/features/project/queries'
 import { MyTasksTable } from '@/features/task/components/MyTasksTable'
 import { StatsRow } from '@/features/task/components/StatsRow'
@@ -21,6 +22,7 @@ export default function WorkspaceDashboardPage() {
 
     return (
         <div className="flex flex-col gap-4 p-4 md:gap-5 md:p-6">
+            <PageHeader title="Dashboard" />
             <StatsRow stats={stats} isMobile={isMobile} />
             {!tasksLoading && (
                 <div className="flex flex-col gap-3">
@@ -52,7 +54,7 @@ export default function WorkspaceDashboardPage() {
                             >
                                 <span
                                     className="h-1.5 w-1.5 shrink-0 rounded-full"
-                                    style={{ background: getProjectColor(project.id) }}
+                                    style={{ background: projectColorValue(project.color) }}
                                 />
                                 <span className="text-foreground text-xs font-medium">
                                     {project.name}

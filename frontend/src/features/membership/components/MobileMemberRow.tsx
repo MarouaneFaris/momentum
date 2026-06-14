@@ -56,14 +56,23 @@ export function MobileMemberRow({
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : onLeave ? (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive h-7 shrink-0 px-2 text-xs"
-                    onClick={onLeave}
-                >
-                    Leave
-                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0"
+                            aria-label="Member actions"
+                        >
+                            <MoreHorizontal size={15} />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem className="text-destructive" onClick={onLeave}>
+                            Leave workspace
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             ) : (
                 <span className="w-7 shrink-0" aria-hidden />
             )}

@@ -67,6 +67,7 @@ final class UpdateProjectController extends AbstractController
             $dto->name,
             $dto->description,
             $dto->status !== null ? ProjectStatus::from($dto->status) : null,
+            $dto->color,
         );
 
         return $this->json(ProjectListItemResponse::fromProject($project));
