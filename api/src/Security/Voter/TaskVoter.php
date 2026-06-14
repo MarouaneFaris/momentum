@@ -9,7 +9,8 @@ use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\WorkspaceRole;
 use App\Repository\UserProjectRepository;
-use App\Repository\UserWorkspaceRepository;
+use App\Security\Capability;
+use App\Security\WorkspaceMembershipResolver;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -23,7 +24,7 @@ final class TaskVoter extends Voter
     public const string DELETE = 'task.delete';
 
     public function __construct(
-        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+        private readonly WorkspaceMembershipResolver $resolver,
         private readonly UserProjectRepository $userProjectRepository,
     ) {}
 
@@ -52,31 +53,26 @@ final class TaskVoter extends Voter
         }
 
         $project = $subject instanceof Task ? $subject->getProject() : $subject;
-
-        $membership = $this->userWorkspaceRepository->findOneBy([
-            'user' => $user,
-            'workspace' => $project->getWorkspace(),
-        ]);
+        $membership = $this->resolver->for($user, $project->getWorkspace());
 
         if ($membership === null) {
             return false;
         }
 
         if ($attribute === self::CREATE) {
-            return $membership->getRole() !== WorkspaceRole::Guest;
+            return $membership->can(Capability::TASK_CREATE);
         }
 
         if ($attribute === self::EDIT) {
-            // Guest cannot edit any task
-            return $membership->getRole() !== WorkspaceRole::Guest;
+            return $membership->can(Capability::TASK_EDIT);
         }
 
         if ($attribute === self::DELETE) {
             assert($subject instanceof Task);
-            if ($membership->getRole() === WorkspaceRole::Owner) {
+            if ($membership->role === WorkspaceRole::Owner) {
                 return true;
             }
-            if ($membership->getRole() === WorkspaceRole::Guest) {
+            if (!$membership->can(Capability::TASK_DELETE)) {
                 return false;
             }
             // Member: only creator may delete
@@ -89,7 +85,7 @@ final class TaskVoter extends Voter
         }
 
         // VIEW: Owner and Member always granted; Guest needs project assignment
-        if ($membership->getRole() !== WorkspaceRole::Guest) {
+        if ($membership->can(Capability::TASK_VIEW)) {
             return true;
         }
 
