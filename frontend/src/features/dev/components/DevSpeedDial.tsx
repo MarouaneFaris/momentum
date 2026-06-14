@@ -182,7 +182,7 @@ export default function DevSpeedDial() {
             <Button
                 variant="outline"
                 size="icon"
-                className="size-10 cursor-grab rounded-full border-amber-500 bg-amber-500 text-white shadow-lg hover:bg-amber-600 active:cursor-grabbing dark:border-amber-500 dark:bg-amber-500 dark:text-white dark:hover:bg-amber-600"
+                className="size-10 cursor-grab touch-none rounded-full border-amber-500 bg-amber-500 text-white shadow-lg hover:bg-amber-600 active:cursor-grabbing dark:border-amber-500 dark:bg-amber-500 dark:text-white dark:hover:bg-amber-600"
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
