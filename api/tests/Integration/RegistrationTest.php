@@ -136,7 +136,7 @@ final class RegistrationTest extends IntegrationTestCase
 
         $workspace = $userWorkspaces[0]->getWorkspace();
         self::assertInstanceOf(Workspace::class, $workspace);
-        self::assertSame('My workspace', $workspace->getName());
+        self::assertSame(self::NAME . "'s workspace", $workspace->getName());
     }
 
     public function testNewUserWorkspaceRoleIsOwner(): void

@@ -1,9 +1,9 @@
 import { BottomSheet } from '@/components/BottomSheet'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, PlusIcon } from 'lucide-react'
+import { ChevronsUpDown, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
-import { CreateWorkspaceModal } from './CreateWorkspaceModal'
 import { useWorkspaceSwitcher } from '../hooks/useWorkspaceSwitcher'
+import { CreateWorkspaceModal } from './CreateWorkspaceModal'
 
 export function MobileWorkspaceSwitcher() {
     const { current, workspaces, isModalOpen, setIsModalOpen, handleSelect } =
@@ -25,7 +25,7 @@ export function MobileWorkspaceSwitcher() {
                 >
                     {(current?.name?.[0] ?? 'W').toUpperCase()}
                 </span>
-                <ChevronDown className="text-muted-foreground h-3 w-3 shrink-0" />
+                <ChevronsUpDown className="text-muted-foreground h-3 w-3 shrink-0" />
             </Button>
 
             <BottomSheet open={sheetOpen} onOpenChange={setSheetOpen} title="Workspaces">
