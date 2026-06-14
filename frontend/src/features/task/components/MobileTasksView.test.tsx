@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { MobileTaskDetail } from './MobileTaskDetail'
 import { MobileTaskList } from './MobileTaskList'
+import type { MobileFilter } from './MobileTaskList'
 import type { Task, TaskDetail } from '../types'
 
 vi.mock('@/features/task/hooks/useUpdateTaskStatus', () => ({
@@ -57,7 +58,7 @@ describe('MobileTaskList', () => {
         tasks: makeTasks(),
         isEmpty: false,
         isGuest: false,
-        filter: 'all' as const,
+        filter: 'all' as MobileFilter,
         onFilterChange: vi.fn(),
         onTaskTap: vi.fn(),
         onNewTask: vi.fn(),
