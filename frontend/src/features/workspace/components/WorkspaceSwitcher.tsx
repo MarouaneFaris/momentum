@@ -7,7 +7,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown, PlusIcon } from 'lucide-react'
+import { ChevronsUpDown, PlusIcon } from 'lucide-react'
 import { useWorkspaceSwitcher } from '../hooks/useWorkspaceSwitcher'
 import { CreateWorkspaceModal } from './CreateWorkspaceModal'
 
@@ -34,7 +34,7 @@ export function WorkspaceSwitcher() {
                         <span className="text-foreground font-medium">
                             {current?.name ?? 'Select workspace'}
                         </span>
-                        <ChevronDown className="text-muted-foreground h-3 w-3" />
+                        <ChevronsUpDown className="text-muted-foreground h-3 w-3" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
