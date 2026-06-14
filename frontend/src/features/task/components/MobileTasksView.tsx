@@ -113,6 +113,8 @@ export function MobileTasksView({
                 onFilterChange={setFilter}
                 onTaskTap={detail.open}
                 onNewTask={() => modal.setOpen(true)}
+                workspaceId={workspaceId}
+                projectName={projectName}
             />
             <TaskFormBottomSheet
                 open={modal.open}

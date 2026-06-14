@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { MobileTaskDetail } from './MobileTaskDetail'
 import { MobileTaskList } from './MobileTaskList'
+import type { MobileFilter } from './MobileTaskList'
 import type { Task, TaskDetail } from '../types'
 
 vi.mock('@/features/task/hooks/useUpdateTaskStatus', () => ({
@@ -57,38 +58,47 @@ describe('MobileTaskList', () => {
         tasks: makeTasks(),
         isEmpty: false,
         isGuest: false,
-        filter: 'all' as const,
+        filter: 'all' as MobileFilter,
         onFilterChange: vi.fn(),
         onTaskTap: vi.fn(),
         onNewTask: vi.fn(),
+        workspaceId: 'ws-1',
+        projectName: 'My Project',
     }
 
+    const renderList = (props = defaultProps) =>
+        render(
+            <MemoryRouter>
+                <MobileTaskList {...props} />
+            </MemoryRouter>,
+        )
+
     it('renders Fab for member/owner (non-guest)', () => {
-        render(<MobileTaskList {...defaultProps} />)
+        renderList()
         expect(screen.getByRole('button', { name: /action/i })).toBeInTheDocument()
     })
 
     it('hides Fab for guest', () => {
-        render(<MobileTaskList {...defaultProps} isGuest={true} />)
+        renderList({ ...defaultProps, isGuest: true })
         expect(screen.queryByRole('button', { name: /action/i })).not.toBeInTheDocument()
     })
 
     it('shows all tasks when filter is "all"', () => {
-        render(<MobileTaskList {...defaultProps} filter="all" />)
+        renderList({ ...defaultProps, filter: 'all' })
         expect(screen.getByText('Write tests')).toBeInTheDocument()
         expect(screen.getByText('Fix the bug')).toBeInTheDocument()
         expect(screen.getByText('Deploy to prod')).toBeInTheDocument()
     })
 
     it('filters to only todo tasks when filter is "todo"', () => {
-        render(<MobileTaskList {...defaultProps} filter="todo" />)
+        renderList({ ...defaultProps, filter: 'todo' })
         expect(screen.getByText('Write tests')).toBeInTheDocument()
         expect(screen.queryByText('Fix the bug')).not.toBeInTheDocument()
         expect(screen.queryByText('Deploy to prod')).not.toBeInTheDocument()
     })
 
     it('filters to only in-progress tasks when filter is "in-progress"', () => {
-        render(<MobileTaskList {...defaultProps} filter="in-progress" />)
+        renderList({ ...defaultProps, filter: 'in-progress' })
         expect(screen.queryByText('Write tests')).not.toBeInTheDocument()
         expect(screen.getByText('Fix the bug')).toBeInTheDocument()
         expect(screen.queryByText('Deploy to prod')).not.toBeInTheDocument()
@@ -96,44 +106,47 @@ describe('MobileTaskList', () => {
 
     it('calls onFilterChange when a chip is clicked', () => {
         const onFilterChange = vi.fn()
-        render(<MobileTaskList {...defaultProps} onFilterChange={onFilterChange} />)
+        renderList({ ...defaultProps, onFilterChange })
         // First "To do" occurrence is the FilterChip button (before task rows)
         fireEvent.click(screen.getAllByText('To do')[0])
         expect(onFilterChange).toHaveBeenCalledWith('todo')
     })
 
     it('shows empty state when isEmpty is true', () => {
-        render(<MobileTaskList {...defaultProps} tasks={[]} isEmpty={true} />)
+        renderList({ ...defaultProps, tasks: [], isEmpty: true })
         expect(screen.getByText('No tasks yet')).toBeInTheDocument()
     })
 
     it('shows "No tasks match" when tasks exist but filter returns none', () => {
-        render(
-            <MobileTaskList
-                {...defaultProps}
-                tasks={[makeTasks()[0]]}
-                isEmpty={false}
-                filter="done"
-            />,
-        )
+        renderList({ ...defaultProps, tasks: [makeTasks()[0]], isEmpty: false, filter: 'done' })
         expect(screen.getByText(/no tasks match/i)).toBeInTheDocument()
     })
 
     it('shows guest read-only banner for guest', () => {
-        render(<MobileTaskList {...defaultProps} isGuest={true} />)
+        renderList({ ...defaultProps, isGuest: true })
         expect(screen.getByText(/viewing as a guest/i)).toBeInTheDocument()
     })
 
     it('hides "New task" button in empty state for guest', () => {
-        render(<MobileTaskList {...defaultProps} tasks={[]} isEmpty={true} isGuest={true} />)
+        renderList({ ...defaultProps, tasks: [], isEmpty: true, isGuest: true })
         expect(screen.queryByRole('button', { name: /new task/i })).not.toBeInTheDocument()
     })
 
     it('calls onTaskTap when a task row is clicked', async () => {
         const onTaskTap = vi.fn()
-        render(<MobileTaskList {...defaultProps} onTaskTap={onTaskTap} />)
+        renderList({ ...defaultProps, onTaskTap })
         await userEvent.click(screen.getByText('Write tests'))
         expect(onTaskTap).toHaveBeenCalledWith('task-1')
+    })
+
+    it('renders back button in topbar', () => {
+        renderList()
+        expect(screen.getByRole('button', { name: /back/i })).toBeInTheDocument()
+    })
+
+    it('shows project name as topbar title', () => {
+        renderList({ ...defaultProps, projectName: 'Backend API' })
+        expect(screen.getByText('Backend API')).toBeInTheDocument()
     })
 })
 
