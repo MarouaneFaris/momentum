@@ -41,7 +41,7 @@ final readonly class RegisterService
             $this->entityManager->persist($user);
 
             $workspace = new Workspace();
-            $workspace->setName('My workspace');
+            $workspace->setName("{$name}'s workspace");
             $workspace->setCreator($user);
             $this->entityManager->persist($workspace);
 
