@@ -167,14 +167,17 @@ export function ProjectCard({
                         {visibleMembers.map((name, i) => (
                             <div
                                 key={i}
-                                className={i > 0 ? '-ml-1.5' : undefined}
+                                className={`rounded-full ring-[1.5px] ring-card${i > 0 ? '-ml-1.5' : ''}`}
                                 style={{ zIndex: MAX_AVATARS - i }}
                             >
                                 <UserAvatar name={name} size="sm" />
                             </div>
                         ))}
                         {overflow > 0 && (
-                            <div className="-ml-1.5" style={{ zIndex: 0 }}>
+                            <div
+                                className="ring-card -ml-1.5 rounded-full ring-[1.5px]"
+                                style={{ zIndex: 0 }}
+                            >
                                 <span className="border-primary/30 bg-primary/15 text-primary flex size-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
                                     +{overflow}
                                 </span>
