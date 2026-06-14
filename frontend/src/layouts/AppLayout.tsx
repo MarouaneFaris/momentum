@@ -12,6 +12,7 @@ import { useProjects } from '@/features/project/queries'
 import { MobileWorkspaceSwitcher } from '@/features/workspace/components/MobileWorkspaceSwitcher'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
+import { useWorkspace } from '@/features/workspace/queries'
 import { FolderOpen, Home, LayoutDashboard, ListTodo, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { Link, NavLink, Navigate, Outlet } from 'react-router'
@@ -21,6 +22,8 @@ export default function AppLayout() {
     const workspaceId = useActiveWorkspaceId()
     const { data: invitations } = useMyInvitations()
     const pendingCount = invitations?.length ?? 0
+    const { data: workspace } = useWorkspace(workspaceId ?? '')
+    const isOwner = workspace?.role === 'owner'
     const { data: projects } = useProjects(workspaceId ?? '')
     const sortedProjects = [...(projects ?? [])].sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -193,19 +196,21 @@ export default function AppLayout() {
                                     <Users className="h-4 w-4 shrink-0" />
                                     Members
                                 </NavLink>
-                                <NavLink
-                                    to={`/workspaces/${workspaceId}/settings`}
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
-                                            isActive
-                                                ? 'bg-primary/10 text-primary font-medium'
-                                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                                        }`
-                                    }
-                                >
-                                    <Settings className="h-4 w-4 shrink-0" />
-                                    Settings
-                                </NavLink>
+                                {isOwner && (
+                                    <NavLink
+                                        to={`/workspaces/${workspaceId}/settings`}
+                                        className={({ isActive }) =>
+                                            `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                                isActive
+                                                    ? 'bg-primary/10 text-primary font-medium'
+                                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                            }`
+                                        }
+                                    >
+                                        <Settings className="h-4 w-4 shrink-0" />
+                                        Settings
+                                    </NavLink>
+                                )}
                             </>
                         )}
                         <p className="text-muted-foreground/60 px-2 pt-3 pb-1 text-[10px]">
