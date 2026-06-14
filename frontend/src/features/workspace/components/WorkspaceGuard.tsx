@@ -12,7 +12,9 @@ export function WorkspaceGuard() {
     useEffect(() => {
         if (isError) {
             workspaceStorage.clear()
-            void queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+            // Remove (not just invalidate) so LandingPage sees isLoading=true
+            // and waits for fresh data instead of redirecting on stale cache.
+            queryClient.removeQueries({ queryKey: ['workspaces'] })
         }
     }, [isError, queryClient])
 
