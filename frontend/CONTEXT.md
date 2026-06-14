@@ -28,6 +28,7 @@ src/
 ├── lib/
 │   ├── api.ts                 # fetch client
 │   ├── queryClient.ts         # TanStack QueryClient instance
+│   ├── useMercureChannel.ts   # generic SSE transport hook — the seam for all realtime features
 │   └── utils.ts               # cn() and misc helpers
 └── types/                     # shared global types
 ```
@@ -137,6 +138,23 @@ Sidebar dropdown at top of AppLayout sidebar:
 ### Last-visited workspace
 
 localStorage key: `lastVisitedWorkspaceId`. Written on every workspace navigation. Read on post-login redirect. If key is missing or the workspace is no longer accessible, fall back to first result from `GET /api/workspaces`.
+
+## Realtime
+
+All SSE subscriptions go through `src/lib/useMercureChannel.ts`. It owns the `EventSource` lifecycle, the `/api/notifications/mercure-token` fetch, and the token-refresh timer. No other file may touch `EventSource` or the Mercure token endpoint directly.
+
+Feature hooks compose on top of `useMercureChannel` and own their own invalidation/cache-update policy:
+
+```ts
+useMercureChannel<MyEventType>({
+    topic: `/some-topic/${id}`,
+    onMessage: (evt) => { /* invalidate or update cache */ },
+    enabled: isAuthenticated && !!id,
+})
+```
+
+Current consumers:
+- `features/notification/hooks/useNotificationStream.ts` — notifications topic → `applyEnvelope`
 
 ### Delete confirmation
 
