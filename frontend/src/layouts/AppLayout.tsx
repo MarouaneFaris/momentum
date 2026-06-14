@@ -6,7 +6,7 @@ import { UserMenu } from '@/components/UserMenu'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useMyInvitations } from '@/features/membership/queries'
 import { NotificationBell } from '@/features/notification/components/NotificationBell'
-import { useNotifications } from '@/features/notification/hooks/useNotifications'
+import { useNotificationStream } from '@/features/notification/hooks/useNotificationStream'
 import { projectColorValue } from '@/features/project/projectColor'
 import { useProjects } from '@/features/project/queries'
 import { MobileWorkspaceSwitcher } from '@/features/workspace/components/MobileWorkspaceSwitcher'
@@ -28,7 +28,7 @@ export default function AppLayout() {
     const sortedProjects = [...(projects ?? [])].sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
-    useNotifications()
+    useNotificationStream()
 
     if (auth.isLoading) return null
     if (!auth.isAuthenticated) return <Navigate to="/login" />
