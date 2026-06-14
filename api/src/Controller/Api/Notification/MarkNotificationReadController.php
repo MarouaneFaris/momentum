@@ -6,9 +6,8 @@ namespace App\Controller\Api\Notification;
 
 use App\DTO\Response\NotificationResponse;
 use App\Entity\Notification;
+use App\Notification\NotificationOrchestrator;
 use App\Security\Voter\NotificationVoter;
-use App\Service\NotificationPublisher;
-use App\Service\NotificationService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,12 +43,9 @@ final class MarkNotificationReadController extends AbstractController
     #[IsGranted(NotificationVoter::UPDATE, subject: 'notification')]
     public function __invoke(
         Notification $notification,
-        NotificationService $notificationService,
-        NotificationPublisher $notificationPublisher,
+        NotificationOrchestrator $orchestrator,
     ): JsonResponse {
-        $notificationService->markRead($notification);
-
-        $notificationPublisher->publishUpdated($notification);
+        $orchestrator->notificationRead($notification);
 
         return $this->json(NotificationResponse::fromNotification($notification));
     }

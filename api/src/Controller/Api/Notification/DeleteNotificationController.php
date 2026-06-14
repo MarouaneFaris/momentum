@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Controller\Api\Notification;
 
 use App\Entity\Notification;
+use App\Notification\NotificationOrchestrator;
 use App\Security\Voter\NotificationVoter;
-use App\Service\NotificationPublisher;
-use App\Service\NotificationService;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,17 +37,9 @@ final class DeleteNotificationController extends AbstractController
     #[IsGranted(NotificationVoter::DELETE, subject: 'notification')]
     public function __invoke(
         Notification $notification,
-        NotificationService $notificationService,
-        NotificationPublisher $notificationPublisher,
+        NotificationOrchestrator $orchestrator,
     ): Response {
-        $id = $notification->getId();
-        $recipient = $notification->getRecipient();
-
-        $notificationService->delete($notification);
-
-        if ($id !== null) {
-            $notificationPublisher->publishDeleted($id, $recipient);
-        }
+        $orchestrator->notificationDeleted($notification);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

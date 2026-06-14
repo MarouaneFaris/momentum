@@ -7,24 +7,26 @@ namespace App\Tests\Unit\Security;
 use App\Entity\User;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
-use App\Repository\UserWorkspaceRepository;
 use App\Security\Voter\WorkspaceVoter;
+use App\Security\WorkspaceMembership;
+use App\Security\WorkspaceMembershipResolver;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class WorkspaceVoterTest extends TestCase
 {
     private WorkspaceVoter $voter;
-    private UserWorkspaceRepository&Stub $repository;
+    private WorkspaceMembershipResolver&Stub $resolver;
     private User $user;
     private Workspace $workspace;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createStub(UserWorkspaceRepository::class);
-        $this->voter = new WorkspaceVoter($this->repository);
+        $this->resolver = $this->createStub(WorkspaceMembershipResolver::class);
+        $this->voter = new WorkspaceVoter($this->resolver);
         $this->user = new User();
         $this->workspace = new Workspace();
     }
@@ -32,9 +34,9 @@ final class WorkspaceVoterTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('provideRoleAttributeCombinations')]
     public function testVoteOnAttributeWithRole(WorkspaceRole $role, string $attribute, int $expectedVote): void
     {
-        $this->repository
-            ->method('findRoleByUserAndWorkspace')
-            ->willReturn($role);
+        $this->resolver
+            ->method('for')
+            ->willReturn($this->makeMembership($role));
 
         $result = $this->voter->vote($this->createToken(), $this->workspace, [$attribute]);
 
@@ -75,10 +77,10 @@ final class WorkspaceVoterTest extends TestCase
         yield 'guest cannot change role' => [WorkspaceRole::Guest, WorkspaceVoter::CHANGE_ROLE, VoterInterface::ACCESS_DENIED];
     }
 
-    public function testNonMemberIsdenied(): void
+    public function testNonMemberIsDenied(): void
     {
-        $this->repository
-            ->method('findRoleByUserAndWorkspace')
+        $this->resolver
+            ->method('for')
             ->willReturn(null);
 
         $result = $this->voter->vote($this->createToken(), $this->workspace, [WorkspaceVoter::VIEW]);
@@ -106,5 +108,14 @@ final class WorkspaceVoterTest extends TestCase
         $token->method('getUser')->willReturn($this->user);
 
         return $token;
+    }
+
+    private function makeMembership(WorkspaceRole $role): WorkspaceMembership
+    {
+        return new WorkspaceMembership(
+            userId: Uuid::v7(),
+            workspaceId: Uuid::v7(),
+            role: $role,
+        );
     }
 }

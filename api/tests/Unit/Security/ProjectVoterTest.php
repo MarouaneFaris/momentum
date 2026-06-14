@@ -9,8 +9,9 @@ use App\Entity\User;
 use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
-use App\Repository\UserWorkspaceRepository;
 use App\Security\Voter\ProjectVoter;
+use App\Security\WorkspaceMembership;
+use App\Security\WorkspaceMembershipResolver;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -20,24 +21,27 @@ use Symfony\Component\Uid\Uuid;
 final class ProjectVoterTest extends TestCase
 {
     private ProjectVoter $voter;
-    private UserWorkspaceRepository&Stub $repository;
+    private WorkspaceMembershipResolver&Stub $resolver;
     private User $user;
     private Workspace $workspace;
+    private Uuid $userId;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createStub(UserWorkspaceRepository::class);
-        $this->voter = new ProjectVoter($this->repository);
-        $this->user = new User();
+        $this->resolver = $this->createStub(WorkspaceMembershipResolver::class);
+        $this->voter = new ProjectVoter($this->resolver);
+        $this->userId = Uuid::v7();
+        $this->user = $this->createStub(User::class);
+        $this->user->method('getId')->willReturn($this->userId);
         $this->workspace = new Workspace();
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('provideViewCombinations')]
     public function testViewAttribute(WorkspaceRole $role, int $expectedVote): void
     {
-        $this->repository
-            ->method('findRoleByUserAndWorkspace')
-            ->willReturn($role);
+        $this->resolver
+            ->method('for')
+            ->willReturn($this->makeMembership($role));
 
         $result = $this->voter->vote($this->createToken(), $this->workspace, [ProjectVoter::VIEW]);
 
@@ -55,9 +59,9 @@ final class ProjectVoterTest extends TestCase
     #[\PHPUnit\Framework\Attributes\DataProvider('provideCreateCombinations')]
     public function testCreateAttribute(WorkspaceRole $role, int $expectedVote): void
     {
-        $this->repository
-            ->method('findRoleByUserAndWorkspace')
-            ->willReturn($role);
+        $this->resolver
+            ->method('for')
+            ->willReturn($this->makeMembership($role));
 
         $result = $this->voter->vote($this->createToken(), $this->workspace, [ProjectVoter::CREATE]);
 
@@ -74,13 +78,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testOwnerCanEditAnyProject(): void
     {
-        $ownerMembership = $this->makeMembership(WorkspaceRole::Owner, Uuid::v4());
-        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($otherMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($ownerMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Owner));
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
 
@@ -89,12 +88,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testMemberCanEditOwnProject(): void
     {
-        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($memberMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($memberMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
+        $project = $this->makeProject(ownedByCurrentUser: true);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
 
@@ -103,13 +98,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testMemberCannotEditOtherMembersProject(): void
     {
-        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($otherMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($memberMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
 
@@ -118,11 +108,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testNonMemberIsDeniedEdit(): void
     {
-        $project = $this->makeProject($this->makeMembership(WorkspaceRole::Member, Uuid::v4()));
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::EDIT]);
 
@@ -131,13 +118,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testOwnerCanDeleteAnyProject(): void
     {
-        $ownerMembership = $this->makeMembership(WorkspaceRole::Owner, Uuid::v4());
-        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($otherMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($ownerMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Owner));
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
 
@@ -146,12 +128,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testMemberCanDeleteOwnProject(): void
     {
-        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($memberMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($memberMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
+        $project = $this->makeProject(ownedByCurrentUser: true);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
 
@@ -160,13 +138,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testMemberCannotDeleteOtherMembersProject(): void
     {
-        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($otherMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($memberMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
 
@@ -175,11 +148,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testNonMemberIsDeniedDelete(): void
     {
-        $project = $this->makeProject($this->makeMembership(WorkspaceRole::Member, Uuid::v4()));
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::DELETE]);
 
@@ -188,13 +158,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testOwnerCanManageMembersOnAnyProject(): void
     {
-        $ownerMembership = $this->makeMembership(WorkspaceRole::Owner, Uuid::v4());
-        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($otherMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($ownerMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Owner));
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
 
@@ -203,12 +168,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testMemberCanManageMembersOnOwnProject(): void
     {
-        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($memberMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($memberMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
+        $project = $this->makeProject(ownedByCurrentUser: true);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
 
@@ -217,13 +178,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testMemberCannotManageMembersOnOtherMembersProject(): void
     {
-        $memberMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $otherMembership = $this->makeMembership(WorkspaceRole::Member, Uuid::v4());
-        $project = $this->makeProject($otherMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($memberMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Member));
+        $project = $this->makeProject(ownedByCurrentUser: false);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
 
@@ -232,12 +188,8 @@ final class ProjectVoterTest extends TestCase
 
     public function testGuestIsDeniedManageMembers(): void
     {
-        $guestMembership = $this->makeMembership(WorkspaceRole::Guest, Uuid::v4());
-        $project = $this->makeProject($guestMembership);
-
-        $this->repository
-            ->method('findOneBy')
-            ->willReturn($guestMembership);
+        $this->resolver->method('for')->willReturn($this->makeMembership(WorkspaceRole::Guest));
+        $project = $this->makeProject(ownedByCurrentUser: true);
 
         $result = $this->voter->vote($this->createToken(), $project, [ProjectVoter::MANAGE_MEMBERS]);
 
@@ -246,9 +198,7 @@ final class ProjectVoterTest extends TestCase
 
     public function testNonMemberIsDenied(): void
     {
-        $this->repository
-            ->method('findRoleByUserAndWorkspace')
-            ->willReturn(null);
+        $this->resolver->method('for')->willReturn(null);
 
         $result = $this->voter->vote($this->createToken(), $this->workspace, [ProjectVoter::VIEW]);
 
@@ -277,20 +227,27 @@ final class ProjectVoterTest extends TestCase
         return $token;
     }
 
-    private function makeMembership(WorkspaceRole $role, Uuid $id): UserWorkspace&Stub
+    private function makeMembership(WorkspaceRole $role): WorkspaceMembership
     {
-        $membership = $this->createStub(UserWorkspace::class);
-        $membership->method('getRole')->willReturn($role);
-        $membership->method('getId')->willReturn($id);
-        $membership->method('getWorkspace')->willReturn($this->workspace);
-
-        return $membership;
+        return new WorkspaceMembership(
+            userId: $this->userId,
+            workspaceId: Uuid::v7(),
+            role: $role,
+        );
     }
 
-    private function makeProject(UserWorkspace $owner): Project&Stub
+    private function makeProject(bool $ownedByCurrentUser): Project&Stub
     {
+        $ownerUserId = $ownedByCurrentUser ? $this->userId : Uuid::v7();
+
+        $ownerUser = $this->createStub(User::class);
+        $ownerUser->method('getId')->willReturn($ownerUserId);
+
+        $ownerUW = $this->createStub(UserWorkspace::class);
+        $ownerUW->method('getUser')->willReturn($ownerUser);
+
         $project = $this->createStub(Project::class);
-        $project->method('getOwner')->willReturn($owner);
+        $project->method('getOwner')->willReturn($ownerUW);
         $project->method('getWorkspace')->willReturn($this->workspace);
 
         return $project;

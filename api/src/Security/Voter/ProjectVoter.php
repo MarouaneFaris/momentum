@@ -8,7 +8,8 @@ use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
-use App\Repository\UserWorkspaceRepository;
+use App\Security\Capability;
+use App\Security\WorkspaceMembershipResolver;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -23,7 +24,7 @@ final class ProjectVoter extends Voter
     public const string MANAGE_MEMBERS = 'project.manage_members';
 
     public function __construct(
-        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+        private readonly WorkspaceMembershipResolver $resolver,
     ) {}
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -42,39 +43,31 @@ final class ProjectVoter extends Voter
             return false;
         }
 
-        if ($subject instanceof Project) {
-            $membership = $this->userWorkspaceRepository->findOneBy([
-                'user' => $user,
-                'workspace' => $subject->getWorkspace(),
-            ]);
+        $workspace = $subject instanceof Project ? $subject->getWorkspace() : $subject;
+        $membership = $this->resolver->for($user, $workspace);
 
-            if ($membership === null) {
-                return false;
-            }
-
-            if ($membership->getRole() === WorkspaceRole::Guest) {
-                return false;
-            }
-
-            if ($membership->getRole() === WorkspaceRole::Owner) {
-                return true;
-            }
-
-            return (string) $subject->getOwner()->getId() === (string) $membership->getId();
-        }
-
-        /** @var Workspace $workspace */
-        $workspace = $subject;
-        $role = $this->userWorkspaceRepository->findRoleByUserAndWorkspace($user, $workspace);
-
-        if ($role === null) {
+        if ($membership === null) {
             return false;
         }
 
-        return match ($attribute) {
-            self::VIEW => true,
-            self::CREATE => $role === WorkspaceRole::Owner || $role === WorkspaceRole::Member,
-            default => false,
-        };
+        if ($subject instanceof Workspace) {
+            return $membership->can(Capability::from($attribute));
+        }
+
+        /** @var Project $project */
+        $project = $subject;
+
+        // Base role-level check: Guest cannot edit/delete/manage any project
+        if (!$membership->can(Capability::from($attribute))) {
+            return false;
+        }
+
+        // Owner may act on any project
+        if ($membership->role === WorkspaceRole::Owner) {
+            return true;
+        }
+
+        // Member: only project creator may edit/delete/manage
+        return $project->getOwner()->getUser()->getId()?->equals($membership->userId) ?? false;
     }
 }

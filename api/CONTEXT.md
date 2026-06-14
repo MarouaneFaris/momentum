@@ -70,6 +70,8 @@ Workspace object shape: `{ id, name, createdAt, role }` — `role` is the authen
 
 ### Workspace Permissions Matrix
 
+**Source of truth: `src/Security/CapabilityMap.php`** — this table summarises it; the code is authoritative.
+
 | Operation | Owner | Member | Guest |
 |---|---|---|---|
 | View workspace | ✅ | ✅ | ✅ |
@@ -81,6 +83,9 @@ Workspace object shape: `{ id, name, createdAt, role }` — `role` is the authen
 | Leave workspace | ❌* | ✅ | ✅ |
 | Create projects | ✅ | ✅ | ❌ |
 | View projects | ✅ | ✅ | ✅ |
+| Edit/delete project | ✅ | own only | ❌ |
+| Create/edit/delete tasks | ✅ | ✅ | ❌ |
+| View tasks | ✅ | ✅ | assigned project only |
 
 *Owner cannot leave — must delete the workspace. Ownership transfer is v2.
 

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\EventListener;
 
-use App\Entity\Notification;
 use App\Entity\User;
 use App\Entity\Workspace;
 use App\Entity\WorkspaceInvitation;
-use App\Enum\NotificationType;
 use App\Enum\WorkspaceRole;
 use App\Event\WorkspaceInvitationAccepted;
 use App\Event\WorkspaceInvitationCancelled;
@@ -18,196 +16,60 @@ use App\EventListener\InvitationAcceptedNotificationHandler;
 use App\EventListener\InvitationCancelledNotificationHandler;
 use App\EventListener\InvitationCreatedNotificationHandler;
 use App\EventListener\InvitationDeclinedNotificationHandler;
-use App\Service\NotificationPublisher;
-use App\Service\NotificationServiceInterface;
-use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use App\Notification\NotificationOrchestrator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class InvitationNotificationHandlerTest extends TestCase
 {
-    private NotificationServiceInterface&MockObject $notificationService;
-    private NotificationPublisher&MockObject $notificationPublisher;
+    private NotificationOrchestrator&MockObject $orchestrator;
 
     protected function setUp(): void
     {
-        $this->notificationService = $this->createMock(NotificationServiceInterface::class);
-        $this->notificationPublisher = $this->createMock(NotificationPublisher::class);
+        $this->orchestrator = $this->createMock(NotificationOrchestrator::class);
     }
 
-    public function testCreatedHandlerNotifiesInvitee(): void
+    public function testCreatedDelegates(): void
     {
-        $invitee = new User();
-        $invitation = $this->makeInvitation(invitee: $invitee, role: WorkspaceRole::Member);
+        $invitation = $this->makeInvitation();
 
-        $notification = new Notification();
+        $this->orchestrator->expects($this->once())->method('invitationCreated')->with($invitation);
 
-        $this->notificationService
-            ->expects($this->once())
-            ->method('create')
-            ->with($invitee, NotificationType::InvitationReceived, $this->isArray())
-            ->willReturn($notification);
-
-        $this->notificationPublisher
-            ->expects($this->once())
-            ->method('publishCreated')
-            ->with($notification);
-
-        $handler = new InvitationCreatedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationCreatedNotificationHandler($this->orchestrator);
         ($handler)(new WorkspaceInvitationCreated($invitation));
     }
 
-    public function testAcceptedHandlerNotifiesInviter(): void
+    public function testAcceptedDelegates(): void
     {
-        $inviter = new User();
         $actor = new User();
-        $invitation = $this->makeInvitation(invitedBy: $inviter);
+        $invitation = $this->makeInvitation();
 
-        $notification = new Notification();
+        $this->orchestrator->expects($this->once())->method('invitationAccepted')->with($invitation, $actor);
 
-        $this->notificationService
-            ->expects($this->once())
-            ->method('create')
-            ->with($inviter, NotificationType::InvitationAccepted, $this->isArray())
-            ->willReturn($notification);
-
-        $this->notificationPublisher
-            ->expects($this->once())
-            ->method('publishCreated')
-            ->with($notification);
-
-        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationAcceptedNotificationHandler($this->orchestrator);
         ($handler)(new WorkspaceInvitationAccepted($invitation, $actor));
     }
 
-    public function testAcceptedHandlerSkipsWhenNoInviter(): void
+    public function testDeclinedDelegates(): void
     {
         $actor = new User();
-        $invitation = $this->makeInvitation(invitedBy: null);
+        $invitation = $this->makeInvitation();
 
-        $this->notificationService->expects($this->never())->method('create');
-        $this->notificationPublisher->expects($this->never())->method('publishCreated');
+        $this->orchestrator->expects($this->once())->method('invitationDeclined')->with($invitation, $actor);
 
-        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
-        ($handler)(new WorkspaceInvitationAccepted($invitation, $actor));
-    }
-
-    public function testDeclinedHandlerNotifiesInviter(): void
-    {
-        $inviter = new User();
-        $actor = new User();
-        $invitation = $this->makeInvitation(invitedBy: $inviter);
-
-        $notification = new Notification();
-
-        $this->notificationService
-            ->expects($this->once())
-            ->method('create')
-            ->with($inviter, NotificationType::InvitationDeclined, $this->isArray())
-            ->willReturn($notification);
-
-        $this->notificationPublisher
-            ->expects($this->once())
-            ->method('publishCreated')
-            ->with($notification);
-
-        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationDeclinedNotificationHandler($this->orchestrator);
         ($handler)(new WorkspaceInvitationDeclined($invitation, $actor));
     }
 
-    public function testDeclinedHandlerSkipsWhenNoInviter(): void
+    public function testCancelledDelegates(): void
     {
         $actor = new User();
-        $invitation = $this->makeInvitation(invitedBy: null);
+        $invitation = $this->makeInvitation();
 
-        $this->notificationService->expects($this->never())->method('create');
-        $this->notificationPublisher->expects($this->never())->method('publishCreated');
+        $this->orchestrator->expects($this->once())->method('invitationCancelled')->with($invitation);
 
-        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
-        ($handler)(new WorkspaceInvitationDeclined($invitation, $actor));
-    }
-
-    #[AllowMockObjectsWithoutExpectations]
-    public function testCreatedHandlerMercureFailureSilenced(): void
-    {
-        $this->expectNotToPerformAssertions();
-
-        $invitee = new User();
-        $invitation = $this->makeInvitation(invitee: $invitee);
-
-        $notification = new Notification();
-        $this->notificationService->method('create')->willReturn($notification);
-
-        $handler = new InvitationCreatedNotificationHandler($this->notificationService, $this->notificationPublisher);
-        ($handler)(new WorkspaceInvitationCreated($invitation));
-    }
-
-    #[AllowMockObjectsWithoutExpectations]
-    public function testAcceptedHandlerMercureFailureSilenced(): void
-    {
-        $this->expectNotToPerformAssertions();
-
-        $inviter = new User();
-        $invitation = $this->makeInvitation(invitedBy: $inviter);
-
-        $notification = new Notification();
-        $this->notificationService->method('create')->willReturn($notification);
-
-        $handler = new InvitationAcceptedNotificationHandler($this->notificationService, $this->notificationPublisher);
-        ($handler)(new WorkspaceInvitationAccepted($invitation, new User()));
-    }
-
-    #[AllowMockObjectsWithoutExpectations]
-    public function testDeclinedHandlerMercureFailureSilenced(): void
-    {
-        $this->expectNotToPerformAssertions();
-
-        $inviter = new User();
-        $invitation = $this->makeInvitation(invitedBy: $inviter);
-
-        $notification = new Notification();
-        $this->notificationService->method('create')->willReturn($notification);
-
-        $handler = new InvitationDeclinedNotificationHandler($this->notificationService, $this->notificationPublisher);
-        ($handler)(new WorkspaceInvitationDeclined($invitation, new User()));
-    }
-
-    public function testCancelledHandlerNotifiesInvitee(): void
-    {
-        $invitee = new User();
-        $actor = new User();
-        $invitation = $this->makeInvitation(invitee: $invitee, role: WorkspaceRole::Member);
-
-        $notification = new Notification();
-
-        $this->notificationService
-            ->expects($this->once())
-            ->method('create')
-            ->with($invitee, NotificationType::InvitationCancelled, $this->isArray())
-            ->willReturn($notification);
-
-        $this->notificationPublisher
-            ->expects($this->once())
-            ->method('publishCreated')
-            ->with($notification);
-
-        $handler = new InvitationCancelledNotificationHandler($this->notificationService, $this->notificationPublisher);
+        $handler = new InvitationCancelledNotificationHandler($this->orchestrator);
         ($handler)(new WorkspaceInvitationCancelled($invitation, $actor));
-    }
-
-    #[AllowMockObjectsWithoutExpectations]
-    public function testCancelledHandlerMercureFailureSilenced(): void
-    {
-        $this->expectNotToPerformAssertions();
-
-        $invitee = new User();
-        $invitation = $this->makeInvitation(invitee: $invitee);
-
-        $notification = new Notification();
-        $this->notificationService->method('create')->willReturn($notification);
-
-        $handler = new InvitationCancelledNotificationHandler($this->notificationService, $this->notificationPublisher);
-        ($handler)(new WorkspaceInvitationCancelled($invitation, new User()));
     }
 
     private function makeInvitation(
