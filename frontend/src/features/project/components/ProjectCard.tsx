@@ -165,17 +165,20 @@ export function ProjectCard({
                 {visibleMembers.length > 0 && (
                     <div className="flex">
                         {visibleMembers.map((name, i) => (
-                            <UserAvatar
+                            <div
                                 key={i}
-                                name={name}
-                                size="sm"
                                 className={i > 0 ? '-ml-1.5' : undefined}
-                            />
+                                style={{ zIndex: MAX_AVATARS - i }}
+                            >
+                                <UserAvatar name={name} size="sm" />
+                            </div>
                         ))}
                         {overflow > 0 && (
-                            <span className="border-primary/30 bg-primary/15 text-primary -ml-1.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
-                                +{overflow}
-                            </span>
+                            <div className="-ml-1.5" style={{ zIndex: 0 }}>
+                                <span className="border-primary/30 bg-primary/15 text-primary flex size-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
+                                    +{overflow}
+                                </span>
+                            </div>
                         )}
                     </div>
                 )}
