@@ -53,6 +53,9 @@ final readonly class ProjectListItemResponse
     {
         $stats = $taskStats ?? ['total' => 0, 'done' => 0, 'open' => 0];
 
+        $ownerName = $project->getOwner()->getUser()->getName();
+        $allMemberNames = array_values(array_unique(array_merge([$ownerName], $memberNames)));
+
         return new self(
             id: (string) $project->getId(),
             name: $project->getName(),
@@ -67,7 +70,7 @@ final readonly class ProjectListItemResponse
                 done: $stats['done'],
                 open: $stats['open'],
             ),
-            memberNames: $memberNames,
+            memberNames: $allMemberNames,
         );
     }
 }
