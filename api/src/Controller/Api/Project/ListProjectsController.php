@@ -9,6 +9,7 @@ use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\Workspace;
 use App\Repository\ProjectRepository;
+use App\Repository\TaskRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Security\Voter\ProjectVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -54,15 +55,23 @@ final class ListProjectsController extends AbstractController
         #[CurrentUser] User $user,
         UserWorkspaceRepository $userWorkspaceRepository,
         ProjectRepository $projectRepository,
+        TaskRepository $taskRepository,
     ): JsonResponse {
         $membership = $userWorkspaceRepository->findOneBy(['user' => $user, 'workspace' => $workspace]);
         assert($membership !== null);
 
         $projects = $projectRepository->findVisibleForMember($workspace, $membership);
 
+        $taskStatsByProject = $taskRepository->getStatsForProjects($projects);
+        $assigneeNamesByProject = $taskRepository->getAssigneeNamesForProjects($projects);
+
         return $this->json(
             array_map(
-                static fn (Project $p) => ProjectListItemResponse::fromProject($p),
+                static fn (Project $p) => ProjectListItemResponse::fromProject(
+                    $p,
+                    $taskStatsByProject[(string) $p->getId()] ?? null,
+                    $assigneeNamesByProject[(string) $p->getId()] ?? [],
+                ),
                 $projects,
             ),
         );

@@ -2,6 +2,12 @@ export type ProjectStatus = 'draft' | 'active' | 'archived'
 
 export type ProjectColorKey = 'blue' | 'green' | 'amber' | 'red' | 'purple' | 'neutral'
 
+export type ProjectTaskStats = {
+    total: number
+    done: number
+    open: number
+}
+
 export type Project = {
     id: string
     name: string
@@ -11,6 +17,8 @@ export type Project = {
     ownerUserId: string
     createdAt: string
     updatedAt: string
+    taskStats: ProjectTaskStats
+    memberNames: string[]
 }
 
 export type ProjectMember = {

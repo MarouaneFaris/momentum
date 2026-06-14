@@ -91,6 +91,82 @@ class TaskRepository extends ServiceEntityRepository
         ];
     }
 
+    /**
+     * @param Project[] $projects
+     *
+     * @return array<string, array{total: int, done: int, open: int}> keyed by project uuid string
+     */
+    public function getStatsForProjects(array $projects): array
+    {
+        [$binaryToUuid, $projectIds] = $this->projectsToBinaryMap($projects);
+
+        if ($projectIds === []) {
+            return [];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $rows = $conn->fetchAllAssociative(
+            'SELECT project_id, COUNT(*) AS total, SUM(status = :done) AS done
+             FROM task
+             WHERE project_id IN (:projectIds)
+             GROUP BY project_id',
+            ['done' => TaskStatus::Done->value, 'projectIds' => $projectIds],
+            ['projectIds' => ArrayParameterType::BINARY],
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $uuid = $binaryToUuid[$row['project_id']] ?? null;
+            if ($uuid === null) {
+                continue;
+            }
+            $total = (int) $row['total'];
+            $done = (int) $row['done'];
+            $result[$uuid] = ['total' => $total, 'done' => $done, 'open' => $total - $done];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Project[] $projects
+     *
+     * @return array<string, list<string>> project uuid string -> distinct assignee names (ordered by name)
+     */
+    public function getAssigneeNamesForProjects(array $projects): array
+    {
+        [$binaryToUuid, $projectIds] = $this->projectsToBinaryMap($projects);
+
+        if ($projectIds === []) {
+            return [];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $rows = $conn->fetchAllAssociative(
+            'SELECT DISTINCT t.project_id, u.name
+             FROM task t
+             INNER JOIN user u ON u.id = t.assignee_id
+             WHERE t.project_id IN (:projectIds)
+               AND t.assignee_id IS NOT NULL
+             ORDER BY t.project_id, u.name ASC',
+            ['projectIds' => $projectIds],
+            ['projectIds' => ArrayParameterType::BINARY],
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $uuid = $binaryToUuid[$row['project_id']] ?? null;
+            if ($uuid === null) {
+                continue;
+            }
+            $result[$uuid][] = $row['name'];
+        }
+
+        return $result;
+    }
+
     /** @return Task[] */
     public function findByProject(Project $project): array
     {
@@ -126,5 +202,30 @@ class TaskRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param Project[] $projects
+     *
+     * @return array{array<string, string>, list<string>} [binaryToUuid, projectIds]
+     */
+    private function projectsToBinaryMap(array $projects): array
+    {
+        $binaryToUuid = [];
+        $projectIds = [];
+
+        foreach ($projects as $p) {
+            $id = $p->getId();
+
+            if ($id === null) {
+                continue;
+            }
+
+            $binary = $id->toBinary();
+            $projectIds[] = $binary;
+            $binaryToUuid[$binary] = (string) $id;
+        }
+
+        return [$binaryToUuid, $projectIds];
     }
 }

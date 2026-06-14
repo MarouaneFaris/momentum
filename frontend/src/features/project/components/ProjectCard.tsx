@@ -1,4 +1,6 @@
+import { UserAvatar } from '@/components/UserAvatar'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -40,6 +42,8 @@ function statusBadgeClass(status: Project['status']): string {
     }[status]
 }
 
+const MAX_AVATARS = 3
+
 export type ProjectCardProps = {
     project: Project
     workspaceId: string
@@ -61,6 +65,12 @@ export function ProjectCard({
     onManageMembers,
     onChangeStatus,
 }: ProjectCardProps) {
+    const { total, done, open } = project.taskStats
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0
+    const colorValue = projectColorValue(project.color)
+    const visibleMembers = project.memberNames.slice(0, MAX_AVATARS)
+    const overflow = project.memberNames.length - MAX_AVATARS
+
     return (
         <div className="bg-card border-border hover:border-primary/40 group relative flex cursor-pointer flex-col gap-2.5 rounded-[calc(var(--radius))] border p-4 transition-[border-color,box-shadow] hover:shadow-[0_0_0_3px_hsl(var(--primary)/0.06)]">
             <Link
@@ -122,7 +132,7 @@ export function ProjectCard({
             <div className="relative z-10 flex items-center gap-2">
                 <span
                     className="size-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: projectColorValue(project.color) }}
+                    style={{ backgroundColor: colorValue }}
                 />
                 <span className="text-foreground min-w-0 flex-1 text-sm leading-snug font-medium">
                     {project.name}
@@ -139,6 +149,47 @@ export function ProjectCard({
                     {project.description}
                 </p>
             )}
+
+            <div className="relative z-10 mt-auto flex items-center gap-1.5 pt-0.5">
+                <div className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full">
+                    <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, backgroundColor: colorValue }}
+                    />
+                </div>
+                <span className="text-muted-foreground w-7 shrink-0 text-right text-[10px] tabular-nums">
+                    {pct}%
+                </span>
+            </div>
+
+            <div className="relative z-10 flex items-center gap-2">
+                {visibleMembers.length > 0 && (
+                    <div className="flex">
+                        {visibleMembers.map((name, i) => (
+                            <UserAvatar
+                                key={i}
+                                name={name}
+                                size="sm"
+                                className={cn('border-card', i > 0 && '-ml-1.5')}
+                                style={{ zIndex: MAX_AVATARS - i }}
+                            />
+                        ))}
+                        {overflow > 0 && (
+                            <span
+                                className="border-card bg-primary/15 text-primary -ml-1.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold"
+                                style={{ zIndex: 0 }}
+                            >
+                                +{overflow}
+                            </span>
+                        )}
+                    </div>
+                )}
+                <span className="text-muted-foreground text-[11px]">
+                    {total === 0
+                        ? 'No tasks'
+                        : `${total} task${total !== 1 ? 's' : ''} · ${open} open`}
+                </span>
+            </div>
         </div>
     )
 }
