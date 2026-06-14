@@ -12,17 +12,7 @@ import { useProjects } from '@/features/project/queries'
 import { MobileWorkspaceSwitcher } from '@/features/workspace/components/MobileWorkspaceSwitcher'
 import { WorkspaceSwitcher } from '@/features/workspace/components/WorkspaceSwitcher'
 import { useActiveWorkspaceId } from '@/features/workspace/hooks/useActiveWorkspaceId'
-import { useWorkspace } from '@/features/workspace/queries'
-import {
-    FolderOpen,
-    Home,
-    LayoutDashboard,
-    ListTodo,
-    Mail,
-    Plus,
-    Settings,
-    Users,
-} from 'lucide-react'
+import { FolderOpen, Home, LayoutDashboard, ListTodo, Mail, Settings, Users } from 'lucide-react'
 import { useContext } from 'react'
 import { Link, NavLink, Navigate, Outlet } from 'react-router'
 
@@ -32,8 +22,6 @@ export default function AppLayout() {
     const { data: invitations } = useMyInvitations()
     const pendingCount = invitations?.length ?? 0
     const { data: projects } = useProjects(workspaceId ?? '')
-    const { data: workspace } = useWorkspace(workspaceId ?? '')
-    const canCreateProject = workspace?.role === 'owner' || workspace?.role === 'member'
     const sortedProjects = [...(projects ?? [])].sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
@@ -151,6 +139,20 @@ export default function AppLayout() {
                             <p className="text-muted-foreground mt-3 px-2 py-1 text-[10px] font-medium tracking-[0.08em] uppercase">
                                 Projects
                             </p>
+                            <NavLink
+                                end
+                                to={`/workspaces/${workspaceId}/projects`}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                                        isActive
+                                            ? 'bg-primary/10 text-primary font-medium'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`
+                                }
+                            >
+                                <FolderOpen className="h-4 w-4 shrink-0" />
+                                All projects
+                            </NavLink>
                             {sortedProjects.map((project) => (
                                 <NavLink
                                     key={project.id}
@@ -170,15 +172,6 @@ export default function AppLayout() {
                                     <span className="truncate">{project.name}</span>
                                 </NavLink>
                             ))}
-                            {canCreateProject && (
-                                <NavLink
-                                    to={`/workspaces/${workspaceId}/projects`}
-                                    className="text-muted-foreground hover:bg-muted hover:text-foreground mt-0.5 flex items-center gap-2 rounded-md px-2 py-1.5 text-xs"
-                                >
-                                    <Plus className="h-3 w-3 shrink-0" />
-                                    New project
-                                </NavLink>
-                            )}
                         </>
                     )}
                     <div className="mt-auto">
