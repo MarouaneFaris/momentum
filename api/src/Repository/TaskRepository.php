@@ -216,11 +216,14 @@ class TaskRepository extends ServiceEntityRepository
 
         foreach ($projects as $p) {
             $id = $p->getId();
-            if ($id !== null) {
-                $binary = $id->toBinary();
-                $projectIds[] = $binary;
-                $binaryToUuid[$binary] = (string) $id;
+
+            if ($id === null) {
+                continue;
             }
+
+            $binary = $id->toBinary();
+            $projectIds[] = $binary;
+            $binaryToUuid[$binary] = (string) $id;
         }
 
         return [$binaryToUuid, $projectIds];
