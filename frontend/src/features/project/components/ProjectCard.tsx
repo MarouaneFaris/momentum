@@ -1,5 +1,6 @@
 import { UserAvatar } from '@/components/UserAvatar'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -167,7 +168,10 @@ export function ProjectCard({
                         {visibleMembers.map((name, i) => (
                             <div
                                 key={i}
-                                className={`rounded-full ring-[1.5px] ring-card${i > 0 ? '-ml-1.5' : ''}`}
+                                className={cn(
+                                    'ring-card rounded-full ring-[1.5px]',
+                                    i > 0 && '-ml-1.5',
+                                )}
                                 style={{ zIndex: MAX_AVATARS - i }}
                             >
                                 <UserAvatar name={name} size="sm" />
