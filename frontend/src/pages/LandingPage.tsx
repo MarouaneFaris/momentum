@@ -24,7 +24,7 @@ export default function LandingPage() {
 
     return (
         <>
-            <div className="flex flex-col items-center gap-4 text-center">
+            <div className="flex min-h-full flex-col items-center justify-center gap-4 p-8 text-center">
                 <h1 className="text-2xl font-semibold">Welcome to Momentum</h1>
                 <p className="text-muted-foreground">You don&apos;t have any workspaces yet.</p>
                 <Button size="lg" onClick={() => setIsModalOpen(true)}>
