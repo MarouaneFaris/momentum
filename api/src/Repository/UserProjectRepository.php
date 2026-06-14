@@ -52,56 +52,6 @@ class UserProjectRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    /**
-     * @param Project[] $projects
-     *
-     * @return array<string, list<string>> project uuid string -> ordered list of member names
-     */
-    public function getMemberNamesForProjects(array $projects): array
-    {
-        if ($projects === []) {
-            return [];
-        }
-
-        $binaryToUuid = [];
-        $projectIds = [];
-        foreach ($projects as $p) {
-            $id = $p->getId();
-            if ($id !== null) {
-                $binary = $id->toBinary();
-                $projectIds[] = $binary;
-                $binaryToUuid[$binary] = (string) $id;
-            }
-        }
-
-        if ($projectIds === []) {
-            return [];
-        }
-
-        $conn = $this->getEntityManager()->getConnection();
-
-        $rows = $conn->fetchAllAssociative(
-            'SELECT up.project_id, u.name
-             FROM user_project up
-             INNER JOIN user u ON u.id = up.user_id
-             WHERE up.project_id IN (:projectIds)
-             ORDER BY up.assigned_at ASC',
-            ['projectIds' => $projectIds],
-            ['projectIds' => ArrayParameterType::BINARY],
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $uuid = $binaryToUuid[$row['project_id']] ?? null;
-            if ($uuid === null) {
-                continue;
-            }
-            $result[$uuid][] = $row['name'];
-        }
-
-        return $result;
-    }
-
     public function deleteByUserAndWorkspace(User $user, Workspace $workspace): void
     {
         $workspaceId = $workspace->getId();

@@ -142,6 +142,57 @@ class TaskRepository extends ServiceEntityRepository
         return $result;
     }
 
+    /**
+     * @param Project[] $projects
+     *
+     * @return array<string, list<string>> project uuid string -> distinct assignee names (ordered by name)
+     */
+    public function getAssigneeNamesForProjects(array $projects): array
+    {
+        if ($projects === []) {
+            return [];
+        }
+
+        $binaryToUuid = [];
+        $projectIds = [];
+        foreach ($projects as $p) {
+            $id = $p->getId();
+            if ($id !== null) {
+                $binary = $id->toBinary();
+                $projectIds[] = $binary;
+                $binaryToUuid[$binary] = (string) $id;
+            }
+        }
+
+        if ($projectIds === []) {
+            return [];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $rows = $conn->fetchAllAssociative(
+            'SELECT DISTINCT t.project_id, u.name
+             FROM task t
+             INNER JOIN user u ON u.id = t.assignee_id
+             WHERE t.project_id IN (:projectIds)
+               AND t.assignee_id IS NOT NULL
+             ORDER BY t.project_id, u.name ASC',
+            ['projectIds' => $projectIds],
+            ['projectIds' => ArrayParameterType::BINARY],
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $uuid = $binaryToUuid[$row['project_id']] ?? null;
+            if ($uuid === null) {
+                continue;
+            }
+            $result[$uuid][] = $row['name'];
+        }
+
+        return $result;
+    }
+
     /** @return Task[] */
     public function findByProject(Project $project): array
     {
