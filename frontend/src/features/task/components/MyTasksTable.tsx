@@ -3,7 +3,6 @@ import { ClipboardList } from 'lucide-react'
 import { UserAvatar } from '@/components/UserAvatar'
 import type { Task } from '../types'
 import { StatusBadge } from './StatusBadge'
-import { StatusCircle } from './StatusCircle'
 
 function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
@@ -12,7 +11,6 @@ function formatDate(iso: string) {
 function MyTaskRow({ task }: { task: Task }) {
     return (
         <div className="border-border bg-card flex items-center gap-2.5 rounded-[var(--radius)] border px-3 py-2.5">
-            <StatusCircle status={task.status} />
             <span className="text-foreground min-w-0 flex-1 truncate text-sm leading-snug font-medium">
                 {task.title}
             </span>
