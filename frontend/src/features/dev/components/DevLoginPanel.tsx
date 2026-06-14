@@ -7,30 +7,36 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useDevLoginAction } from '@/features/dev/hooks/useDevLoginAction'
 import { useDevUsers } from '@/features/dev/queries'
+import { LogIn } from 'lucide-react'
 
-export default function DevLoginPanel() {
+interface Props {
+    onOpenChange: (open: boolean) => void
+}
+
+export default function DevLoginPanel({ onOpenChange }: Props) {
     const { data } = useDevUsers()
     const users = data ?? []
     const { handleLoginAs } = useDevLoginAction()
 
-    if (!import.meta.env.DEV) return null
-
     return (
-        <div className="fixed right-4 bottom-28 z-50">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-xs">
-                        Dev Login
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-auto">
-                    {users.map((user) => (
-                        <DropdownMenuItem key={user.id} onClick={() => handleLoginAs(user.email)}>
-                            {user.email}
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+        <DropdownMenu onOpenChange={onOpenChange}>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1.5 text-xs shadow-md"
+                >
+                    <LogIn className="size-3" />
+                    Login
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-auto">
+                {users.map((user) => (
+                    <DropdownMenuItem key={user.id} onClick={() => handleLoginAs(user.email)}>
+                        {user.email}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
     )
 }
