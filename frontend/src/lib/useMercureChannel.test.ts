@@ -70,13 +70,25 @@ describe('useMercureChannel', () => {
         expect(onMessage).toHaveBeenCalledWith({ op: 'created' })
     })
 
-    it('ignores malformed JSON without throwing', async () => {
+    it('calls onError for malformed JSON', async () => {
         const onMessage = vi.fn()
-        renderHook(() => useMercureChannel({ topic: '/notifications/user-1', onMessage }))
+        const onError = vi.fn()
+        renderHook(() => useMercureChannel({ topic: '/notifications/user-1', onMessage, onError }))
         await waitFor(() => expect(capturedOnMessage).not.toBeNull())
 
-        expect(() => capturedOnMessage?.({ data: 'not-json{{{' } as MessageEvent)).not.toThrow()
+        capturedOnMessage?.({ data: 'not-json{{{' } as MessageEvent)
         expect(onMessage).not.toHaveBeenCalled()
+        expect(onError).toHaveBeenCalledTimes(1)
+    })
+
+    it('wires onerror on EventSource', async () => {
+        const onMessage = vi.fn()
+        const onError = vi.fn()
+        renderHook(() => useMercureChannel({ topic: '/notifications/user-1', onMessage, onError }))
+        await waitFor(() => expect(capturedOnError).not.toBeNull())
+
+        capturedOnError?.({} as Event)
+        expect(onError).toHaveBeenCalledTimes(1)
     })
 
     it('closes EventSource on unmount', async () => {

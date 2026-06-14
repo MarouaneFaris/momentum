@@ -6,6 +6,7 @@ export type MercureChannelStatus = 'idle' | 'connecting' | 'open' | 'closed'
 export type MercureChannelOptions<T> = {
     topic: string
     onMessage: (msg: T) => void
+    onError?: (e: Event) => void
     enabled?: boolean
 }
 
@@ -18,6 +19,11 @@ export function useMercureChannel<T>(opts: MercureChannelOptions<T>): {
     useEffect(() => {
         onMessageRef.current = opts.onMessage
     }, [opts.onMessage])
+
+    const onErrorRef = useRef(opts.onError)
+    useEffect(() => {
+        onErrorRef.current = opts.onError
+    }, [opts.onError])
 
     useEffect(() => {
         if (!enabled) return
@@ -45,8 +51,12 @@ export function useMercureChannel<T>(opts: MercureChannelOptions<T>): {
                 try {
                     onMessageRef.current(JSON.parse(event.data as string) as T)
                 } catch {
-                    // ignore malformed messages
+                    onErrorRef.current?.(event)
                 }
+            }
+
+            es.onerror = (event: Event) => {
+                onErrorRef.current?.(event)
             }
 
             const refreshIn = (result.expiresIn - 30) * 1000

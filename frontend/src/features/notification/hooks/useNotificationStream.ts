@@ -3,7 +3,7 @@ import { useMercureChannel } from '@/lib/useMercureChannel'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useContext } from 'react'
 import { applyEnvelope } from '../applyEnvelope'
-import { useNotificationList } from '../queries'
+import { NOTIFICATIONS_QUERY_KEY, useNotificationList } from '../queries'
 import type { NotificationEnvelope } from '../types'
 
 export const useNotificationStream = () => {
@@ -15,9 +15,15 @@ export const useNotificationStream = () => {
         [queryClient],
     )
 
+    const onError = useCallback(
+        () => void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY }),
+        [queryClient],
+    )
+
     useMercureChannel<NotificationEnvelope>({
         topic: `/notifications/${user?.id ?? ''}`,
         onMessage,
+        onError,
         enabled: isAuthenticated && !!user?.id,
     })
 

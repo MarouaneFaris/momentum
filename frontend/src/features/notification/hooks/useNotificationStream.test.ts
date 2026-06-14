@@ -14,12 +14,19 @@ vi.mock('../queries', () => ({
 }))
 
 let capturedOnMessage: ((envelope: NotificationEnvelope) => void) | null = null
+let capturedOnError: ((e: Event) => void) | null = null
 
 vi.mock('@/lib/useMercureChannel', () => ({
-    useMercureChannel: vi.fn((opts: { onMessage: (msg: NotificationEnvelope) => void }) => {
-        capturedOnMessage = opts.onMessage
-        return { status: 'idle' }
-    }),
+    useMercureChannel: vi.fn(
+        (opts: {
+            onMessage: (msg: NotificationEnvelope) => void
+            onError?: (e: Event) => void
+        }) => {
+            capturedOnMessage = opts.onMessage
+            capturedOnError = opts.onError ?? null
+            return { status: 'idle' }
+        },
+    ),
 }))
 
 const makeNotification = (overrides: Partial<Notification> = {}): Notification => ({
@@ -46,6 +53,7 @@ describe('useNotificationStream — policy', () => {
 
     beforeEach(() => {
         capturedOnMessage = null
+        capturedOnError = null
         queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
         queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, [])
     })
@@ -115,6 +123,13 @@ describe('useNotificationStream — policy', () => {
         const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
         renderHook(() => useNotificationStream(), { wrapper })
         fireMessage({ op: 'future-unknown-op' } as unknown as NotificationEnvelope)
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: NOTIFICATIONS_QUERY_KEY })
+    })
+
+    it('onError triggers invalidateQueries', () => {
+        const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries')
+        renderHook(() => useNotificationStream(), { wrapper })
+        capturedOnError?.({} as Event)
         expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: NOTIFICATIONS_QUERY_KEY })
     })
 })
