@@ -1,25 +1,19 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
 import { Navigate, Outlet, useParams } from 'react-router'
 import { workspaceStorage } from '../workspaceStorage'
-import { useWorkspace } from '../queries'
+import { useWorkspace, useWorkspaces } from '../queries'
 
 export function WorkspaceGuard() {
     const { id } = useParams<{ id: string }>()
-    const queryClient = useQueryClient()
     const { isLoading, isError } = useWorkspace(id!)
+    const { data: workspaces, isLoading: workspacesLoading } = useWorkspaces()
 
-    useEffect(() => {
-        if (isError) {
-            workspaceStorage.clear()
-            // Remove (not just invalidate) so LandingPage sees isLoading=true
-            // and waits for fresh data instead of redirecting on stale cache.
-            queryClient.removeQueries({ queryKey: ['workspaces'] })
-        }
-    }, [isError, queryClient])
+    if (isLoading || (isError && workspacesLoading)) return null
 
-    if (isLoading) return null
-    if (isError) return <Navigate to="/" replace />
+    if (isError) {
+        workspaceStorage.clear()
+        const fallback = workspaces?.find((w) => w.id !== id)
+        return <Navigate to={fallback ? `/workspaces/${fallback.id}/dashboard` : '/'} replace />
+    }
 
     return <Outlet />
 }
