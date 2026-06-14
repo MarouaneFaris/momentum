@@ -1,3 +1,4 @@
+import { UserAvatar } from '@/components/UserAvatar'
 import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
@@ -38,12 +39,6 @@ function statusBadgeClass(status: Project['status']): string {
         archived:
             'bg-amber-500/10 text-amber-700 border-amber-500/25 dark:text-amber-400 dark:border-amber-500/30',
     }[status]
-}
-
-function initials(name: string): string {
-    const parts = name.trim().split(/\s+/)
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
 const MAX_AVATARS = 3
@@ -170,24 +165,15 @@ export function ProjectCard({
                 {visibleMembers.length > 0 && (
                     <div className="flex">
                         {visibleMembers.map((name, i) => (
-                            <span
+                            <UserAvatar
                                 key={i}
-                                className="border-card flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[8px] font-semibold"
-                                style={{
-                                    marginLeft: i === 0 ? 0 : '-5px',
-                                    backgroundColor: `${colorValue}26`,
-                                    color: colorValue,
-                                }}
-                                title={name}
-                            >
-                                {initials(name)}
-                            </span>
+                                name={name}
+                                size="sm"
+                                className={i > 0 ? '-ml-1.5' : undefined}
+                            />
                         ))}
                         {overflow > 0 && (
-                            <span
-                                className="border-card bg-muted text-muted-foreground flex size-5 shrink-0 items-center justify-center rounded-full border-[1.5px] text-[8px] font-semibold"
-                                style={{ marginLeft: '-5px' }}
-                            >
+                            <span className="border-primary/30 bg-primary/15 text-primary -ml-1.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-[8px] font-semibold">
                                 +{overflow}
                             </span>
                         )}
