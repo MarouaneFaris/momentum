@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Notification;
 
 use App\Entity\Notification;
+use App\Entity\Task;
 use App\Entity\User;
 use App\Entity\WorkspaceInvitation;
 use App\Enum\NotificationType;
+use App\Enum\TaskStatus;
 use App\Service\NotificationPublisher;
 use App\Service\NotificationServiceInterface;
 use App\Utils\UuidHelper;
@@ -19,57 +21,28 @@ class NotificationOrchestrator
         private NotificationPublisher $publisher,
     ) {}
 
-    public function taskAssigned(
-        \App\Entity\Task $task,
-        User $creator,
-        User $assignee,
-    ): void {
-        $project = $task->getProject();
-        $workspace = $project->getWorkspace();
-
-        $basePayload = [
-            'task_id' => (string) $task->getId(),
-            'task_title' => $task->getTitle(),
-            'project_id' => (string) $project->getId(),
-            'project_name' => $project->getName(),
-            'workspace_id' => (string) $workspace->getId(),
-        ];
+    public function taskAssigned(Task $task, User $creator, User $assignee): void
+    {
+        $basePayload = $this->taskBasePayload($task);
 
         $sameUser = $creator === $assignee
             || UuidHelper::equals($creator->getId(), $assignee->getId());
 
-        $this->publisher->publishCreated(
-            $this->notifications->create($assignee, NotificationType::TaskAssignedToYou, $basePayload)
-        );
+        $this->createAndPublish($assignee, NotificationType::TaskAssignedToYou, $basePayload);
 
         if (!$sameUser) {
-            $this->publisher->publishCreated(
-                $this->notifications->create($creator, NotificationType::TaskAssignedMember, [
-                    ...$basePayload,
-                    'assignee_name' => $assignee->getName(),
-                ])
-            );
+            $this->createAndPublish($creator, NotificationType::TaskAssignedMember, [
+                ...$basePayload,
+                'assignee_name' => $assignee->getName(),
+            ]);
         }
     }
 
-    public function taskStatusChanged(
-        \App\Entity\Task $task,
-        User $actor,
-        \App\Enum\TaskStatus $newStatus,
-    ): void {
-        $project = $task->getProject();
-        $workspace = $project->getWorkspace();
+    public function taskStatusChanged(Task $task, User $actor, TaskStatus $newStatus): void
+    {
+        $basePayload = [...$this->taskBasePayload($task), 'new_status' => $newStatus->value];
         $assignee = $task->getAssignee();
         $creator = $task->getCreator();
-
-        $basePayload = [
-            'task_id' => (string) $task->getId(),
-            'task_title' => $task->getTitle(),
-            'project_id' => (string) $project->getId(),
-            'project_name' => $project->getName(),
-            'workspace_id' => (string) $workspace->getId(),
-            'new_status' => $newStatus->value,
-        ];
 
         $actorId = $actor->getId();
         $creatorId = $creator->getId();
@@ -83,9 +56,7 @@ class NotificationOrchestrator
         );
 
         if ($assignee !== null && !$actorIsAssignee) {
-            $this->publisher->publishCreated(
-                $this->notifications->create($assignee, NotificationType::TaskStatusChangedYours, $basePayload)
-            );
+            $this->createAndPublish($assignee, NotificationType::TaskStatusChangedYours, $basePayload);
         }
 
         $creatorIsAssignee = $assignee !== null && (
@@ -94,12 +65,10 @@ class NotificationOrchestrator
         );
 
         if (!$actorIsCreator && !$creatorIsAssignee) {
-            $this->publisher->publishCreated(
-                $this->notifications->create($creator, NotificationType::TaskStatusChangedMember, [
-                    ...$basePayload,
-                    'actor_name' => $actor->getName(),
-                ])
-            );
+            $this->createAndPublish($creator, NotificationType::TaskStatusChangedMember, [
+                ...$basePayload,
+                'actor_name' => $actor->getName(),
+            ]);
         }
     }
 
@@ -107,17 +76,15 @@ class NotificationOrchestrator
     {
         $workspace = $invitation->getWorkspace();
 
-        $this->publisher->publishCreated(
-            $this->notifications->create(
-                $invitation->getInvitee(),
-                NotificationType::InvitationReceived,
-                [
-                    'invitation_id' => (string) $invitation->getId(),
-                    'workspace_id' => (string) $workspace->getId(),
-                    'workspace_name' => $workspace->getName(),
-                    'role_name' => $invitation->getRole()->value,
-                ],
-            )
+        $this->createAndPublish(
+            $invitation->getInvitee(),
+            NotificationType::InvitationReceived,
+            [
+                'invitation_id' => (string) $invitation->getId(),
+                'workspace_id' => (string) $workspace->getId(),
+                'workspace_name' => $workspace->getName(),
+                'role_name' => $invitation->getRole()->value,
+            ],
         );
     }
 
@@ -131,33 +98,25 @@ class NotificationOrchestrator
 
         $workspace = $invitation->getWorkspace();
 
-        $this->publisher->publishCreated(
-            $this->notifications->create(
-                $invitedBy,
-                NotificationType::InvitationAccepted,
-                [
-                    'workspace_id' => (string) $workspace->getId(),
-                    'workspace_name' => $workspace->getName(),
-                    'actor_name' => $actor->getName(),
-                ],
-            )
-        );
+        $this->createAndPublish($invitedBy, NotificationType::InvitationAccepted, [
+            'workspace_id' => (string) $workspace->getId(),
+            'workspace_name' => $workspace->getName(),
+            'actor_name' => $actor->getName(),
+        ]);
     }
 
     public function invitationCancelled(WorkspaceInvitation $invitation): void
     {
         $workspace = $invitation->getWorkspace();
 
-        $this->publisher->publishCreated(
-            $this->notifications->create(
-                $invitation->getInvitee(),
-                NotificationType::InvitationCancelled,
-                [
-                    'workspace_id' => (string) $workspace->getId(),
-                    'workspace_name' => $workspace->getName(),
-                    'role_name' => $invitation->getRole()->value,
-                ],
-            )
+        $this->createAndPublish(
+            $invitation->getInvitee(),
+            NotificationType::InvitationCancelled,
+            [
+                'workspace_id' => (string) $workspace->getId(),
+                'workspace_name' => $workspace->getName(),
+                'role_name' => $invitation->getRole()->value,
+            ],
         );
     }
 
@@ -171,17 +130,11 @@ class NotificationOrchestrator
 
         $workspace = $invitation->getWorkspace();
 
-        $this->publisher->publishCreated(
-            $this->notifications->create(
-                $invitedBy,
-                NotificationType::InvitationDeclined,
-                [
-                    'workspace_id' => (string) $workspace->getId(),
-                    'workspace_name' => $workspace->getName(),
-                    'actor_name' => $actor->getName(),
-                ],
-            )
-        );
+        $this->createAndPublish($invitedBy, NotificationType::InvitationDeclined, [
+            'workspace_id' => (string) $workspace->getId(),
+            'workspace_name' => $workspace->getName(),
+            'actor_name' => $actor->getName(),
+        ]);
     }
 
     public function notificationRead(Notification $notification): void
@@ -206,5 +159,25 @@ class NotificationOrchestrator
     {
         $this->notifications->markAllRead($recipient);
         $this->publisher->publishAllRead($recipient, $readAt);
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function createAndPublish(User $recipient, NotificationType $type, array $payload): void
+    {
+        $this->publisher->publishCreated($this->notifications->create($recipient, $type, $payload));
+    }
+
+    /** @return array<string, mixed> */
+    private function taskBasePayload(Task $task): array
+    {
+        $project = $task->getProject();
+
+        return [
+            'task_id' => (string) $task->getId(),
+            'task_title' => $task->getTitle(),
+            'project_id' => (string) $project->getId(),
+            'project_name' => $project->getName(),
+            'workspace_id' => (string) $project->getWorkspace()->getId(),
+        ];
     }
 }
