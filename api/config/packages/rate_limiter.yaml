@@ -10,6 +10,11 @@ framework:
             limit: 60
             rate: { amount: 60, interval: "1 minute" }
 
+        resend_verification:
+            policy: fixed_window
+            limit: 3
+            interval: "1 hour"
+
 when@test:
     framework:
         rate_limiter:
@@ -21,3 +26,7 @@ when@test:
                 policy: token_bucket
                 limit: 5
                 rate: { amount: 5, interval: "1 minute" }
+            resend_verification:
+                policy: fixed_window
+                limit: 100
+                interval: "1 hour"
