@@ -40,10 +40,10 @@ final class WorkspaceScopeSubscriberTest extends TestCase
         $subscriber->onKernelRequest($this->makeEvent(new Request()));
     }
 
-    public function testWorkspaceNotFoundThrows404(): void
+    public function testInvalidUuidWorkspaceIdThrows404WithoutCallingFind(): void
     {
         $repo = $this->createMock(WorkspaceRepository::class);
-        $repo->expects(self::once())->method('find')->with('missing-id')->willReturn(null);
+        $repo->expects(self::never())->method('find');
 
         $subscriber = new WorkspaceScopeSubscriber(
             $repo,
@@ -51,10 +51,30 @@ final class WorkspaceScopeSubscriberTest extends TestCase
             $this->createStub(EntityManagerInterface::class),
         );
 
-        $request = new Request([], [], ['workspaceId' => 'missing-id']);
+        $request = new Request([], [], ['workspaceId' => 'not-a-valid-uuid-XYZ']);
 
         $this->expectException(NotFoundHttpException::class);
-        $this->expectExceptionMessage('Workspace "missing-id" not found.');
+
+        $subscriber->onKernelRequest($this->makeEvent($request));
+    }
+
+    public function testWorkspaceNotFoundThrows404(): void
+    {
+        $uuid = (string) Uuid::v7();
+
+        $repo = $this->createMock(WorkspaceRepository::class);
+        $repo->expects(self::once())->method('find')->with($uuid)->willReturn(null);
+
+        $subscriber = new WorkspaceScopeSubscriber(
+            $repo,
+            new WorkspaceContext(),
+            $this->createStub(EntityManagerInterface::class),
+        );
+
+        $request = new Request([], [], ['workspaceId' => $uuid]);
+
+        $this->expectException(NotFoundHttpException::class);
+        $this->expectExceptionMessage(sprintf('Workspace "%s" not found.', $uuid));
 
         $subscriber->onKernelRequest($this->makeEvent($request));
     }
