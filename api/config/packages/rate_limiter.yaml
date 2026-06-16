@@ -28,5 +28,5 @@ when@test:
                 rate: { amount: 5, interval: "1 minute" }
             resend_verification:
                 policy: fixed_window
-                limit: 100
+                limit: 1
                 interval: "1 hour"

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Api\Auth;
 
+use App\Error\ErrorCode;
+use App\Error\ErrorResponseFactory;
 use App\Message\SendVerificationEmail;
 use App\Repository\UserRepository;
 use OpenApi\Attributes as OA;
@@ -21,6 +23,7 @@ final class ResendVerificationController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly MessageBusInterface $bus,
+        private readonly ErrorResponseFactory $errorFactory,
         #[Autowire(service: 'limiter.resend_verification')]
         private readonly RateLimiterFactory $resendVerificationLimiter,
     ) {}
@@ -51,9 +54,9 @@ final class ResendVerificationController extends AbstractController
     {
         $email = mb_strtolower((string) ($request->toArray()['email'] ?? ''));
 
-        $limiter = $this->resendVerificationLimiter->create($email);
+        $limiter = $this->resendVerificationLimiter->create($email . '|' . $request->getClientIp());
         if (!$limiter->consume()->isAccepted()) {
-            return $this->json(['code' => 'RATE_LIMITED', 'message' => 'Too many requests.', 'context' => []], Response::HTTP_TOO_MANY_REQUESTS);
+            return $this->errorFactory->build(ErrorCode::RATE_LIMITED, 'Too many requests.', [], Response::HTTP_TOO_MANY_REQUESTS);
         }
 
         $user = $this->userRepository->findOneBy(['email' => $email]);

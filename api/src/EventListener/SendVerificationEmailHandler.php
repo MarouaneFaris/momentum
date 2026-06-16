@@ -35,18 +35,20 @@ final readonly class SendVerificationEmailHandler
             return;
         }
 
-        $this->tokenRepository->invalidatePendingForUser($user);
-
         $rawToken = bin2hex(random_bytes(32));
         $tokenHash = AuthTokenManager::hashToken($rawToken);
 
-        $token = new EmailVerificationToken();
-        $token->setUser($user);
-        $token->setTokenHash($tokenHash);
-        $token->setExpiresAt(new \DateTimeImmutable('+24 hours'));
+        $this->entityManager->wrapInTransaction(function () use ($user, $tokenHash): void {
+            $this->tokenRepository->invalidatePendingForUser($user);
 
-        $this->entityManager->persist($token);
-        $this->entityManager->flush();
+            $token = new EmailVerificationToken();
+            $token->setUser($user);
+            $token->setTokenHash($tokenHash);
+            $token->setExpiresAt(new \DateTimeImmutable('+24 hours'));
+
+            $this->entityManager->persist($token);
+            $this->entityManager->flush();
+        });
 
         $verificationUrl = rtrim($this->appUrl, '/') . '/verify-email?token=' . $rawToken;
 
@@ -55,10 +57,13 @@ final readonly class SendVerificationEmailHandler
             'verification_url' => $verificationUrl,
         ]);
 
+        $plaintext = "Hi {$user->getName()},\n\nPlease verify your Momentum account by visiting:\n{$verificationUrl}\n\nThis link expires in 24 hours.\n\nIf you didn't create an account, you can safely ignore this email.";
+
         $email = (new Email())
             ->to($user->getEmail())
             ->subject('Verify your Momentum account')
-            ->html($html);
+            ->html($html)
+            ->text($plaintext);
 
         $this->mailer->send($email);
     }

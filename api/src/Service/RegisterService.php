@@ -35,9 +35,8 @@ final readonly class RegisterService
             return;
         }
 
-        $userId = null;
-
-        $this->entityManager->wrapInTransaction(function () use ($email, $name, $hash, &$userId): void {
+        /** @var string|null $userId */
+        $userId = $this->entityManager->wrapInTransaction(function () use ($email, $name, $hash): string {
             $user = new User();
             $user->setEmail($email);
             $user->setName($name);
@@ -56,7 +55,8 @@ final readonly class RegisterService
             $this->entityManager->persist($userWorkspace);
 
             $this->entityManager->flush();
-            $userId = (string) $user->getId();
+
+            return (string) $user->getId();
         });
 
         if ($userId !== null) {

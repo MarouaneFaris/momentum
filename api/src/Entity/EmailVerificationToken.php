@@ -11,7 +11,7 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: EmailVerificationTokenRepository::class)]
-class EmailVerificationToken
+final class EmailVerificationToken
 {
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]

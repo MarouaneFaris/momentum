@@ -18,7 +18,7 @@ final class EmailVerificationTest extends IntegrationTestCase
     private function transport(): InMemoryTransport
     {
         /** @var InMemoryTransport $transport */
-        $transport = static::getContainer()->get('messenger.transport.async');
+        $transport = static::getContainer()->get('messenger.transport.async_priority_high');
 
         return $transport;
     }
@@ -114,7 +114,14 @@ final class EmailVerificationTest extends IntegrationTestCase
         $em->persist($token);
         $em->flush();
 
-        $client->request('GET', '/api/verify-email?token=' . $rawToken);
+        $client->request(
+            'POST',
+            '/api/verify-email',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['token' => $rawToken], JSON_THROW_ON_ERROR),
+        );
 
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
@@ -126,7 +133,14 @@ final class EmailVerificationTest extends IntegrationTestCase
     public function testVerifyEmailWithInvalidTokenReturns400(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/verify-email?token=invalidtoken');
+        $client->request(
+            'POST',
+            '/api/verify-email',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['token' => 'invalidtoken'], JSON_THROW_ON_ERROR),
+        );
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         /** @var array<string, mixed> $body */
@@ -152,7 +166,14 @@ final class EmailVerificationTest extends IntegrationTestCase
         $em->persist($token);
         $em->flush();
 
-        $client->request('GET', '/api/verify-email?token=' . $rawToken);
+        $client->request(
+            'POST',
+            '/api/verify-email',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['token' => $rawToken], JSON_THROW_ON_ERROR),
+        );
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         /** @var array<string, mixed> $body */
@@ -179,7 +200,14 @@ final class EmailVerificationTest extends IntegrationTestCase
         $em->persist($token);
         $em->flush();
 
-        $client->request('GET', '/api/verify-email?token=' . $rawToken);
+        $client->request(
+            'POST',
+            '/api/verify-email',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['token' => $rawToken], JSON_THROW_ON_ERROR),
+        );
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
         /** @var array<string, mixed> $body */
@@ -190,7 +218,14 @@ final class EmailVerificationTest extends IntegrationTestCase
     public function testVerifyEmailMissingTokenReturns400(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/verify-email');
+        $client->request(
+            'POST',
+            '/api/verify-email',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([], JSON_THROW_ON_ERROR),
+        );
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
@@ -201,6 +236,10 @@ final class EmailVerificationTest extends IntegrationTestCase
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'emailVerifiedAt' => null]);
+
+        $limiter = static::getContainer()->get('limiter.resend_verification');
+        assert($limiter instanceof RateLimiterFactory);
+        $limiter->create(self::EMAIL . '|127.0.0.1')->reset();
 
         $client->request(
             'POST',
@@ -217,10 +256,50 @@ final class EmailVerificationTest extends IntegrationTestCase
         self::assertInstanceOf(SendVerificationEmail::class, $messages[0]->getMessage());
     }
 
+    public function testResendVerificationRateLimitedReturns429(): void
+    {
+        $client = static::createClient();
+        UserFactory::createOne(['email' => self::EMAIL, 'emailVerifiedAt' => null]);
+
+        $limiter = static::getContainer()->get('limiter.resend_verification');
+        assert($limiter instanceof RateLimiterFactory);
+        $limiter->create(self::EMAIL . '|127.0.0.1')->reset();
+
+        // First request exhausts the limit (limit=1 in test env)
+        $client->request(
+            'POST',
+            '/api/resend-verification',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['email' => self::EMAIL], JSON_THROW_ON_ERROR),
+        );
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        // Second request is rate-limited
+        $client->request(
+            'POST',
+            '/api/resend-verification',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['email' => self::EMAIL], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_TOO_MANY_REQUESTS);
+        /** @var array<string, mixed> $body */
+        $body = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('RATE_LIMITED', $body['code']);
+    }
+
     public function testResendVerificationDoesNotDispatchForVerifiedUser(): void
     {
         $client = static::createClient();
         UserFactory::createOne(['email' => self::EMAIL, 'emailVerifiedAt' => new \DateTimeImmutable()]);
+
+        $limiter = static::getContainer()->get('limiter.resend_verification');
+        assert($limiter instanceof RateLimiterFactory);
+        $limiter->create(self::EMAIL . '|127.0.0.1')->reset();
 
         $client->request(
             'POST',
@@ -238,6 +317,10 @@ final class EmailVerificationTest extends IntegrationTestCase
     public function testResendVerificationDoesNotLeakUserExistence(): void
     {
         $client = static::createClient();
+
+        $limiter = static::getContainer()->get('limiter.resend_verification');
+        assert($limiter instanceof RateLimiterFactory);
+        $limiter->create('nobody@example.com|127.0.0.1')->reset();
 
         $client->request(
             'POST',
@@ -279,7 +362,14 @@ final class EmailVerificationTest extends IntegrationTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
 
         // Verify
-        $client->request('GET', '/api/verify-email?token=' . $rawToken);
+        $client->request(
+            'POST',
+            '/api/verify-email',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['token' => $rawToken], JSON_THROW_ON_ERROR),
+        );
         self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         // Login succeeds after verification
