@@ -7,6 +7,8 @@ const COPY: Record<string, string> = {
     VALIDATION_FAILED: 'Please check the form and try again.',
     RATE_LIMITED: "You're doing that too fast. Try again in a moment.",
     INTERNAL_ERROR: 'Something went wrong on our end. Please try again.',
+    EMAIL_TOKEN_INVALID: 'This verification link is invalid or has already been used.',
+    EMAIL_TOKEN_EXPIRED: 'This verification link has expired.',
 }
 
 const GENERIC = 'Something went wrong. Please try again.'

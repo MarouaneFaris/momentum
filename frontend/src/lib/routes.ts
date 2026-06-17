@@ -4,6 +4,8 @@ export const ROUTES = {
     me: '/me',
     register: '/register',
     workspaces: '/workspaces',
+    verifyEmail: '/verify-email',
+    resendVerification: '/resend-verification',
 } as const
 
 export type ApiRoute =
