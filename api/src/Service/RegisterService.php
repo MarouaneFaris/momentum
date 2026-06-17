@@ -9,8 +9,10 @@ use App\Entity\User;
 use App\Entity\UserWorkspace;
 use App\Entity\Workspace;
 use App\Enum\WorkspaceRole;
+use App\Message\SendVerificationEmail;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final readonly class RegisterService
@@ -19,6 +21,7 @@ final readonly class RegisterService
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private UserRepository $userRepository,
+        private MessageBusInterface $bus,
     ) {}
 
     public function register(RegisterDTO $dto): void
@@ -29,11 +32,11 @@ final readonly class RegisterService
         $existingUser = $this->userRepository->findOneBy(['email' => $email]);
 
         if ($existingUser) {
-            // @todo: send email
             return;
         }
 
-        $this->entityManager->wrapInTransaction(function () use ($email, $name, $hash): void {
+        /** @var string|null $userId */
+        $userId = $this->entityManager->wrapInTransaction(function () use ($email, $name, $hash): string {
             $user = new User();
             $user->setEmail($email);
             $user->setName($name);
@@ -52,8 +55,12 @@ final readonly class RegisterService
             $this->entityManager->persist($userWorkspace);
 
             $this->entityManager->flush();
+
+            return (string) $user->getId();
         });
 
-        // @todo: send email
+        if ($userId !== null) {
+            $this->bus->dispatch(new SendVerificationEmail($userId));
+        }
     }
 }

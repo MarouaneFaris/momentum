@@ -31,6 +31,7 @@ final class UserFactory extends PersistentObjectFactory
             'name' => self::faker()->name(),
             'password' => 'password',
             'roles' => [],
+            'emailVerifiedAt' => new \DateTimeImmutable(),
         ];
     }
 

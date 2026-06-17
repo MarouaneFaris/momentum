@@ -42,6 +42,7 @@ framework:
         routing:
             # Route your messages to the transports
             'Symfony\Component\Mailer\Messenger\SendEmailMessage': async_priority_high
+            'App\Message\SendVerificationEmail': async_priority_high
 
 when@dev:
     framework:
