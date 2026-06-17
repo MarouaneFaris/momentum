@@ -22,8 +22,8 @@ final readonly class SendVerificationEmailHandler
         private EntityManagerInterface $entityManager,
         private EmailVerificationTokenRepository $tokenRepository,
         private MailerInterface $mailer,
-        #[Autowire('%env(DEFAULT_URI)%')]
-        private string $appUrl,
+        #[Autowire('%env(FRONTEND_URL)%')]
+        private string $frontendUrl,
     ) {}
 
     public function __invoke(SendVerificationEmail $message): void
@@ -48,7 +48,7 @@ final readonly class SendVerificationEmailHandler
             $this->entityManager->flush();
         });
 
-        $verificationUrl = rtrim($this->appUrl, '/') . '/verify-email?token=' . $rawToken;
+        $verificationUrl = rtrim($this->frontendUrl, '/') . '/verify-email?token=' . $rawToken;
 
         $email = (new TemplatedEmail())
             ->to($user->getEmail())
