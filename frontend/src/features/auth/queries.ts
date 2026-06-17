@@ -7,6 +7,9 @@ import type {
     LoginResponse,
     RegisterPayload,
     RegisterResponse,
+    ResendVerificationPayload,
+    VerifyEmailPayload,
+    VerifyEmailResponse,
 } from './types'
 
 export const useLogin = () =>
@@ -25,4 +28,16 @@ export const useAuth = () =>
 export const useRegister = () =>
     useMutation({
         mutationFn: (data: RegisterPayload) => api.post<RegisterResponse>(ROUTES.register, data),
+    })
+
+export const useVerifyEmail = () =>
+    useMutation({
+        mutationFn: (data: VerifyEmailPayload) =>
+            api.post<VerifyEmailResponse>(ROUTES.verifyEmail, data),
+    })
+
+export const useResendVerification = () =>
+    useMutation({
+        mutationFn: (data: ResendVerificationPayload) =>
+            api.post<{ message: string }>(ROUTES.resendVerification, data),
     })
