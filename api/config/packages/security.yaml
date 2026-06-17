@@ -20,6 +20,7 @@ security:
             lazy: true
             provider: app_user_provider
             stateless: true
+            user_checker: App\Security\AppUserChecker
 
             # Activate different ways to authenticate:
             # https://symfony.com/doc/current/security.html#the-firewall
