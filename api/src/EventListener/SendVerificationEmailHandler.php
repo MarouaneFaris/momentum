@@ -10,11 +10,10 @@ use App\Message\SendVerificationEmail;
 use App\Repository\EmailVerificationTokenRepository;
 use App\Service\AuthTokenManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Mime\Email;
-use Twig\Environment;
 
 #[AsMessageHandler]
 final readonly class SendVerificationEmailHandler
@@ -23,7 +22,6 @@ final readonly class SendVerificationEmailHandler
         private EntityManagerInterface $entityManager,
         private EmailVerificationTokenRepository $tokenRepository,
         private MailerInterface $mailer,
-        private Environment $twig,
         #[Autowire('%env(DEFAULT_URI)%')]
         private string $appUrl,
     ) {}
@@ -52,18 +50,14 @@ final readonly class SendVerificationEmailHandler
 
         $verificationUrl = rtrim($this->appUrl, '/') . '/verify-email?token=' . $rawToken;
 
-        $html = $this->twig->render('emails/verify_email.html.twig', [
-            'name' => $user->getName(),
-            'verification_url' => $verificationUrl,
-        ]);
-
-        $plaintext = "Hi {$user->getName()},\n\nPlease verify your Momentum account by visiting:\n{$verificationUrl}\n\nThis link expires in 24 hours.\n\nIf you didn't create an account, you can safely ignore this email.";
-
-        $email = (new Email())
+        $email = (new TemplatedEmail())
             ->to($user->getEmail())
             ->subject('Verify your Momentum account')
-            ->html($html)
-            ->text($plaintext);
+            ->htmlTemplate('emails/verify_email.html.twig')
+            ->context([
+                'name' => $user->getName(),
+                'verification_url' => $verificationUrl,
+            ]);
 
         $this->mailer->send($email);
     }
