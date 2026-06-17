@@ -2,8 +2,7 @@ import ApiError from '@/lib/ApiError'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useResendVerification, useVerifyEmail } from '../queries'
-
-export type VerifyState = 'verifying' | 'success' | 'invalid' | 'expired' | 'no-token'
+import type { VerifyState } from '../types'
 
 export function useVerifyEmailPage() {
     const [searchParams] = useSearchParams()

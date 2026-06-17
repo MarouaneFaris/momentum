@@ -28,3 +28,5 @@ export type VerifyEmailResponse = {
 export type ResendVerificationPayload = {
     email: string
 }
+
+export type VerifyState = 'verifying' | 'success' | 'invalid' | 'expired' | 'no-token'

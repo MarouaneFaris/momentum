@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import VerifyEmailPage from '@/pages/VerifyEmailPage'
+import VerifyEmailPage from '@/features/auth/components/VerifyEmailPage'
 import { useVerifyEmailPage } from '@/features/auth/hooks/useVerifyEmailPage'
-import type { VerifyState } from '@/features/auth/hooks/useVerifyEmailPage'
+import type { VerifyState } from '@/features/auth/types'
 
 vi.mock('react-router', () => ({
     Link: ({
