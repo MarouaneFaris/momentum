@@ -32,6 +32,7 @@ function mockHook(
         handleResend: vi.fn(),
         isResending: false,
         resendDone: false,
+        emailError: null,
         ...overrides,
     })
 }
@@ -92,5 +93,11 @@ describe('VerifyEmailPage', () => {
             'href',
             '/login',
         )
+    })
+
+    it('shows email error message when emailError is set', () => {
+        mockHook('invalid', { emailError: 'Enter a valid email address' })
+        render(<VerifyEmailPage />)
+        expect(screen.getByText(/enter a valid email address/i)).toBeInTheDocument()
     })
 })

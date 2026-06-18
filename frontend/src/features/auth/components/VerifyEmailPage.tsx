@@ -6,7 +6,8 @@ import { Link } from 'react-router'
 import { useVerifyEmailPage } from '../hooks/useVerifyEmailPage'
 
 export default function VerifyEmailPage() {
-    const { state, email, setEmail, handleResend, isResending, resendDone } = useVerifyEmailPage()
+    const { state, email, setEmail, handleResend, isResending, resendDone, emailError } =
+        useVerifyEmailPage()
 
     if (state === 'verifying') {
         return (
@@ -114,11 +115,8 @@ export default function VerifyEmailPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={isResending}
                     />
-                    <Button
-                        onClick={handleResend}
-                        disabled={isResending || !email}
-                        className="w-full"
-                    >
+                    {emailError && <p className="text-destructive text-sm">{emailError}</p>}
+                    <Button onClick={handleResend} disabled={isResending} className="w-full">
                         {isResending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {isResending
                             ? 'Sending…'
