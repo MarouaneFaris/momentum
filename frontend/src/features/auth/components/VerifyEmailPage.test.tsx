@@ -27,9 +27,9 @@ function mockHook(
 ) {
     vi.mocked(useVerifyEmailPage).mockReturnValue({
         state,
-        email: '',
-        setEmail: vi.fn(),
+        register: vi.fn().mockReturnValue({}),
         handleResend: vi.fn(),
+        errors: {},
         isResending: false,
         resendDone: false,
         ...overrides,
@@ -47,7 +47,10 @@ describe('VerifyEmailPage', () => {
         mockHook('success')
         render(<VerifyEmailPage />)
         expect(screen.getByText(/email verified/i)).toBeInTheDocument()
-        expect(screen.getByRole('link', { name: /sign in/i })).toHaveAttribute('href', '/login')
+        expect(screen.getByRole('link', { name: /continue to sign in/i })).toHaveAttribute(
+            'href',
+            '/login',
+        )
     })
 
     it('shows expired state with resend form', () => {
@@ -63,17 +66,15 @@ describe('VerifyEmailPage', () => {
     it('shows invalid state with resend form', () => {
         mockHook('invalid')
         render(<VerifyEmailPage />)
-        expect(screen.getByText(/invalid link/i)).toBeInTheDocument()
+        expect(screen.getByText(/invalid verification link/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
-        expect(
-            screen.getByRole('button', { name: /resend verification email/i }),
-        ).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /send new link/i })).toBeInTheDocument()
     })
 
     it('shows no-token state with resend form', () => {
         mockHook('no-token')
         render(<VerifyEmailPage />)
-        expect(screen.getByText(/invalid link/i)).toBeInTheDocument()
+        expect(screen.getByText(/invalid verification link/i)).toBeInTheDocument()
         expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
     })
 
@@ -91,5 +92,11 @@ describe('VerifyEmailPage', () => {
             'href',
             '/login',
         )
+    })
+
+    it('shows email error message when errors.email is set', () => {
+        mockHook('invalid', { errors: { email: { message: 'Invalid email', type: 'manual' } } })
+        render(<VerifyEmailPage />)
+        expect(screen.getByText(/invalid email/i)).toBeInTheDocument()
     })
 })
