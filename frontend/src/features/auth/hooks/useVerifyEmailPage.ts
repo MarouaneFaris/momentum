@@ -1,7 +1,7 @@
 import ApiError from '@/lib/ApiError'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
 import type React from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import z from 'zod'
@@ -35,7 +35,7 @@ export function useVerifyEmailPage() {
         if (!token) return
 
         async function run() {
-            const minDelay = new Promise<void>((res) => setTimeout(res, 800))
+            const minDelay = new Promise<void>((res) => setTimeout(res, 1000))
             try {
                 await Promise.all([verifyEmail({ token }), minDelay])
                 setState('success')
