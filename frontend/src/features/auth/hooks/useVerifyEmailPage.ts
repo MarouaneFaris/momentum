@@ -20,7 +20,7 @@ export function useVerifyEmailPage() {
     const [state, setState] = useState<VerifyState>(token ? 'verifying' : 'no-token')
     const [resendDone, setResendDone] = useState(false)
 
-    const { mutate: verifyEmail } = useVerifyEmail()
+    const { mutateAsync: verifyEmail } = useVerifyEmail()
     const { mutate: resendVerification, isPending: isResending } = useResendVerification()
 
     const {
@@ -33,19 +33,23 @@ export function useVerifyEmailPage() {
 
     useEffect(() => {
         if (!token) return
-        verifyEmail(
-            { token },
-            {
-                onSuccess: () => setState('success'),
-                onError: (err) => {
-                    if (err instanceof ApiError && err.code === 'EMAIL_TOKEN_EXPIRED') {
-                        setState('expired')
-                    } else {
-                        setState('invalid')
-                    }
-                },
-            },
-        )
+
+        async function run() {
+            const minDelay = new Promise<void>((res) => setTimeout(res, 800))
+            try {
+                await Promise.all([verifyEmail({ token }), minDelay])
+                setState('success')
+            } catch (err) {
+                await minDelay
+                if (err instanceof ApiError && err.code === 'EMAIL_TOKEN_EXPIRED') {
+                    setState('expired')
+                } else {
+                    setState('invalid')
+                }
+            }
+        }
+
+        void run()
     }, [token, verifyEmail])
 
     function handleResend(e: React.FormEvent<HTMLFormElement>) {
