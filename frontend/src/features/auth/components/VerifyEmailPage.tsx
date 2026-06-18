@@ -6,8 +6,7 @@ import { Link } from 'react-router'
 import { useVerifyEmailPage } from '../hooks/useVerifyEmailPage'
 
 export default function VerifyEmailPage() {
-    const { state, email, setEmail, handleResend, isResending, resendDone, emailError } =
-        useVerifyEmailPage()
+    const { state, register, handleResend, errors, isResending, resendDone } = useVerifyEmailPage()
 
     if (state === 'verifying') {
         return (
@@ -103,7 +102,7 @@ export default function VerifyEmailPage() {
                 </p>
             </div>
             <div className="flex w-full flex-col gap-2">
-                <div className="flex flex-col gap-2 pt-1">
+                <form onSubmit={handleResend} className="flex flex-col gap-2 pt-1">
                     <Label htmlFor="resend-email" className="text-left text-[12px]">
                         Email address
                     </Label>
@@ -111,12 +110,13 @@ export default function VerifyEmailPage() {
                         id="resend-email"
                         type="email"
                         placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
                         disabled={isResending}
+                        {...register('email')}
                     />
-                    {emailError && <p className="text-destructive text-sm">{emailError}</p>}
-                    <Button onClick={handleResend} disabled={isResending} className="w-full">
+                    {errors.email && (
+                        <p className="text-destructive text-sm">{errors.email.message}</p>
+                    )}
+                    <Button type="submit" disabled={isResending} className="w-full">
                         {isResending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {isResending
                             ? 'Sending…'
@@ -124,7 +124,7 @@ export default function VerifyEmailPage() {
                               ? 'Resend verification email'
                               : 'Send new link'}
                     </Button>
-                </div>
+                </form>
                 <Link
                     to="/login"
                     tabIndex={isResending ? -1 : undefined}

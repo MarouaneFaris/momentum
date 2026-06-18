@@ -1,20 +1,35 @@
 import ApiError from '@/lib/ApiError'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
+import type React from 'react'
+import { useForm } from 'react-hook-form'
 import { useSearchParams } from 'react-router'
 import z from 'zod'
 import { useResendVerification, useVerifyEmail } from '../queries'
 import type { VerifyState } from '../types'
 
+const resendSchema = z.object({
+    email: z.email(),
+})
+
+type ResendFields = z.infer<typeof resendSchema>
+
 export function useVerifyEmailPage() {
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token') ?? ''
     const [state, setState] = useState<VerifyState>(token ? 'verifying' : 'no-token')
-    const [email, setEmail] = useState('')
-    const [emailError, setEmailError] = useState<string | null>(null)
     const [resendDone, setResendDone] = useState(false)
 
     const { mutate: verifyEmail } = useVerifyEmail()
     const { mutate: resendVerification, isPending: isResending } = useResendVerification()
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ResendFields>({
+        resolver: zodResolver(resendSchema),
+    })
 
     useEffect(() => {
         if (!token) return
@@ -33,26 +48,11 @@ export function useVerifyEmailPage() {
         )
     }, [token, verifyEmail])
 
-    function handleSetEmail(value: string) {
-        setEmail(value)
-        if (emailError) setEmailError(null)
+    function handleResend(e: React.FormEvent<HTMLFormElement>) {
+        void handleSubmit(({ email }: ResendFields) => {
+            resendVerification({ email }, { onSuccess: () => setResendDone(true) })
+        })(e)
     }
 
-    function handleResend() {
-        if (!z.email().safeParse(email).success) {
-            setEmailError('Enter a valid email address')
-            return
-        }
-        resendVerification({ email }, { onSuccess: () => setResendDone(true) })
-    }
-
-    return {
-        state,
-        email,
-        setEmail: handleSetEmail,
-        handleResend,
-        isResending,
-        resendDone,
-        emailError,
-    }
+    return { state, register, handleResend, errors, isResending, resendDone }
 }

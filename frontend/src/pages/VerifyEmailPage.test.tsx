@@ -27,12 +27,11 @@ function mockHook(
 ) {
     vi.mocked(useVerifyEmailPage).mockReturnValue({
         state,
-        email: '',
-        setEmail: vi.fn(),
+        register: vi.fn().mockReturnValue({}),
         handleResend: vi.fn(),
+        errors: {},
         isResending: false,
         resendDone: false,
-        emailError: null,
         ...overrides,
     })
 }
@@ -95,9 +94,9 @@ describe('VerifyEmailPage', () => {
         )
     })
 
-    it('shows email error message when emailError is set', () => {
-        mockHook('invalid', { emailError: 'Enter a valid email address' })
+    it('shows email error message when errors.email is set', () => {
+        mockHook('invalid', { errors: { email: { message: 'Invalid email', type: 'manual' } } })
         render(<VerifyEmailPage />)
-        expect(screen.getByText(/enter a valid email address/i)).toBeInTheDocument()
+        expect(screen.getByText(/invalid email/i)).toBeInTheDocument()
     })
 })
