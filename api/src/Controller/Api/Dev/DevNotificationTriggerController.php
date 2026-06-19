@@ -18,6 +18,12 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class DevNotificationTriggerController extends AbstractController
 {
+    public function __construct(
+        private readonly DevService $devService,
+        private readonly NotificationService $notificationService,
+        private readonly NotificationPublisher $notificationPublisher,
+    ) {}
+
     #[Route(
         path: '/api/dev/notifications/trigger',
         name: 'api_dev_notifications_trigger',
@@ -25,12 +31,9 @@ final class DevNotificationTriggerController extends AbstractController
     )]
     public function __invoke(
         Request $request,
-        DevService $devService,
-        NotificationService $notificationService,
-        NotificationPublisher $notificationPublisher,
         #[CurrentUser] User $user,
     ): JsonResponse {
-        $devService->ensureDevEnvironment();
+        $this->devService->ensureDevEnvironment();
 
         $typeValue = $request->toArray()['type'] ?? null;
         $type = $typeValue !== null ? NotificationType::tryFrom($typeValue) : null;
@@ -102,8 +105,8 @@ final class DevNotificationTriggerController extends AbstractController
             ],
         };
 
-        $notification = $notificationService->create($user, $type, $payload);
-        $notificationPublisher->publishCreated($notification);
+        $notification = $this->notificationService->create($user, $type, $payload);
+        $this->notificationPublisher->publishCreated($notification);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }
