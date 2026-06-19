@@ -34,8 +34,16 @@ final readonly class WorkspaceScopeSubscriber implements EventSubscriberInterfac
             return;
         }
 
+        $filters = $this->entityManager->getFilters();
+
         $workspaceId = $event->getRequest()->attributes->get('workspaceId');
         if ($workspaceId === null) {
+            // Unscoped route: make sure no stale 'workspace' filter survives from a
+            // previous request handled by this worker (FrankenPHP reuses the EM).
+            if ($filters->isEnabled('workspace')) {
+                $filters->disable('workspace');
+            }
+
             return;
         }
 
@@ -50,7 +58,7 @@ final readonly class WorkspaceScopeSubscriber implements EventSubscriberInterfac
 
         $this->workspaceContext->set($workspace);
 
-        $filter = $this->entityManager->getFilters()->enable('workspace');
+        $filter = $filters->enable('workspace');
         $filter->setParameter('workspaceId', (string) $workspace->getId(), 'string');
     }
 }
