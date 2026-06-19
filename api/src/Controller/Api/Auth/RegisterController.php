@@ -17,6 +17,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class RegisterController extends AbstractController
 {
+    public function __construct(
+        private readonly RegisterService $registerService,
+    ) {}
+
     #[OA\Post(
         path: '/api/register',
         summary: 'Register a new user account',
@@ -43,9 +47,8 @@ final class RegisterController extends AbstractController
     )]
     public function __invoke(
         #[MapRequestPayload] RegisterDTO $dto,
-        RegisterService $registerService,
     ): JsonResponse {
-        $registerService->register($dto);
+        $this->registerService->register($dto);
 
         return $this->json([
             'message' => 'Registration successful. Please check your email to verify your account.',
