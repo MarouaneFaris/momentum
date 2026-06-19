@@ -24,6 +24,7 @@ final class ResendVerificationController extends AbstractController
         private readonly ErrorResponseFactory $errorFactory,
         #[Autowire(service: 'limiter.resend_verification')]
         private readonly RateLimiterFactory $resendVerificationLimiter,
+        private readonly EmailVerificationService $emailVerificationService,
     ) {}
 
     #[OA\Post(
@@ -51,14 +52,13 @@ final class ResendVerificationController extends AbstractController
     public function __invoke(
         #[MapRequestPayload] ResendVerificationDTO $dto,
         Request $request,
-        EmailVerificationService $emailVerificationService,
     ): JsonResponse {
         $limiter = $this->resendVerificationLimiter->create($dto->email . '|' . $request->getClientIp());
         if (!$limiter->consume()->isAccepted()) {
             return $this->errorFactory->build(ErrorCode::RATE_LIMITED, 'Too many requests.', [], Response::HTTP_TOO_MANY_REQUESTS);
         }
 
-        $emailVerificationService->resend($dto->email);
+        $this->emailVerificationService->resend($dto->email);
 
         return $this->json(['message' => 'If this email is registered and unverified, a new link has been sent.']);
     }

@@ -13,6 +13,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class VerifyEmailController extends AbstractController
 {
+    public function __construct(
+        private readonly EmailVerificationService $emailVerificationService,
+    ) {}
+
     #[OA\Post(
         path: '/api/verify-email',
         summary: 'Verify email address via token from verification email',
@@ -37,10 +41,9 @@ final class VerifyEmailController extends AbstractController
     )]
     public function __invoke(
         Request $request,
-        EmailVerificationService $emailVerificationService,
     ): JsonResponse {
         $rawToken = (string) ($request->toArray()['token'] ?? '');
-        $emailVerificationService->verify($rawToken);
+        $this->emailVerificationService->verify($rawToken);
 
         return $this->json(['message' => 'Email verified successfully.']);
     }
