@@ -83,6 +83,7 @@ class AppFixtures extends Fixture
         $user->setEmail($email);
         $user->setName($name);
         $user->setPassword($this->hasher->hashPassword($user, $plainPassword));
+        $user->setEmailVerifiedAt(new \DateTimeImmutable());
         $manager->persist($user);
 
         return $user;
