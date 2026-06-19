@@ -15,14 +15,18 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class DevLoginAsController extends AbstractController
 {
+    public function __construct(
+        private readonly DevService $devService,
+    ) {}
+
     #[Route(
         path: '/api/dev/login-as',
         name: 'api_dev_login_as',
         methods: Request::METHOD_POST,
     )]
-    public function __invoke(Request $request, DevService $devService): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
-        $devService->ensureDevEnvironment();
+        $this->devService->ensureDevEnvironment();
 
         $email = $request->toArray()['email'] ?? null;
 
@@ -30,7 +34,7 @@ final class DevLoginAsController extends AbstractController
             return $this->json(['error' => 'email required'], 422);
         }
 
-        $result = $devService->loginAs($email);
+        $result = $this->devService->loginAs($email);
 
         $response = $this->json(LoginResponse::fromEntity($result['user']));
         $response->headers->setCookie(
