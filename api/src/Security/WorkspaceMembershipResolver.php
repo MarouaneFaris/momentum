@@ -7,8 +7,9 @@ namespace App\Security;
 use App\Entity\User;
 use App\Entity\Workspace;
 use App\Repository\UserWorkspaceRepository;
+use Symfony\Contracts\Service\ResetInterface;
 
-class WorkspaceMembershipResolver
+class WorkspaceMembershipResolver implements ResetInterface
 {
     /** @var array<string, WorkspaceMembership|null> */
     private array $cache = [];
@@ -16,6 +17,18 @@ class WorkspaceMembershipResolver
     public function __construct(
         private readonly UserWorkspaceRepository $userWorkspaceRepository,
     ) {}
+
+    /**
+     * The cache is a per-request memo (the voter and controller both resolve the
+     * same membership). Under FrankenPHP worker mode the service instance is reused
+     * across requests, so it MUST be cleared between them — otherwise a membership
+     * cached before a user is removed keeps granting access after removal. The
+     * kernel.reset autoconfiguration (ResetInterface) calls this between requests.
+     */
+    public function reset(): void
+    {
+        $this->cache = [];
+    }
 
     public function for(User $user, Workspace $workspace): ?WorkspaceMembership
     {

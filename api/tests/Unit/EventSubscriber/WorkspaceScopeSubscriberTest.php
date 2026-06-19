@@ -28,13 +28,34 @@ final class WorkspaceScopeSubscriberTest extends TestCase
         self::assertSame([KernelEvents::REQUEST => ['onKernelRequest', 4]], $events);
     }
 
-    public function testNoWorkspaceAttributeSkipsFilter(): void
+    public function testNoWorkspaceAttributeDisablesStaleFilter(): void
     {
         $repo = $this->createMock(WorkspaceRepository::class);
         $repo->expects(self::never())->method('find');
 
+        // A previous request on this worker left the filter enabled — clear it.
+        $filters = $this->createMock(FilterCollection::class);
+        $filters->expects(self::once())->method('isEnabled')->with('workspace')->willReturn(true);
+        $filters->expects(self::once())->method('disable')->with('workspace');
+
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::never())->method('getFilters');
+        $em->method('getFilters')->willReturn($filters);
+
+        $subscriber = new WorkspaceScopeSubscriber($repo, new WorkspaceContext(), $em);
+        $subscriber->onKernelRequest($this->makeEvent(new Request()));
+    }
+
+    public function testNoWorkspaceAttributeLeavesAlreadyDisabledFilterUntouched(): void
+    {
+        $repo = $this->createMock(WorkspaceRepository::class);
+        $repo->expects(self::never())->method('find');
+
+        $filters = $this->createMock(FilterCollection::class);
+        $filters->expects(self::once())->method('isEnabled')->with('workspace')->willReturn(false);
+        $filters->expects(self::never())->method('disable');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getFilters')->willReturn($filters);
 
         $subscriber = new WorkspaceScopeSubscriber($repo, new WorkspaceContext(), $em);
         $subscriber->onKernelRequest($this->makeEvent(new Request()));
