@@ -12,6 +12,22 @@ Symfony 8.0 (PHP 8.5+) REST API, served by FrankenPHP.
 
 All routes under `/api/`. Public: `/api/login`, `/api/register`. Everything else requires `ROLE_USER`.
 
+## Controllers
+
+### Dependency Injection Convention
+
+Services are injected via the **constructor**. The action method (`__invoke`) is reserved for request-scoped data only.
+
+**Allowed in `__invoke` signature:**
+- `#[CurrentUser]` — authenticated user
+- `#[MapRequestPayload]` / `#[MapQueryString]` DTOs
+- `#[MapEntity]` entities
+- Route path parameters (e.g. `string $workspaceId`)
+
+**Never inject services via `__invoke`.** Services belong in the constructor.
+
+Rationale: aligns with DDD direction (controller = service with explicit collaborators), keeps the action signature readable as "request inputs → response", and makes constructor bloat a visible single-responsibility smell.
+
 ## Authentication
 
 Stateful token-based — tokens are revocable (JWT rejected for this reason). Delivered via cookies: HttpOnly + SameSite=Strict + Secure. JSON login uses `email` + `password` fields. Session storage backend planned: Redis.
