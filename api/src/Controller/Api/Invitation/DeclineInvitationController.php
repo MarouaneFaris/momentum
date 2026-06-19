@@ -15,6 +15,10 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class DeclineInvitationController extends AbstractController
 {
+    public function __construct(
+        private readonly MembershipService $membershipService,
+    ) {}
+
     #[Route(
         path: '/api/invitations/{id}/decline',
         name: 'api_invitation_decline',
@@ -23,9 +27,8 @@ final class DeclineInvitationController extends AbstractController
     public function __invoke(
         WorkspaceInvitation $invitation,
         #[CurrentUser] User $currentUser,
-        MembershipService $membershipService,
     ): Response {
-        $membershipService->decline($invitation, $currentUser);
+        $this->membershipService->decline($invitation, $currentUser);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
