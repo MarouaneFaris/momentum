@@ -19,6 +19,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class RemoveProjectMemberController extends AbstractController
 {
+    public function __construct(
+        private readonly UserProjectRepository $userProjectRepository,
+        private readonly ProjectService $projectService,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/members/{userId}',
         name: 'api_project_members_remove',
@@ -29,16 +34,14 @@ final class RemoveProjectMemberController extends AbstractController
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
         string $userId,
-        UserProjectRepository $userProjectRepository,
-        ProjectService $projectService,
     ): Response {
-        $assignment = $userProjectRepository->findOneByProjectAndUserId($project, $userId);
+        $assignment = $this->userProjectRepository->findOneByProjectAndUserId($project, $userId);
 
         if ($assignment === null) {
             throw new NotFoundHttpException('User is not assigned to this project');
         }
 
-        $projectService->removeGuest($assignment);
+        $this->projectService->removeGuest($assignment);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

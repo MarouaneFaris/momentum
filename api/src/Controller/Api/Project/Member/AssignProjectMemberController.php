@@ -28,6 +28,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AssignProjectMemberController extends AbstractController
 {
+    public function __construct(
+        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+        private readonly UserProjectRepository $userProjectRepository,
+        private readonly ProjectService $projectService,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/members',
         name: 'api_project_members_assign',
@@ -38,15 +44,12 @@ final class AssignProjectMemberController extends AbstractController
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
         #[MapRequestPayload] AssignProjectMemberDTO $dto,
-        UserWorkspaceRepository $userWorkspaceRepository,
-        UserProjectRepository $userProjectRepository,
-        ProjectService $projectService,
     ): JsonResponse {
         if ($project->getStatus() === ProjectStatus::Draft) {
             throw new UnprocessableEntityHttpException('Guests cannot be assigned to draft projects');
         }
 
-        $targetMembership = $userWorkspaceRepository->findOneByWorkspaceAndUserId($workspace, $dto->userId);
+        $targetMembership = $this->userWorkspaceRepository->findOneByWorkspaceAndUserId($workspace, $dto->userId);
 
         if ($targetMembership === null) {
             throw new NotFoundHttpException('User is not a member of this workspace');
@@ -56,12 +59,12 @@ final class AssignProjectMemberController extends AbstractController
             throw new UnprocessableEntityHttpException('Only workspace Guests can be assigned to a project');
         }
 
-        $existing = $userProjectRepository->findOneByProjectAndUser($project, $targetMembership->getUser());
+        $existing = $this->userProjectRepository->findOneByProjectAndUser($project, $targetMembership->getUser());
         if ($existing !== null) {
             throw new ConflictHttpException('User is already assigned to this project');
         }
 
-        $assignment = $projectService->assignGuest($project, $targetMembership->getUser());
+        $assignment = $this->projectService->assignGuest($project, $targetMembership->getUser());
 
         return $this->json(ProjectMemberResponse::fromUserProject($assignment), Response::HTTP_CREATED);
     }

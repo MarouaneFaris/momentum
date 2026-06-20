@@ -26,6 +26,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CreateProjectController extends AbstractController
 {
+    public function __construct(
+        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+        private readonly ProjectService $projectService,
+    ) {}
+
     #[OA\Post(
         path: '/api/workspaces/{workspaceId}/projects',
         summary: 'Create a new project in a workspace',
@@ -58,13 +63,11 @@ final class CreateProjectController extends AbstractController
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapRequestPayload] CreateProjectDTO $dto,
         #[CurrentUser] User $user,
-        UserWorkspaceRepository $userWorkspaceRepository,
-        ProjectService $projectService,
     ): JsonResponse {
-        $membership = $userWorkspaceRepository->findOneBy(['user' => $user, 'workspace' => $workspace]);
+        $membership = $this->userWorkspaceRepository->findOneBy(['user' => $user, 'workspace' => $workspace]);
         assert($membership !== null);
 
-        $project = $projectService->create(
+        $project = $this->projectService->create(
             $workspace,
             $membership,
             $dto->name,

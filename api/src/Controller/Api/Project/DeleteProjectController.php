@@ -18,6 +18,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class DeleteProjectController extends AbstractController
 {
+    public function __construct(private readonly ProjectService $projectService) {}
+
     #[OA\Delete(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}',
         summary: 'Delete a project',
@@ -41,13 +43,12 @@ final class DeleteProjectController extends AbstractController
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
-        ProjectService $projectService,
     ): Response {
         if ((string) $project->getWorkspace()->getId() !== (string) $workspace->getId()) {
             throw $this->createNotFoundException('Project not found in this workspace');
         }
 
-        $projectService->delete($project);
+        $this->projectService->delete($project);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
