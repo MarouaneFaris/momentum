@@ -15,6 +15,10 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class AcceptInvitationController extends AbstractController
 {
+    public function __construct(
+        private readonly MembershipService $membershipService,
+    ) {}
+
     #[Route(
         path: '/api/invitations/{id}/accept',
         name: 'api_invitation_accept',
@@ -23,9 +27,8 @@ final class AcceptInvitationController extends AbstractController
     public function __invoke(
         WorkspaceInvitation $invitation,
         #[CurrentUser] User $currentUser,
-        MembershipService $membershipService,
     ): Response {
-        $membershipService->accept($invitation, $currentUser);
+        $this->membershipService->accept($invitation, $currentUser);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
