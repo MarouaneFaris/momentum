@@ -28,7 +28,7 @@ All email is dispatched asynchronously via Symfony Messenger.
 - `MailerInterface::send()` dispatches a `SendEmailMessage` to the `async` Messenger transport (Redis).
 - A worker (`messenger:consume async`) processes the queue and delivers via Symfony Mailer.
 - Failed messages (after 3 retries with exponential backoff) go to a `failed` transport backed by Doctrine (MariaDB) for durable storage and manual inspection.
-- Dev environment uses Mailtrap SMTP (`sandbox.smtp.mailtrap.io`). Production provider is TBD — any Mailer-compatible DSN can be swapped in via env var with zero code change.
+- Dev environment uses Mailtrap SMTP (`sandbox.smtp.mailtrap.io`). Production provider is **Resend** (`symfony/resend-mailer`) — any Mailer-compatible DSN can be swapped in via env var with zero code change.
 
 ---
 
@@ -41,6 +41,8 @@ All email is dispatched asynchronously via Symfony Messenger.
 **Doctrine for the failed queue.** Redis is in-memory; failed messages need durability and human inspection. MariaDB survives restarts and is queryable. The split (high-throughput queue → Redis, dead-letter → DB) is a deliberate asymmetry, not an inconsistency.
 
 **Transport swappability.** The `MESSENGER_TRANSPORT_DSN` env var is the only coupling between business logic and the queue backend. Migrating to RabbitMQ (planned for Phase 4) requires changing one env var — no domain code changes.
+
+**Resend for production.** Railway's hobby plan caps at 5 services; adding a hosted mail relay (Postmark, SES, etc.) would consume one. Resend is an external SaaS — only a `MAILER_DSN` env var is required, no new Railway service. Free tier covers 3 000 emails/month and 100/day. `symfony/resend-mailer` provides first-class Symfony Mailer support via the `resend+api://KEY@default` DSN. The provider remains swappable via `MAILER_DSN` with zero code change.
 
 **Mailtrap for dev.** Credentials live in `.env.local` (uncommitted). `.env` defaults to `null://null` so the app functions without mail in CI and fresh clones.
 
@@ -65,4 +67,4 @@ All email is dispatched asynchronously via Symfony Messenger.
 - In production (Railway), the worker needs to run as a separate service — provisioning tracked in #548.
 - Failed messages inspectable via `bin/console messenger:failed:show` and retryable via `messenger:failed:retry`.
 - Switching to RabbitMQ (Phase 4): change `MESSENGER_TRANSPORT_DSN`, keep routing and retry config unchanged.
-- Production Mailer DSN (SES, Postmark, or Mailtrap prod) is set via Railway env var — no committed config change needed.
+- Production Mailer DSN (`resend+api://KEY@default`) is set via `MAILER_DSN` Railway env var — no committed config change needed. See Railway runbook §4.3.

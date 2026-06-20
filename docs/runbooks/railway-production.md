@@ -137,6 +137,14 @@ header Referrer-Policy "strict-origin-when-cross-origin"
 header X-Frame-Options "DENY"
 ```
 
+**Email (Resend):**
+
+| Variable     | Value                                          |
+| ------------ | ---------------------------------------------- |
+| `MAILER_DSN` | `resend+api://YOUR_RESEND_API_KEY@default`     |
+
+> Before setting `MAILER_DSN`: create a Resend account at [resend.com](https://resend.com), verify your sending domain in the Resend dashboard, then generate an API key. Replace `YOUR_RESEND_API_KEY` with the generated key. See [ADR-015](../adr/015-async-email-dispatch.md) for provider rationale.
+
 > No `.env.prod` file is committed to the repo. All production values live exclusively in Railway. See [ADR-010](../adr/010-env-file-architecture.md).
 
 ---
