@@ -18,6 +18,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class MarkNotificationReadController extends AbstractController
 {
+    public function __construct(private readonly NotificationOrchestrator $orchestrator) {}
+
     #[OA\Patch(
         path: '/api/notifications/{id}/read',
         summary: 'Mark a notification as read',
@@ -43,9 +45,8 @@ final class MarkNotificationReadController extends AbstractController
     #[IsGranted(NotificationVoter::UPDATE, subject: 'notification')]
     public function __invoke(
         Notification $notification,
-        NotificationOrchestrator $orchestrator,
     ): JsonResponse {
-        $orchestrator->notificationRead($notification);
+        $this->orchestrator->notificationRead($notification);
 
         return $this->json(NotificationResponse::fromNotification($notification));
     }
