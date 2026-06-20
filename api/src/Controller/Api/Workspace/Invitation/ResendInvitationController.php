@@ -18,6 +18,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ResendInvitationController extends AbstractController
 {
+    public function __construct(
+        private readonly MembershipService $membershipService,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/invitations/{invitationId}/resend',
         name: 'api_workspace_invitation_resend',
@@ -27,9 +31,8 @@ final class ResendInvitationController extends AbstractController
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['invitationId' => 'id'])] WorkspaceInvitation $invitation,
-        MembershipService $membershipService,
     ): JsonResponse {
-        $membershipService->resend($workspace, $invitation);
+        $this->membershipService->resend($workspace, $invitation);
 
         return $this->json(null, Response::HTTP_NO_CONTENT);
     }

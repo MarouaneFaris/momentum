@@ -24,6 +24,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ChangeRoleController extends AbstractController
 {
+    public function __construct(
+        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+        private readonly MembershipService $membershipService,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/members/{userId}',
         name: 'api_workspace_member_change_role',
@@ -35,15 +40,13 @@ final class ChangeRoleController extends AbstractController
         string $userId,
         #[MapRequestPayload] ChangeRoleDTO $dto,
         #[CurrentUser] User $currentUser,
-        UserWorkspaceRepository $userWorkspaceRepository,
-        MembershipService $membershipService,
     ): JsonResponse {
-        $membership = $userWorkspaceRepository->findOneByWorkspaceAndUserId($workspace, $userId);
+        $membership = $this->userWorkspaceRepository->findOneByWorkspaceAndUserId($workspace, $userId);
         if (!$membership) {
             throw new NotFoundHttpException('Member not found in this workspace');
         }
 
-        $membershipService->changeRole($membership, WorkspaceRole::from($dto->role), $currentUser);
+        $this->membershipService->changeRole($membership, WorkspaceRole::from($dto->role), $currentUser);
 
         return $this->json(MemberResponse::fromUserWorkspace($membership));
     }

@@ -18,6 +18,10 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class ListWorkspacesController extends AbstractController
 {
+    public function __construct(
+        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+    ) {}
+
     #[OA\Get(
         path: '/api/workspaces',
         summary: 'List all workspaces the authenticated user belongs to',
@@ -40,9 +44,8 @@ final class ListWorkspacesController extends AbstractController
     )]
     public function __invoke(
         #[CurrentUser] User $user,
-        UserWorkspaceRepository $userWorkspaceRepository,
     ): JsonResponse {
-        $userWorkspaces = $userWorkspaceRepository->findByUser($user);
+        $userWorkspaces = $this->userWorkspaceRepository->findByUser($user);
 
         return $this->json(
             array_map(

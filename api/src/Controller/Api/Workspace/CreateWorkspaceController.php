@@ -21,6 +21,10 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class CreateWorkspaceController extends AbstractController
 {
+    public function __construct(
+        private readonly WorkspaceService $workspaceService,
+    ) {}
+
     #[OA\Post(
         path: '/api/workspaces',
         summary: 'Create a new workspace',
@@ -46,9 +50,8 @@ final class CreateWorkspaceController extends AbstractController
     public function __invoke(
         #[MapRequestPayload] CreateWorkspaceDTO $dto,
         #[CurrentUser] User $user,
-        WorkspaceService $service,
     ): JsonResponse {
-        $workspace = $service->create($dto->name, $user);
+        $workspace = $this->workspaceService->create($dto->name, $user);
 
         return $this->json(
             WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, WorkspaceRole::Owner),
