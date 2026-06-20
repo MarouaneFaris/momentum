@@ -18,6 +18,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class DeleteTaskController extends AbstractTaskController
 {
+    public function __construct(private readonly TaskService $taskService) {}
+
     #[OA\Delete(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}',
         summary: 'Delete a task',
@@ -43,12 +45,11 @@ final class DeleteTaskController extends AbstractTaskController
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
         #[MapEntity(mapping: ['taskId' => 'id'])] Task $task,
-        TaskService $taskService,
     ): Response {
         $this->assertProjectBelongsToWorkspace($project, $workspace);
         $this->assertTaskBelongsToProject($task, $project);
 
-        $taskService->delete($task);
+        $this->taskService->delete($task);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

@@ -25,6 +25,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class UpdateTaskController extends AbstractTaskController
 {
+    public function __construct(private readonly TaskService $taskService) {}
+
     #[OA\Patch(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}',
         summary: 'Update a task',
@@ -62,12 +64,11 @@ final class UpdateTaskController extends AbstractTaskController
         #[MapEntity(mapping: ['taskId' => 'id'])] Task $task,
         #[MapRequestPayload] UpdateTaskDTO $dto,
         #[CurrentUser] User $user,
-        TaskService $taskService,
     ): JsonResponse {
         $this->assertProjectBelongsToWorkspace($project, $workspace);
         $this->assertTaskBelongsToProject($task, $project);
 
-        $task = $taskService->update($task, $user, $workspace, $dto);
+        $task = $this->taskService->update($task, $user, $workspace, $dto);
 
         return $this->json(TaskDetailResponse::fromTask($task), Response::HTTP_OK);
     }

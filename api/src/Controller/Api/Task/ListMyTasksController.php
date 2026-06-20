@@ -22,6 +22,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListMyTasksController extends AbstractController
 {
+    public function __construct(private readonly TaskRepository $taskRepository) {}
+
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/tasks',
         summary: 'List tasks assigned to the authenticated user in a workspace',
@@ -53,12 +55,11 @@ final class ListMyTasksController extends AbstractController
         #[CurrentUser] User $user,
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         Request $request,
-        TaskRepository $taskRepository,
     ): JsonResponse {
         $limitParam = $request->query->get('limit');
         $limit = $limitParam !== null ? (int) $limitParam : null;
 
-        $tasks = $taskRepository->findByWorkspaceAndUser($workspace, $user, $limit);
+        $tasks = $this->taskRepository->findByWorkspaceAndUser($workspace, $user, $limit);
 
         return $this->json(
             array_map(
