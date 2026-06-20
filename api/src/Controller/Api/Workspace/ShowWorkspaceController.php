@@ -20,6 +20,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ShowWorkspaceController extends AbstractController
 {
+    public function __construct(
+        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+    ) {}
+
     #[OA\Get(
         path: '/api/workspaces/{id}',
         summary: 'Get a single workspace by ID',
@@ -46,9 +50,8 @@ final class ShowWorkspaceController extends AbstractController
     public function __invoke(
         Workspace $workspace,
         #[CurrentUser] User $user,
-        UserWorkspaceRepository $userWorkspaceRepository,
     ): JsonResponse {
-        $role = $userWorkspaceRepository->findRoleByUserAndWorkspace($user, $workspace);
+        $role = $this->userWorkspaceRepository->findRoleByUserAndWorkspace($user, $workspace);
         assert($role !== null);
 
         return $this->json(

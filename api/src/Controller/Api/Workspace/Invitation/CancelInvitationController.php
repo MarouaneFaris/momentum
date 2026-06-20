@@ -19,6 +19,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CancelInvitationController extends AbstractController
 {
+    public function __construct(
+        private readonly MembershipService $membershipService,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/invitations/{invitationId}',
         name: 'api_workspace_invitation_cancel',
@@ -29,9 +33,8 @@ final class CancelInvitationController extends AbstractController
         #[CurrentUser] User $currentUser,
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['invitationId' => 'id'])] WorkspaceInvitation $invitation,
-        MembershipService $membershipService,
     ): Response {
-        $membershipService->cancel($workspace, $invitation, $currentUser);
+        $this->membershipService->cancel($workspace, $invitation, $currentUser);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

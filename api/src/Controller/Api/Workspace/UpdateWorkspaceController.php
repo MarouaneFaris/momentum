@@ -21,6 +21,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class UpdateWorkspaceController extends AbstractController
 {
+    public function __construct(
+        private readonly WorkspaceService $workspaceService,
+    ) {}
+
     #[OA\Patch(
         path: '/api/workspaces/{id}',
         summary: 'Rename a workspace (owner only)',
@@ -52,9 +56,8 @@ final class UpdateWorkspaceController extends AbstractController
     public function __invoke(
         Workspace $workspace,
         #[MapRequestPayload] CreateWorkspaceDTO $dto,
-        WorkspaceService $service,
     ): JsonResponse {
-        $service->rename($workspace, $dto->name);
+        $this->workspaceService->rename($workspace, $dto->name);
 
         return $this->json(
             WorkspaceListItemResponse::fromWorkspaceAndRole($workspace, WorkspaceRole::Owner),

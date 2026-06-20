@@ -16,6 +16,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class DeleteWorkspaceController extends AbstractController
 {
+    public function __construct(
+        private readonly WorkspaceService $workspaceService,
+    ) {}
+
     #[OA\Delete(
         path: '/api/workspaces/{id}',
         summary: 'Delete a workspace and all its data (owner only)',
@@ -37,9 +41,8 @@ final class DeleteWorkspaceController extends AbstractController
     #[IsGranted(WorkspaceVoter::DELETE, subject: 'workspace')]
     public function __invoke(
         Workspace $workspace,
-        WorkspaceService $service,
     ): Response {
-        $service->delete($workspace);
+        $this->workspaceService->delete($workspace);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

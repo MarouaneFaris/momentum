@@ -17,6 +17,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListMembersController extends AbstractController
 {
+    public function __construct(
+        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/members',
         name: 'api_workspace_members_list',
@@ -25,9 +29,8 @@ final class ListMembersController extends AbstractController
     #[IsGranted(WorkspaceVoter::VIEW_MEMBERS, subject: 'workspace')]
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
-        UserWorkspaceRepository $userWorkspaceRepository,
     ): JsonResponse {
-        $members = $userWorkspaceRepository->findMembersByWorkspace($workspace);
+        $members = $this->userWorkspaceRepository->findMembersByWorkspace($workspace);
 
         return $this->json(
             array_map(

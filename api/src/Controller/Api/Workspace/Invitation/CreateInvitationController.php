@@ -24,6 +24,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CreateInvitationController extends AbstractController
 {
+    public function __construct(
+        private readonly MembershipService $membershipService,
+        private readonly ClockInterface $clock,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/invitations',
         name: 'api_workspace_invitation_create',
@@ -34,10 +39,8 @@ final class CreateInvitationController extends AbstractController
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapRequestPayload] InviteDTO $dto,
         #[CurrentUser] User $currentUser,
-        MembershipService $membershipService,
-        ClockInterface $clock,
     ): JsonResponse {
-        $invitation = $membershipService->invite(
+        $invitation = $this->membershipService->invite(
             $workspace,
             $currentUser,
             $dto->email,
@@ -45,7 +48,7 @@ final class CreateInvitationController extends AbstractController
         );
 
         return $this->json(
-            InvitationOwnerViewResponse::fromInvitation($invitation, $clock->now()),
+            InvitationOwnerViewResponse::fromInvitation($invitation, $this->clock->now()),
             Response::HTTP_CREATED,
         );
     }

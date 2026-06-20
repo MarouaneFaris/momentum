@@ -18,6 +18,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListInvitationsController extends AbstractController
 {
+    public function __construct(
+        private readonly WorkspaceInvitationRepository $invitationRepository,
+        private readonly ClockInterface $clock,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/invitations',
         name: 'api_workspace_invitations_list',
@@ -26,11 +31,9 @@ final class ListInvitationsController extends AbstractController
     #[IsGranted(WorkspaceVoter::VIEW_INVITATIONS, subject: 'workspace')]
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
-        WorkspaceInvitationRepository $invitationRepository,
-        ClockInterface $clock,
     ): JsonResponse {
-        $now = $clock->now();
-        $invitations = $invitationRepository->findPendingByWorkspace($workspace, $now);
+        $now = $this->clock->now();
+        $invitations = $this->invitationRepository->findPendingByWorkspace($workspace, $now);
 
         return $this->json(
             array_map(
