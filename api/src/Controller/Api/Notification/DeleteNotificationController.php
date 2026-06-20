@@ -16,6 +16,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class DeleteNotificationController extends AbstractController
 {
+    public function __construct(private readonly NotificationOrchestrator $orchestrator) {}
+
     #[OA\Delete(
         path: '/api/notifications/{id}',
         summary: 'Delete a notification',
@@ -37,9 +39,8 @@ final class DeleteNotificationController extends AbstractController
     #[IsGranted(NotificationVoter::DELETE, subject: 'notification')]
     public function __invoke(
         Notification $notification,
-        NotificationOrchestrator $orchestrator,
     ): Response {
-        $orchestrator->notificationDeleted($notification);
+        $this->orchestrator->notificationDeleted($notification);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

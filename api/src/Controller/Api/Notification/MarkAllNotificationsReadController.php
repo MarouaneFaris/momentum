@@ -17,6 +17,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class MarkAllNotificationsReadController extends AbstractController
 {
+    public function __construct(private readonly NotificationOrchestrator $orchestrator) {}
+
     #[OA\Patch(
         path: '/api/notifications/read-all',
         summary: 'Mark all notifications as read',
@@ -32,9 +34,8 @@ final class MarkAllNotificationsReadController extends AbstractController
     )]
     public function __invoke(
         #[CurrentUser] User $user,
-        NotificationOrchestrator $orchestrator,
     ): Response {
-        $orchestrator->allNotificationsRead($user, new \DateTimeImmutable());
+        $this->orchestrator->allNotificationsRead($user, new \DateTimeImmutable());
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
