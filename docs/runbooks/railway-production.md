@@ -186,18 +186,20 @@ group (as `app` does) and set:
 | ----------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `APP_ENV`               | `prod`                                                                                                         |
 | `APP_SECRET`            | _(same value as `app`)_                                                                                        |
-| `MESSENGER_CONSUMER_ID` | `${{RAILWAY_REPLICA_ID}}`                                                                                      |
+| `MESSENGER_CONSUMER_ID` | `worker`                                                                                                       |
 | `DATABASE_URL`          | `mysql://${{MARIADB_USER}}:${{MARIADB_PASSWORD}}@${{mariadb.RAILWAY_PRIVATE_DOMAIN}}:3306/${{MARIADB_DATABASE}}?serverVersion=mariadb-11.8.6&charset=utf8mb4` |
 | `REDIS_URL`             | `${{Redis.REDIS_URL}}`                                                                                         |
 | `MAILER_DSN`            | _(same value as `app`)_                                                                                        |
 | `MAILER_SENDER`         | _(same value as `app`)_                                                                                        |
 
-> `MESSENGER_CONSUMER_ID=${{RAILWAY_REPLICA_ID}}` gives each worker replica a
-> distinct Redis stream consumer name — required so replicas don't share a pending
-> list and double-process messages. Railway injects a unique `RAILWAY_REPLICA_ID`
-> per running replica, so this stays correct if the worker is scaled up. The id
-> changes on each deploy; orphaned in-flight messages from the previous id are
-> reclaimed automatically after `redeliver_timeout` (3600s, see `messenger.yaml`).
+> `MESSENGER_CONSUMER_ID` is the worker's Redis stream consumer name within the
+> `symfony` group. A single stable value (`worker`) is correct for one replica.
+> **Not scaling-safe:** if you raise the worker replica count, each replica must
+> get a distinct consumer name — otherwise they share a pending list and
+> double-process messages. Railway env vars are shared across a service's replicas,
+> so multi-replica would need a per-process id source (Railway does not inject a
+> reliable per-replica variable). Keep the worker at one replica unless you revisit
+> this.
 
 > `DATABASE_URL` is required even though the worker doesn't serve HTTP: the `failed`
 > transport is Doctrine-backed (MariaDB), so the worker writes dead-lettered messages
