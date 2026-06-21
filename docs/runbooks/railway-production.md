@@ -50,6 +50,28 @@ Standing up the production stack on Railway from an empty project.
 1. **New Service** → **Database** → **Redis** (Railway-managed plugin).
 2. Railway auto-injects `REDIS_URL` into any service that references it — see §4 for wiring.
 
+### 2.4 `worker` service
+
+The Messenger worker that delivers async emails (ADR-015). Same repo and same
+Docker image as `app` — only the start command differs.
+
+1. **New Service** → **GitHub Repo** → connect `MarouaneFaris/momentum` (same repo as `app`).
+2. Rename the service to `worker`.
+3. **Settings** → **Config-as-code** → set **Config Path** to `railway.worker.toml`.
+
+   This file (committed at repo root) reuses `docker/Dockerfile` and overrides
+   the start command to consume `async_priority_high async` (the command is
+   wrapped in `sh -c` so the image entrypoint skips its migration block — see the
+   file's comments). It declares no healthcheck (the worker is not HTTP) and no
+   pre-deploy command (migrations run on `app` only).
+
+> The worker consumes **both** queues — emails route to `async_priority_high`
+> (see `messenger.yaml` routing). Consuming `async` alone would never deliver email.
+
+> The image still contains the frontend build (shared Dockerfile) — harmless dead
+> weight for the worker. Eliminating it would require a single-artifact registry
+> deploy; deferred (see #548 discussion).
+
 ---
 
 ## 3. Attach persistent storage to `mariadb`
@@ -110,6 +132,12 @@ REDIS_URL=${{Redis.REDIS_URL}}
 | `APP_SECRET`              | _(generate: `openssl rand -hex 32`)_ |
 | `SYMFONY_TRUSTED_PROXIES` | `REMOTE_ADDR`                        |
 | `FRONTEND_URL`            | `https://${{RAILWAY_PUBLIC_DOMAIN}}` |
+| `MESSENGER_CONSUMER_ID`   | `web`                                |
+
+> `MESSENGER_CONSUMER_ID` has no committed default in `api/.env` beyond a generic
+> fallback — set it explicitly per service so the Redis stream consumer group
+> identifies each process distinctly. The `app` service only *produces* messages,
+> but the env var must still resolve when the transport is instantiated to dispatch.
 
 > **`SERVER_NAME` must be set before the first deploy.** Railway injects `PORT` at runtime; Caddy binds to whatever `SERVER_NAME` is set to. An empty or missing value produces a bare server block that Caddy rejects — FrankenPHP crashes on startup and all healthchecks fail. `:${{PORT}}` (Railway's reference syntax) resolves to the correct port automatically.
 
@@ -147,6 +175,34 @@ header X-Frame-Options "DENY"
 > Before setting `MAILER_DSN`: create a Resend account at [resend.com](https://resend.com), verify your sending domain in the Resend dashboard, then generate an API key. Replace `YOUR_RESEND_API_KEY` with the generated key. Set `MAILER_SENDER` to a verified sender address on that domain. See [ADR-015](../adr/015-async-email-dispatch.md) for provider rationale.
 
 > No `.env.prod` file is committed to the repo. All production values live exclusively in Railway. See [ADR-010](../adr/010-env-file-architecture.md).
+
+### 4.4 `worker` service variables
+
+The worker runs the same code as `app` and shares the same backing services, so it
+needs the same data-layer and mail variables. Reference the `db-credentials` shared
+group (as `app` does) and set:
+
+| Variable                | Value                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `APP_ENV`               | `prod`                                                                                                         |
+| `APP_SECRET`            | _(same value as `app`)_                                                                                        |
+| `MESSENGER_CONSUMER_ID` | `${{RAILWAY_REPLICA_ID}}`                                                                                      |
+| `DATABASE_URL`          | `mysql://${{MARIADB_USER}}:${{MARIADB_PASSWORD}}@${{mariadb.RAILWAY_PRIVATE_DOMAIN}}:3306/${{MARIADB_DATABASE}}?serverVersion=mariadb-11.8.6&charset=utf8mb4` |
+| `REDIS_URL`             | `${{Redis.REDIS_URL}}`                                                                                         |
+| `MAILER_DSN`            | _(same value as `app`)_                                                                                        |
+| `MAILER_SENDER`         | _(same value as `app`)_                                                                                        |
+
+> `MESSENGER_CONSUMER_ID=${{RAILWAY_REPLICA_ID}}` gives each worker replica a
+> distinct Redis stream consumer name — required so replicas don't share a pending
+> list and double-process messages. Railway injects a unique `RAILWAY_REPLICA_ID`
+> per running replica, so this stays correct if the worker is scaled up. The id
+> changes on each deploy; orphaned in-flight messages from the previous id are
+> reclaimed automatically after `redeliver_timeout` (3600s, see `messenger.yaml`).
+
+> `DATABASE_URL` is required even though the worker doesn't serve HTTP: the `failed`
+> transport is Doctrine-backed (MariaDB), so the worker writes dead-lettered messages
+> there. `REDIS_URL` is the async transport. No Caddy/Mercure or frontend variables
+> are needed — the worker never serves the web app.
 
 ---
 
@@ -192,7 +248,12 @@ After the first successful manual deploy, wire up GitHub Actions for continuous 
 1. After the first deploy, copy the public subdomain URL (e.g. `https://momentum-prod.up.railway.app`).
 2. Add to GitHub repo as a **variable** named `API_HEALTH_URL` with value `https://<subdomain>/api/health`.
 
-The CI workflow (`ci.yml`) already consumes these — `RAILWAY_TOKEN` as a secret and both `RAILWAY_APP_SERVICE_ID` / `API_HEALTH_URL` as `vars.*`.
+### 7.4 Worker service ID
+
+1. `worker` service → **Settings** → copy the **Service ID**.
+2. Add to GitHub repo as a **variable** named `RAILWAY_WORKER_SERVICE_ID`.
+
+The CI workflow (`ci.yaml`) consumes these — `RAILWAY_TOKEN` as a secret and `RAILWAY_APP_SERVICE_ID` / `RAILWAY_WORKER_SERVICE_ID` / `API_HEALTH_URL` as `vars.*`. The `deploy` job builds and ships both the `app` and `worker` services from the same tag.
 
 ---
 
@@ -242,3 +303,16 @@ x-content-type-options: nosniff
 referrer-policy: strict-origin-when-cross-origin
 x-frame-options: DENY
 ```
+
+### 8.5 Worker delivers email
+
+The registration in §8.2 dispatches a verification email to `async_priority_high`.
+
+1. Open the `worker` service → **Deployments** → **Logs**. Confirm the process is
+   running `messenger:consume` (no crash loop).
+2. After registering, the logs should show the message being received and handled
+   (a `Resend` delivery, per `MAILER_DSN`).
+3. Check the Resend dashboard for the sent message.
+
+If nothing is consumed: verify the worker's `REDIS_URL` matches `app`'s (same
+instance) and that `MESSENGER_CONSUMER_ID` is set on both services.
