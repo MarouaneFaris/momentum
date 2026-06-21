@@ -16,6 +16,10 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class LeaveWorkspaceController extends AbstractController
 {
+    public function __construct(
+        private readonly MembershipService $membershipService,
+    ) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/members/me',
         name: 'api_workspace_member_leave',
@@ -25,9 +29,8 @@ final class LeaveWorkspaceController extends AbstractController
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[CurrentUser] User $currentUser,
-        MembershipService $membershipService,
     ): Response {
-        $membershipService->leave($workspace, $currentUser);
+        $this->membershipService->leave($workspace, $currentUser);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }

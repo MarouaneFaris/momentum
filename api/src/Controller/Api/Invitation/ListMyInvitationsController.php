@@ -16,6 +16,11 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class ListMyInvitationsController extends AbstractController
 {
+    public function __construct(
+        private readonly WorkspaceInvitationRepository $invitationRepository,
+        private readonly ClockInterface $clock,
+    ) {}
+
     #[Route(
         path: '/api/invitations',
         name: 'api_invitations_list',
@@ -23,10 +28,8 @@ final class ListMyInvitationsController extends AbstractController
     )]
     public function __invoke(
         #[CurrentUser] User $currentUser,
-        WorkspaceInvitationRepository $invitationRepository,
-        ClockInterface $clock,
     ): JsonResponse {
-        $invitations = $invitationRepository->findPendingByInvitee($currentUser, $clock->now());
+        $invitations = $this->invitationRepository->findPendingByInvitee($currentUser, $this->clock->now());
 
         return $this->json(
             array_map(

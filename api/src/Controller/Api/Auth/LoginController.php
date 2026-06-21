@@ -18,6 +18,10 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 final class LoginController extends AbstractController
 {
+    public function __construct(
+        private readonly AuthTokenManager $authTokenManager,
+    ) {}
+
     #[OA\Post(
         path: '/api/login',
         summary: 'Authenticate and receive session cookie',
@@ -38,6 +42,7 @@ final class LoginController extends AbstractController
                 content: new OA\JsonContent(ref: new Model(type: LoginResponse::class))
             ),
             new OA\Response(response: 401, description: 'Invalid credentials'),
+            new OA\Response(response: 403, description: 'Email not verified'),
             new OA\Response(response: 422, description: 'Validation error — missing or malformed fields'),
         ]
     )]
@@ -48,9 +53,8 @@ final class LoginController extends AbstractController
     )]
     public function __invoke(
         #[CurrentUser] User $user,
-        AuthTokenManager $service,
     ): JsonResponse {
-        $result = $service->createToken($user);
+        $result = $this->authTokenManager->createToken($user);
         $response = $this->json(LoginResponse::fromEntity($user));
         $response->headers->setCookie(
             Cookie::create(

@@ -16,3 +16,17 @@ export type AuthResponse = LoginResponse
 export type RegisterResponse = {
     message: string
 }
+
+export type VerifyEmailPayload = {
+    token: string
+}
+
+export type VerifyEmailResponse = {
+    message: string
+}
+
+export type ResendVerificationPayload = {
+    email: string
+}
+
+export type VerifyState = 'verifying' | 'success' | 'invalid' | 'expired' | 'no-token'

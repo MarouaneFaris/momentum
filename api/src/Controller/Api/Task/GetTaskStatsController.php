@@ -21,6 +21,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class GetTaskStatsController extends AbstractController
 {
+    public function __construct(private readonly TaskRepository $taskRepository) {}
+
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/tasks/stats',
         summary: 'Get task stats for the authenticated user in a workspace',
@@ -47,10 +49,9 @@ final class GetTaskStatsController extends AbstractController
     public function __invoke(
         #[CurrentUser] User $user,
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
-        TaskRepository $taskRepository,
     ): JsonResponse {
         return $this->json(TaskStatsResponse::fromArray(
-            $taskRepository->getStatsByWorkspaceAndUser($workspace, $user),
+            $this->taskRepository->getStatsByWorkspaceAndUser($workspace, $user),
         ));
     }
 }

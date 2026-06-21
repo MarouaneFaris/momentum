@@ -20,6 +20,7 @@ security:
             lazy: true
             provider: app_user_provider
             stateless: true
+            user_checker: App\Security\AppUserChecker
 
             # Activate different ways to authenticate:
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -47,7 +48,7 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
         - { path: ^/api/dev/notifications/trigger, roles: ROLE_USER }
-        - { path: ^/api/(login|register|dev|health), roles: PUBLIC_ACCESS }
+        - { path: ^/api/(login|register|dev|health|verify-email|resend-verification), roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
 
 when@test:

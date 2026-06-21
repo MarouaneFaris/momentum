@@ -66,7 +66,7 @@ jobs:
         run: php bin/console lint:container --no-debug
 
       - name: Validate Twig templates
-        run: php bin/console lint:twig --no-debug
+        run: php bin/console lint:twig templates/ --no-debug
 
       - name: Validate Doctrine mapping
         run: php bin/console doctrine:schema:validate --skip-sync

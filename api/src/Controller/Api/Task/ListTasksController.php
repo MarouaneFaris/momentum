@@ -20,6 +20,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListTasksController extends AbstractTaskController
 {
+    public function __construct(private readonly TaskRepository $taskRepository) {}
+
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks',
         summary: 'List tasks for a project',
@@ -50,11 +52,10 @@ final class ListTasksController extends AbstractTaskController
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
-        TaskRepository $taskRepository,
     ): JsonResponse {
         $this->assertProjectBelongsToWorkspace($project, $workspace);
 
-        $tasks = $taskRepository->findByProject($project);
+        $tasks = $this->taskRepository->findByProject($project);
 
         return $this->json(
             array_map(

@@ -18,6 +18,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListProjectMembersController extends AbstractController
 {
+    public function __construct(private readonly UserProjectRepository $userProjectRepository) {}
+
     #[Route(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/members',
         name: 'api_project_members_list',
@@ -27,9 +29,8 @@ final class ListProjectMembersController extends AbstractController
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
-        UserProjectRepository $userProjectRepository,
     ): JsonResponse {
-        $members = $userProjectRepository->findByProject($project);
+        $members = $this->userProjectRepository->findByProject($project);
 
         return $this->json(
             array_map(

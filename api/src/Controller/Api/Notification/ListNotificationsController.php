@@ -20,6 +20,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class ListNotificationsController extends AbstractController
 {
+    public function __construct(private readonly NotificationRepository $notificationRepository) {}
+
     #[OA\Get(
         path: '/api/notifications',
         summary: 'List notifications for the authenticated user',
@@ -42,9 +44,8 @@ final class ListNotificationsController extends AbstractController
     )]
     public function __invoke(
         #[CurrentUser] User $user,
-        NotificationRepository $notificationRepository,
     ): JsonResponse {
-        $notifications = $notificationRepository->findByRecipient($user);
+        $notifications = $this->notificationRepository->findByRecipient($user);
 
         return $this->json(
             array_map(

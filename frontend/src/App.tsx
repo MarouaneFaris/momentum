@@ -7,6 +7,7 @@ import AuthLayout from '@/layouts/AuthLayout'
 import queryClient from '@/lib/queryClient'
 import InvitationsPage from '@/pages/InvitationsPage'
 import LoginPage from '@/pages/LoginPage'
+import VerifyEmailPage from '@/pages/VerifyEmailPage'
 import WorkspaceMembersPage from '@/pages/WorkspaceMembersPage'
 import WorkspaceMyTasksPage from '@/pages/WorkspaceMyTasksPage'
 import WorkspaceProjectsPage from '@/pages/WorkspaceProjectsPage'
@@ -37,6 +38,7 @@ export default function App() {
                                 <Route element={<AuthLayout />}>
                                     <Route path="/login" element={<LoginPage />} />
                                     <Route path="/register" element={<RegisterPage />} />
+                                    <Route path="/verify-email" element={<VerifyEmailPage />} />
                                 </Route>
                                 <Route element={<AppLayout />}>
                                     <Route path="/" element={<LandingPage />} />

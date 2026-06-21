@@ -23,6 +23,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class UpdateProjectController extends AbstractController
 {
+    public function __construct(private readonly ProjectService $projectService) {}
+
     #[OA\Patch(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}',
         summary: 'Update a project',
@@ -56,13 +58,12 @@ final class UpdateProjectController extends AbstractController
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
         #[MapRequestPayload] UpdateProjectDTO $dto,
-        ProjectService $projectService,
     ): JsonResponse {
         if ((string) $project->getWorkspace()->getId() !== (string) $workspace->getId()) {
             throw $this->createNotFoundException('Project not found in this workspace');
         }
 
-        $projectService->update(
+        $this->projectService->update(
             $project,
             $dto->name,
             $dto->description,

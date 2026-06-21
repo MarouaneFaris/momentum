@@ -24,6 +24,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CreateTaskController extends AbstractTaskController
 {
+    public function __construct(private readonly TaskService $taskService) {}
+
     #[OA\Post(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks',
         summary: 'Create a task in a project',
@@ -59,11 +61,10 @@ final class CreateTaskController extends AbstractTaskController
         #[MapEntity(mapping: ['projectId' => 'id'])] Project $project,
         #[MapRequestPayload] CreateTaskDTO $dto,
         #[CurrentUser] User $user,
-        TaskService $taskService,
     ): JsonResponse {
         $this->assertProjectBelongsToWorkspace($project, $workspace);
 
-        $task = $taskService->create(
+        $task = $this->taskService->create(
             $project,
             $user,
             $dto->title,

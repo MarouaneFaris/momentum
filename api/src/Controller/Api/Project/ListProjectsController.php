@@ -24,6 +24,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListProjectsController extends AbstractController
 {
+    public function __construct(
+        private readonly UserWorkspaceRepository $userWorkspaceRepository,
+        private readonly ProjectRepository $projectRepository,
+        private readonly TaskRepository $taskRepository,
+    ) {}
+
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/projects',
         summary: 'List projects in a workspace (filtered by caller role)',
@@ -53,17 +59,14 @@ final class ListProjectsController extends AbstractController
     public function __invoke(
         #[MapEntity(mapping: ['workspaceId' => 'id'])] Workspace $workspace,
         #[CurrentUser] User $user,
-        UserWorkspaceRepository $userWorkspaceRepository,
-        ProjectRepository $projectRepository,
-        TaskRepository $taskRepository,
     ): JsonResponse {
-        $membership = $userWorkspaceRepository->findOneBy(['user' => $user, 'workspace' => $workspace]);
+        $membership = $this->userWorkspaceRepository->findOneBy(['user' => $user, 'workspace' => $workspace]);
         assert($membership !== null);
 
-        $projects = $projectRepository->findVisibleForMember($workspace, $membership);
+        $projects = $this->projectRepository->findVisibleForMember($workspace, $membership);
 
-        $taskStatsByProject = $taskRepository->getStatsForProjects($projects);
-        $assigneeNamesByProject = $taskRepository->getAssigneeNamesForProjects($projects);
+        $taskStatsByProject = $this->taskRepository->getStatsForProjects($projects);
+        $assigneeNamesByProject = $this->taskRepository->getAssigneeNamesForProjects($projects);
 
         return $this->json(
             array_map(
