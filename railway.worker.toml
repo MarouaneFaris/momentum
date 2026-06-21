@@ -1,0 +1,24 @@
+# Railway config for the Messenger worker service.
+# Same image as the web service (docker/Dockerfile, last stage frankenphp_prod);
+# only the start command differs — the worker consumes the async queues instead
+# of serving HTTP. Set this file as the worker service's Config Path in Railway.
+# See docs/runbooks/railway-production.md §2.4 and ADR-015.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "docker/Dockerfile"
+buildEnvironment = "V3"
+
+[deploy]
+# High-priority queue first (emails route there), then the default async queue.
+# --time-limit recycles the process hourly; restartPolicyType brings it back.
+#
+# Wrapped in `sh -c` on purpose: docker-entrypoint runs its init block (DB wait +
+# doctrine:migrations:migrate) only when $1 is frankenphp/php/bin/console. The
+# wrapper makes $1=sh, so the worker skips migrations — those run on the web
+# service only (issue #548). Without it the worker would re-migrate on every
+# hourly restart and race the web deploy.
+startCommand = "sh -c 'php bin/console messenger:consume async_priority_high async --time-limit=3600 --memory-limit=128M'"
+restartPolicyType = "ALWAYS"
+# No healthcheckPath: the worker is not an HTTP service.
+# No preDeployCommand: migrations run on the web service only.
