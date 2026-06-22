@@ -6,6 +6,12 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import z from 'zod'
 import { useLogin } from '../queries'
+import {
+    AUTH_FIELD_KEYS,
+    clearPersistedAuthFields,
+    readPersistedField,
+    usePersistedField,
+} from './usePersistedField'
 
 const schema = z.object({
     email: z.email(),
@@ -19,15 +25,20 @@ export const useLoginForm = () => {
         handleSubmit,
         register,
         setError,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(schema),
+        defaultValues: { email: readPersistedField(AUTH_FIELD_KEYS.email), password: '' },
     })
+
+    usePersistedField(watch, 'email', AUTH_FIELD_KEYS.email)
 
     const handleOnSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         void handleSubmit((data) =>
             mutate(data, {
                 onSuccess: () => {
+                    clearPersistedAuthFields()
                     void queryClient.invalidateQueries({ queryKey: ['me'] })
                     toast('Welcome back!')
                 },
