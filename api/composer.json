@@ -44,7 +44,7 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^4.3",
-        "friendsofphp/php-cs-fixer": "^3.95.2",
+        "friendsofphp/php-cs-fixer": "^3.95.10",
         "phpstan/extension-installer": "^1.4.3",
         "phpstan/phpstan": "^2.2.2",
         "phpstan/phpstan-doctrine": "^2.0.22",
@@ -54,7 +54,7 @@
         "symfony/maker-bundle": "^1.67",
         "symfony/stopwatch": "8.1.*",
         "symfony/web-profiler-bundle": "8.1.*",
-        "zircote/swagger-php": "^6.1"
+        "zircote/swagger-php": "^6.2"
     },
     "config": {
         "platform": {
