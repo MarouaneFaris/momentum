@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import z from 'zod'
 import { useRegister } from '../queries'
+import { AUTH_FIELD_KEYS, readPersistedField, usePersistedField } from './usePersistedField'
 
 const schema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -14,6 +15,8 @@ const schema = z.object({
 })
 
 const navigateToLogin = (navigate: ReturnType<typeof useNavigate>, message?: string) => {
+    // Keep the email so it prefills the login form; drop the name, it's not needed there.
+    if (typeof sessionStorage !== 'undefined') sessionStorage.removeItem(AUTH_FIELD_KEYS.name)
     if (message) toast(message)
     void navigate('/login')
 }
@@ -25,10 +28,19 @@ export const useRegisterForm = () => {
     const {
         handleSubmit,
         register,
+        watch,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(schema),
+        defaultValues: {
+            name: readPersistedField(AUTH_FIELD_KEYS.name),
+            email: readPersistedField(AUTH_FIELD_KEYS.email),
+            password: '',
+        },
     })
+
+    usePersistedField(watch, 'name', AUTH_FIELD_KEYS.name)
+    usePersistedField(watch, 'email', AUTH_FIELD_KEYS.email)
 
     const handleOnSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
         void handleSubmit(({ name, email, password }) =>
