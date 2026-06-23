@@ -38,7 +38,7 @@ final class WorkspaceScopeSubscriberTest extends TestCase
         $filters->expects(self::once())->method('isEnabled')->with('workspace')->willReturn(true);
         $filters->expects(self::once())->method('disable')->with('workspace');
 
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
         $em->method('getFilters')->willReturn($filters);
 
         $subscriber = new WorkspaceScopeSubscriber($repo, new WorkspaceContext(), $em);
@@ -54,7 +54,7 @@ final class WorkspaceScopeSubscriberTest extends TestCase
         $filters->expects(self::once())->method('isEnabled')->with('workspace')->willReturn(false);
         $filters->expects(self::never())->method('disable');
 
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
         $em->method('getFilters')->willReturn($filters);
 
         $subscriber = new WorkspaceScopeSubscriber($repo, new WorkspaceContext(), $em);

@@ -11,7 +11,6 @@ use App\Enum\WorkspaceRole;
 use App\Repository\UserWorkspaceRepository;
 use App\Security\WorkspaceMembership;
 use App\Security\WorkspaceMembershipResolver;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
@@ -19,11 +18,11 @@ use Symfony\Component\Uid\Uuid;
 final class WorkspaceMembershipResolverTest extends TestCase
 {
     private WorkspaceMembershipResolver $resolver;
-    private UserWorkspaceRepository&MockObject $repository;
+    private UserWorkspaceRepository&Stub $repository;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(UserWorkspaceRepository::class);
+        $this->repository = $this->createStub(UserWorkspaceRepository::class);
         $this->resolver = new WorkspaceMembershipResolver($this->repository);
     }
 
@@ -52,13 +51,15 @@ final class WorkspaceMembershipResolverTest extends TestCase
         [$user, $workspace] = $this->makeUserAndWorkspace();
         $uw = $this->makeUserWorkspace(WorkspaceRole::Owner);
 
+        $repository = $this->createMock(UserWorkspaceRepository::class);
         // Repository must be called exactly once even though we call resolver twice
-        $this->repository->expects(self::once())
+        $repository->expects(self::once())
             ->method('findOneBy')
             ->willReturn($uw);
+        $resolver = new WorkspaceMembershipResolver($repository);
 
-        $first = $this->resolver->for($user, $workspace);
-        $second = $this->resolver->for($user, $workspace);
+        $first = $resolver->for($user, $workspace);
+        $second = $resolver->for($user, $workspace);
 
         self::assertSame($first, $second);
     }
@@ -67,12 +68,14 @@ final class WorkspaceMembershipResolverTest extends TestCase
     {
         [$user, $workspace] = $this->makeUserAndWorkspace();
 
-        $this->repository->expects(self::once())
+        $repository = $this->createMock(UserWorkspaceRepository::class);
+        $repository->expects(self::once())
             ->method('findOneBy')
             ->willReturn(null);
+        $resolver = new WorkspaceMembershipResolver($repository);
 
-        $first = $this->resolver->for($user, $workspace);
-        $second = $this->resolver->for($user, $workspace);
+        $first = $resolver->for($user, $workspace);
+        $second = $resolver->for($user, $workspace);
 
         self::assertNull($first);
         self::assertNull($second);
@@ -83,12 +86,14 @@ final class WorkspaceMembershipResolverTest extends TestCase
         [$user, $workspace1] = $this->makeUserAndWorkspace();
         [, $workspace2] = $this->makeUserAndWorkspace();
 
-        $this->repository->expects(self::exactly(2))
+        $repository = $this->createMock(UserWorkspaceRepository::class);
+        $repository->expects(self::exactly(2))
             ->method('findOneBy')
             ->willReturn(null);
+        $resolver = new WorkspaceMembershipResolver($repository);
 
-        $this->resolver->for($user, $workspace1);
-        $this->resolver->for($user, $workspace2);
+        $resolver->for($user, $workspace1);
+        $resolver->for($user, $workspace2);
     }
 
     public function testReturnsNullWhenUserHasNoId(): void
@@ -97,9 +102,11 @@ final class WorkspaceMembershipResolverTest extends TestCase
         $workspace = $this->createStub(Workspace::class);
         $workspace->method('getId')->willReturn(Uuid::v7());
 
-        $this->repository->expects(self::never())->method('findOneBy');
+        $repository = $this->createMock(UserWorkspaceRepository::class);
+        $repository->expects(self::never())->method('findOneBy');
+        $resolver = new WorkspaceMembershipResolver($repository);
 
-        self::assertNull($this->resolver->for($user, $workspace));
+        self::assertNull($resolver->for($user, $workspace));
     }
 
     /** @return array{User&Stub, Workspace&Stub} */
