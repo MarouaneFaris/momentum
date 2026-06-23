@@ -8,7 +8,7 @@ use App\Error\ErrorCode;
 use App\Error\ErrorResponseFactory;
 use App\EventListener\JsonExceptionListener;
 use App\Exception\ApiException;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,11 +23,11 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 final class JsonExceptionListenerTest extends TestCase
 {
     private JsonExceptionListener $listener;
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     protected function setUp(): void
     {
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
         $tokenStorage = $this->createStub(TokenStorageInterface::class);
 
         $this->listener = new JsonExceptionListener(
@@ -98,10 +98,12 @@ final class JsonExceptionListenerTest extends TestCase
 
     public function testUncaughtThrowableReturns500WithInternalError(): void
     {
-        $this->logger->expects($this->once())->method('error');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error');
+        $listener = new JsonExceptionListener(new ErrorResponseFactory(), $logger, $this->createStub(TokenStorageInterface::class));
 
         $event = $this->makeEvent(new \RuntimeException('Something blew up.'));
-        ($this->listener)($event);
+        $listener($event);
 
         $response = $this->getResponse($event);
         self::assertSame(500, $response->getStatusCode());
@@ -113,18 +115,22 @@ final class JsonExceptionListenerTest extends TestCase
 
     public function testApiExceptionDoesNotLog(): void
     {
-        $this->logger->expects($this->never())->method('error');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('error');
+        $listener = new JsonExceptionListener(new ErrorResponseFactory(), $logger, $this->createStub(TokenStorageInterface::class));
 
         $event = $this->makeEvent(new ApiException(ErrorCode::VALIDATION_FAILED, 'Nope.'));
-        ($this->listener)($event);
+        $listener($event);
     }
 
     public function test4xxHttpExceptionDoesNotLog(): void
     {
-        $this->logger->expects($this->never())->method('error');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('error');
+        $listener = new JsonExceptionListener(new ErrorResponseFactory(), $logger, $this->createStub(TokenStorageInterface::class));
 
         $event = $this->makeEvent(new NotFoundHttpException('Not found.'));
-        ($this->listener)($event);
+        $listener($event);
     }
 
     private function makeEvent(\Throwable $exception): ExceptionEvent
