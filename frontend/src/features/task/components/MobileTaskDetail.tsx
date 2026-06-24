@@ -22,10 +22,6 @@ function formatDate(iso: string): string {
     })
 }
 
-function isOverdue(dueDate: string): boolean {
-    return new Date(dueDate) < new Date(new Date().toDateString())
-}
-
 export function MobileTaskDetail({
     task,
     projectName,
@@ -122,12 +118,12 @@ export function MobileTaskDetail({
                         {task.dueDate ? (
                             <span
                                 className={
-                                    isOverdue(task.dueDate) && task.status !== 'done'
+                                    task.isOverdue && task.status !== 'done'
                                         ? 'text-destructive flex items-center gap-1 text-[12px] font-medium'
                                         : 'text-muted-foreground text-[12px]'
                                 }
                             >
-                                {isOverdue(task.dueDate) && task.status !== 'done' && (
+                                {task.isOverdue && task.status !== 'done' && (
                                     <AlertCircle size={12} />
                                 )}
                                 {formatDate(task.dueDate)}

@@ -27,12 +27,15 @@ final readonly class TaskDetailResponse
         public string $updatedAt,
         #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-12-31')]
         public ?string $dueDate,
+        #[OA\Property(type: 'boolean', description: 'True when due date is set and is in the past')]
+        public bool $isOverdue,
     ) {}
 
     public static function fromTask(Task $task): self
     {
         $assignee = $task->getAssignee();
         $creator = $task->getCreator();
+        $dueDate = $task->getDueDate();
 
         return new self(
             id: (string) $task->getId(),
@@ -49,7 +52,8 @@ final readonly class TaskDetailResponse
             ) : null,
             createdAt: $task->getCreatedAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $task->getUpdatedAt()->format(\DateTimeInterface::ATOM),
-            dueDate: $task->getDueDate()?->toDateTimeImmutable()->format('Y-m-d'),
+            dueDate: $dueDate?->toDateTimeImmutable()->format('Y-m-d'),
+            isOverdue: $dueDate !== null && $dueDate->toDateTimeImmutable() < new \DateTimeImmutable('today'),
         );
     }
 }

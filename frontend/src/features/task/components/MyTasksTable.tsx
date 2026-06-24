@@ -8,12 +8,8 @@ function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-function isOverdue(dueDate: string): boolean {
-    return new Date(dueDate) < new Date(new Date().toDateString())
-}
-
 function MyTaskRow({ task }: { task: Task }) {
-    const overdue = task.dueDate !== null && task.status !== 'done' && isOverdue(task.dueDate)
+    const overdue = task.isOverdue && task.status !== 'done'
 
     return (
         <div

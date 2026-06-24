@@ -19,6 +19,7 @@ export type Task = {
     createdAt: string
     creatorId: string
     dueDate: string | null
+    isOverdue: boolean
 }
 
 export type TaskDetail = {
@@ -31,4 +32,5 @@ export type TaskDetail = {
     createdAt: string
     updatedAt: string
     dueDate: string | null
+    isOverdue: boolean
 }
