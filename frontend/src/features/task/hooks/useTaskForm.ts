@@ -17,7 +17,7 @@ const schema = z.object({
 
 export type TaskFormValues = z.infer<typeof schema>
 
-type CreatePayload = { title: string; description?: string; assigneeId?: string }
+type CreatePayload = { title: string; description?: string; assigneeId?: string; dueDate?: string }
 type UpdatePayload = CreatePayload & {
     status?: string
     removeAssignee?: boolean
@@ -90,6 +90,7 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
                 title: payload.title,
                 description: payload.description,
                 assigneeId: payload.assigneeId,
+                dueDate: values.dueDate || undefined,
             })
         }
     }

@@ -74,6 +74,7 @@ final class CreateTaskController extends AbstractTaskController
             $dto->title,
             $dto->description,
             $dto->assigneeId,
+            $dto->dueDate,
         );
 
         return $this->json(

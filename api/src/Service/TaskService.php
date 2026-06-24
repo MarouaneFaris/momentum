@@ -37,6 +37,7 @@ final readonly class TaskService
         string $title,
         ?string $description,
         ?string $assigneeId,
+        ?string $dueDate = null,
     ): Task {
         $assignee = null;
         if ($assigneeId !== null) {
@@ -53,6 +54,9 @@ final readonly class TaskService
         $task->setTitle($title);
         $task->setDescription($description === '' ? null : $description);
         $task->setAssignee($assignee);
+        if ($dueDate !== null) {
+            $task->setDueDate(new \DateTimeImmutable($dueDate));
+        }
 
         $this->em->persist($task);
         $this->em->flush();
