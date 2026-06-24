@@ -4,7 +4,7 @@ import type { ApiRoute } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
-import type { Task } from '../types'
+import type { Task, TaskFormValues, UseTaskFormOptions } from '../types'
 import { taskStatusSchema } from '../taskStatus'
 
 const schema = z.object({
@@ -15,8 +15,6 @@ const schema = z.object({
     dueDate: z.string().optional(),
 })
 
-export type TaskFormValues = z.infer<typeof schema>
-
 type CreatePayload = { title: string; description?: string; assigneeId?: string; dueDate?: string }
 type UpdatePayload = CreatePayload & {
     status?: string
@@ -24,15 +22,6 @@ type UpdatePayload = CreatePayload & {
     dueDate?: string
     removeDueDate?: boolean
 }
-
-export type UseTaskFormOptions = {
-    workspaceId: string
-    projectId: string
-    onSuccess: () => void
-} & (
-    | { mode?: 'create'; taskId?: undefined; initialValues?: undefined }
-    | { mode: 'edit'; taskId: string; initialValues: TaskFormValues }
-)
 
 export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseTaskFormOptions) {
     const isEdit = rest.mode === 'edit'

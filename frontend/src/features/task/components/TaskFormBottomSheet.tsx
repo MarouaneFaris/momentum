@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import type { UseFormReturn } from 'react-hook-form'
-import type { TaskFormValues } from '../hooks/useTaskForm'
+import type { TaskFormValues } from '../types'
 import { STATUS_OPTIONS } from '../taskStatus'
 import { AssigneeChips } from './AssigneeChips'
 

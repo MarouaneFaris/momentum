@@ -22,6 +22,23 @@ export type Task = {
     isOverdue: boolean
 }
 
+export type TaskFormValues = {
+    title: string
+    description?: string
+    assigneeId?: string
+    status?: TaskStatus
+    dueDate?: string
+}
+
+export type UseTaskFormOptions = {
+    workspaceId: string
+    projectId: string
+    onSuccess: () => void
+} & (
+    | { mode?: 'create'; taskId?: undefined; initialValues?: undefined }
+    | { mode: 'edit'; taskId: string; initialValues: TaskFormValues }
+)
+
 export type TaskDetail = {
     id: string
     title: string

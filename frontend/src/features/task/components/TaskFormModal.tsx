@@ -19,7 +19,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useWorkspaceMembers } from '@/features/membership/queries'
 import type { UseFormReturn } from 'react-hook-form'
-import type { TaskFormValues } from '../hooks/useTaskForm'
+import type { TaskFormValues } from '../types'
 
 type Props = {
     open: boolean
