@@ -10,6 +10,8 @@ const task: Task = {
     creatorId: 'user-1',
     assignee: null,
     createdAt: '2026-01-01T00:00:00Z',
+    dueDate: null,
+    isOverdue: false,
 }
 
 describe('DeleteTaskDialog', () => {
