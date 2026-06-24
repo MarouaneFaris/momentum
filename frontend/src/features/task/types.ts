@@ -51,3 +51,16 @@ export type TaskDetail = {
     dueDate: string | null
     isOverdue: boolean
 }
+
+export type CreatePayload = {
+    title: string
+    description?: string
+    assigneeId?: string
+    dueDate?: string
+}
+
+export type UpdatePayload = CreatePayload & {
+    status?: string
+    removeAssignee?: boolean
+    removeDueDate?: boolean
+}

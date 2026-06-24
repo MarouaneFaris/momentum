@@ -1,11 +1,17 @@
-import api from '@/lib/api'
 import { useFormMutation } from '@/hooks/useFormMutation'
+import api from '@/lib/api'
 import type { ApiRoute } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
-import type { Task, TaskFormValues, UseTaskFormOptions } from '../types'
 import { taskStatusSchema } from '../taskStatus'
+import type {
+    CreatePayload,
+    Task,
+    TaskFormValues,
+    UpdatePayload,
+    UseTaskFormOptions,
+} from '../types'
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or fewer'),
@@ -14,14 +20,6 @@ const schema = z.object({
     status: taskStatusSchema.optional(),
     dueDate: z.string().optional(),
 })
-
-type CreatePayload = { title: string; description?: string; assigneeId?: string; dueDate?: string }
-type UpdatePayload = CreatePayload & {
-    status?: string
-    removeAssignee?: boolean
-    dueDate?: string
-    removeDueDate?: boolean
-}
 
 export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseTaskFormOptions) {
     const isEdit = rest.mode === 'edit'
