@@ -105,6 +105,11 @@ export function TaskFormBottomSheet({
                     onChange={(id) => setValue('assigneeId', id)}
                 />
 
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="m-task-due-date">Due date</Label>
+                    <Input id="m-task-due-date" type="date" {...register('dueDate')} />
+                </div>
+
                 <div className="flex justify-end gap-2">
                     <Button
                         type="button"

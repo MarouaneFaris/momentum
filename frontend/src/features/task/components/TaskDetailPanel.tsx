@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { Pencil, Trash2, X } from 'lucide-react'
+import { Pencil, Trash2, X, AlertCircle } from 'lucide-react'
 import { UserAvatar } from '@/components/UserAvatar'
 import type { TaskDetail } from '../types'
 import { StatusBadge } from './StatusBadge'
@@ -30,6 +30,10 @@ function formatDate(iso: string): string {
         month: 'short',
         day: 'numeric',
     })
+}
+
+function isOverdue(dueDate: string): boolean {
+    return new Date(dueDate) < new Date(new Date().toDateString())
 }
 
 type Props = {
@@ -80,6 +84,25 @@ export default function TaskDetailPanel({ task, onClose, canEdit, onEdit, onDele
                             <span className="text-muted-foreground text-[12px]">
                                 {formatDate(task.createdAt)}
                             </span>
+                        </PanelRow>
+
+                        <PanelRow label="Due date">
+                            {task.dueDate ? (
+                                <span
+                                    className={
+                                        isOverdue(task.dueDate) && task.status !== 'done'
+                                            ? 'text-destructive flex items-center gap-1 text-[12px] font-medium'
+                                            : 'text-muted-foreground text-[12px]'
+                                    }
+                                >
+                                    {isOverdue(task.dueDate) && task.status !== 'done' && (
+                                        <AlertCircle size={12} />
+                                    )}
+                                    {formatDate(task.dueDate)}
+                                </span>
+                            ) : (
+                                <span className="text-muted-foreground text-[13px]">—</span>
+                            )}
                         </PanelRow>
 
                         {task.description && (

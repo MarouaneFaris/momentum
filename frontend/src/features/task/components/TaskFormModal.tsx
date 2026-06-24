@@ -116,6 +116,10 @@ export function TaskFormModal({
                                 </Select>
                             </div>
                         )}
+                        <div className="grid gap-2">
+                            <Label htmlFor="task-due-date">Due date</Label>
+                            <Input id="task-due-date" type="date" {...register('dueDate')} />
+                        </div>
                     </div>
                 </form>
                 <DialogFooter>

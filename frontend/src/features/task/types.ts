@@ -18,6 +18,7 @@ export type Task = {
     assignee: TaskAssignee | null
     createdAt: string
     creatorId: string
+    dueDate: string | null
 }
 
 export type TaskDetail = {
@@ -29,4 +30,5 @@ export type TaskDetail = {
     assignee: TaskAssignee | null
     createdAt: string
     updatedAt: string
+    dueDate: string | null
 }

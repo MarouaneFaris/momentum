@@ -1,5 +1,5 @@
 import { EmptyState } from '@/components/EmptyState'
-import { ClipboardList } from 'lucide-react'
+import { ClipboardList, AlertCircle } from 'lucide-react'
 import { UserAvatar } from '@/components/UserAvatar'
 import type { Task } from '../types'
 import { StatusBadge } from './StatusBadge'
@@ -8,17 +8,28 @@ function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
+function isOverdue(dueDate: string): boolean {
+    return new Date(dueDate) < new Date(new Date().toDateString())
+}
+
 function MyTaskRow({ task }: { task: Task }) {
+    const overdue = task.dueDate !== null && task.status !== 'done' && isOverdue(task.dueDate)
+
     return (
-        <div className="border-border bg-card flex items-center gap-2.5 rounded-[var(--radius)] border px-3 py-2.5">
+        <div
+            className={`border-bg-card flex items-center gap-2.5 rounded-[var(--radius)] border px-3 py-2.5 ${overdue ? 'border-destructive/40 bg-destructive/5' : 'border-border bg-card'}`}
+        >
             <span className="text-foreground min-w-0 flex-1 truncate text-sm leading-snug font-medium">
                 {task.title}
             </span>
+            {overdue && (
+                <span className="text-destructive flex shrink-0 items-center gap-1 text-[11px] font-medium">
+                    <AlertCircle size={11} />
+                    {formatDate(task.dueDate!)}
+                </span>
+            )}
             <StatusBadge status={task.status} />
             {task.assignee && <UserAvatar name={task.assignee.name} size="sm" />}
-            <span className="text-muted-foreground shrink-0 text-[11px]">
-                {formatDate(task.createdAt)}
-            </span>
         </div>
     )
 }

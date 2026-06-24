@@ -25,6 +25,8 @@ final readonly class TaskDetailResponse
         public string $createdAt,
         #[OA\Property(type: 'string', format: 'date-time')]
         public string $updatedAt,
+        #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-12-31')]
+        public ?string $dueDate,
     ) {}
 
     public static function fromTask(Task $task): self
@@ -47,6 +49,7 @@ final readonly class TaskDetailResponse
             ) : null,
             createdAt: $task->getCreatedAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $task->getUpdatedAt()->format(\DateTimeInterface::ATOM),
+            dueDate: $task->getDueDate()?->toDateTimeImmutable()->format('Y-m-d'),
         );
     }
 }

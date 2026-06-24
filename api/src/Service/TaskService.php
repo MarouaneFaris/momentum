@@ -84,7 +84,7 @@ final readonly class TaskService
             || UuidHelper::equals($task->getCreator()->getId(), $caller->getId());
         $hasFullAccess = $isOwner || $isCreator;
 
-        if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee)) {
+        if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee || $dto->dueDate !== null || $dto->removeDueDate)) {
             throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Only status updates are allowed for this role.', [], Response::HTTP_FORBIDDEN);
         }
 
@@ -113,6 +113,12 @@ final readonly class TaskService
                 }
                 $this->validateAssignee($task->getProject(), $newAssignee);
                 $task->setAssignee($newAssignee);
+            }
+
+            if ($dto->removeDueDate) {
+                $task->setDueDate(null);
+            } elseif ($dto->dueDate !== null) {
+                $task->setDueDate(new \DateTimeImmutable($dto->dueDate));
             }
         }
 

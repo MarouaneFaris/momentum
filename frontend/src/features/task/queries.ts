@@ -46,6 +46,8 @@ export const useUpdateTask = (workspaceId: string, projectId: string, taskId: st
             status?: TaskStatus
             assigneeId?: string
             removeAssignee?: boolean
+            dueDate?: string
+            removeDueDate?: boolean
         }) =>
             api.patch<TaskDetail>(
                 `/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`,

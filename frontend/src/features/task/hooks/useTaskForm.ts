@@ -12,12 +12,18 @@ const schema = z.object({
     description: z.string().optional(),
     assigneeId: z.string().optional(),
     status: taskStatusSchema.optional(),
+    dueDate: z.string().optional(),
 })
 
 export type TaskFormValues = z.infer<typeof schema>
 
 type CreatePayload = { title: string; description?: string; assigneeId?: string }
-type UpdatePayload = CreatePayload & { status?: string; removeAssignee?: boolean }
+type UpdatePayload = CreatePayload & {
+    status?: string
+    removeAssignee?: boolean
+    dueDate?: string
+    removeDueDate?: boolean
+}
 
 export type UseTaskFormOptions = {
     workspaceId: string
@@ -35,7 +41,9 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
 
     const form = useForm<TaskFormValues>({
         resolver: zodResolver(schema),
-        defaultValues: isEdit ? rest.initialValues : { title: '', description: '', assigneeId: '' },
+        defaultValues: isEdit
+            ? rest.initialValues
+            : { title: '', description: '', assigneeId: '', dueDate: '' },
     })
 
     const createMutation = useFormMutation({
@@ -62,11 +70,17 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
                 ? { removeAssignee: true }
                 : { assigneeId: values.assigneeId || undefined }
 
+        const dueDatePayload: { dueDate?: string; removeDueDate?: boolean } =
+            isEdit && !values.dueDate
+                ? { removeDueDate: true }
+                : { dueDate: values.dueDate || undefined }
+
         const payload = {
             title: values.title,
             description: values.description || undefined,
             ...(values.status ? { status: values.status } : {}),
             ...assigneePayload,
+            ...dueDatePayload,
         }
 
         if (isEdit) {

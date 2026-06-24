@@ -156,9 +156,9 @@ class Task
         return $this->dueDate;
     }
 
-    public function setDueDate(\DateTimeImmutable $datetime): static
+    public function setDueDate(?\DateTimeImmutable $datetime): static
     {
-        $this->dueDate = new DueDate($datetime);
+        $this->dueDate = $datetime !== null ? new DueDate($datetime) : null;
 
         return $this;
     }

@@ -22,6 +22,8 @@ final readonly class TaskListItemResponse
         public string $createdAt,
         #[OA\Property(type: 'string', format: 'uuid')]
         public string $creatorId,
+        #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-12-31')]
+        public ?string $dueDate,
     ) {}
 
     public static function fromTask(Task $task): self
@@ -38,6 +40,7 @@ final readonly class TaskListItemResponse
             ) : null,
             createdAt: $task->getCreatedAt()->format(\DateTimeInterface::ATOM),
             creatorId: (string) $task->getCreator()->getId(),
+            dueDate: $task->getDueDate()?->toDateTimeImmutable()->format('Y-m-d'),
         );
     }
 }
