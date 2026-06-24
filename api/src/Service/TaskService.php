@@ -18,6 +18,7 @@ use App\Exception\ApiException;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Utils\UuidHelper;
+use App\ValueObject\Task\DueDate;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,7 +56,7 @@ final readonly class TaskService
         $task->setDescription($description === '' ? null : $description);
         $task->setAssignee($assignee);
         if ($dueDate !== null) {
-            $task->setDueDate(new \DateTimeImmutable($dueDate));
+            $task->setDueDate(new DueDate(new \DateTimeImmutable($dueDate)));
         }
 
         $this->em->persist($task);
@@ -122,7 +123,7 @@ final readonly class TaskService
             if ($dto->removeDueDate) {
                 $task->setDueDate(null);
             } elseif ($dto->dueDate !== null) {
-                $task->setDueDate(new \DateTimeImmutable($dto->dueDate));
+                $task->setDueDate(new DueDate(new \DateTimeImmutable($dto->dueDate)));
             }
         }
 
