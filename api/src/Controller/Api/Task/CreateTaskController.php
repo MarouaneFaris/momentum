@@ -14,6 +14,7 @@ use App\Service\TaskService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +25,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CreateTaskController extends AbstractTaskController
 {
-    public function __construct(private readonly TaskService $taskService) {}
+    public function __construct(
+        private readonly TaskService $taskService,
+        private readonly ClockInterface $clock,
+    ) {}
 
     #[OA\Post(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks',
@@ -72,6 +76,9 @@ final class CreateTaskController extends AbstractTaskController
             $dto->assigneeId,
         );
 
-        return $this->json(TaskListItemResponse::fromTask($task), Response::HTTP_CREATED);
+        return $this->json(
+            TaskListItemResponse::fromTask($task, $this->clock),
+            Response::HTTP_CREATED,
+        );
     }
 }
