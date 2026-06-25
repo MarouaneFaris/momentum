@@ -23,4 +23,25 @@ export default defineConfig({
                 ? { cert: fs.readFileSync(sslCert), key: fs.readFileSync(sslKey) }
                 : undefined,
     },
+    build: {
+        rolldownOptions: {
+            output: {
+                codeSplitting: {
+                    groups: [
+                        {
+                            name: 'react-vendor',
+                            test: /node_modules\/(react|react-dom|react-router)/,
+                        },
+                        { name: 'query', test: /node_modules\/@tanstack/ },
+                        {
+                            name: 'ui',
+                            test: /node_modules\/(radix-ui|@radix-ui|lucide-react|next-themes|sonner|class-variance-authority|tailwind-merge|clsx)/,
+                        },
+                        { name: 'forms', test: /node_modules\/(react-hook-form|@hookform|zod)/ },
+                        { name: 'sentry', test: /node_modules\/@sentry/ },
+                    ],
+                },
+            },
+        },
+    },
 })
