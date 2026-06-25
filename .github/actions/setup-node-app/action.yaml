@@ -10,6 +10,7 @@ runs:
         node-version: lts/Krypton #v24
 
     - name: Setup pnpm
+      id: pnpm-setup
       uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 #v6.0.8
       with:
         package_json_file: frontend/package.json
@@ -17,7 +18,7 @@ runs:
     - name: Cache pnpm store
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae #v5.0.5
       with:
-        path: frontend/.pnpm-store
+        path: ${{ steps.pnpm-setup.outputs.store-path }}
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('frontend/pnpm-lock.yaml') }}
 
     - name: Install dependencies
