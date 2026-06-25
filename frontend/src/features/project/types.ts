@@ -21,6 +21,26 @@ export type Project = {
     memberNames: string[]
 }
 
+export type ProjectDetailTaskStats = {
+    total: number
+    todo: number
+    inProgress: number
+    done: number
+}
+
+export type ProjectDetail = {
+    id: string
+    name: string
+    description: string | null
+    status: ProjectStatus
+    color: ProjectColorKey
+    ownerUserId: string
+    createdAt: string
+    updatedAt: string
+    taskStats: ProjectDetailTaskStats
+    memberCount: number
+}
+
 export type ProjectMember = {
     id: string
     name: string

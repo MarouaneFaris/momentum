@@ -74,7 +74,7 @@ export function ProjectCard({
     return (
         <div className="bg-card border-border hover:border-primary/40 group relative flex cursor-pointer flex-col gap-2.5 rounded-[calc(var(--radius))] border p-4 transition-[border-color,box-shadow] hover:shadow-[0_0_0_3px_hsl(var(--primary)/0.06)]">
             <Link
-                to={`/workspaces/${workspaceId}/projects/${project.id}/tasks`}
+                to={`/workspaces/${workspaceId}/projects/${project.id}`}
                 className="absolute inset-0 z-[11] rounded-[calc(var(--radius))]"
                 aria-label={project.name}
             />

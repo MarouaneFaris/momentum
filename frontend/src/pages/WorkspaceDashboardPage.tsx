@@ -49,7 +49,7 @@ export default function WorkspaceDashboardPage() {
                         {sortedProjects.map((project) => (
                             <Link
                                 key={project.id}
-                                to={`/workspaces/${id}/projects/${project.id}/tasks`}
+                                to={`/workspaces/${id}/projects/${project.id}`}
                                 className="hover:bg-muted flex items-center gap-2 px-3 py-2.5"
                             >
                                 <span

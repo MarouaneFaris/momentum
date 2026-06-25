@@ -159,7 +159,7 @@ export default function AppLayout() {
                             {sortedProjects.map((project) => (
                                 <NavLink
                                     key={project.id}
-                                    to={`/workspaces/${workspaceId}/projects/${project.id}/tasks`}
+                                    to={`/workspaces/${workspaceId}/projects/${project.id}`}
                                     className={({ isActive }) =>
                                         `flex items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
                                             isActive

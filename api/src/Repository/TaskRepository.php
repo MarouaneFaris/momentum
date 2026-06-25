@@ -204,6 +204,41 @@ class TaskRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /** @return array{total: int, todo: int, inProgress: int, done: int} */
+    public function getStatsForProject(Project $project): array
+    {
+        $projectId = $project->getId();
+
+        if ($projectId === null) {
+            return ['total' => 0, 'todo' => 0, 'inProgress' => 0, 'done' => 0];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $row = $conn->fetchAssociative(
+            'SELECT
+                COUNT(*) AS total,
+                SUM(status = :todo) AS todo,
+                SUM(status = :in_progress) AS in_progress,
+                SUM(status = :done) AS done
+            FROM task
+            WHERE project_id = :projectId',
+            [
+                'todo' => TaskStatus::Todo->value,
+                'in_progress' => TaskStatus::InProgress->value,
+                'done' => TaskStatus::Done->value,
+                'projectId' => $projectId->toBinary(),
+            ],
+        );
+
+        return [
+            'total' => (int) ($row['total'] ?? 0),
+            'todo' => (int) ($row['todo'] ?? 0),
+            'inProgress' => (int) ($row['in_progress'] ?? 0),
+            'done' => (int) ($row['done'] ?? 0),
+        ];
+    }
+
     /**
      * @param Project[] $projects
      *

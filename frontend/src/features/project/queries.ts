@@ -1,13 +1,20 @@
 import api from '@/lib/api'
 import { useSettledQuery } from '@/lib/useSettledQuery'
 import { useMutation } from '@tanstack/react-query'
-import type { Project, ProjectMember } from './types'
+import type { Project, ProjectDetail, ProjectMember } from './types'
 
 export const useProjects = (workspaceId: string) =>
     useSettledQuery({
         queryKey: ['workspaces', workspaceId, 'projects'],
         queryFn: () => api.get<Project[]>(`/workspaces/${workspaceId}/projects`),
         enabled: !!workspaceId,
+    })
+
+export const useProjectDetail = (workspaceId: string, projectId: string) =>
+    useSettledQuery({
+        queryKey: ['workspaces', workspaceId, 'projects', projectId],
+        queryFn: () => api.get<ProjectDetail>(`/workspaces/${workspaceId}/projects/${projectId}`),
+        enabled: !!workspaceId && !!projectId,
     })
 
 export const useCreateProject = (workspaceId: string) =>
