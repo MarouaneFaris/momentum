@@ -10,6 +10,7 @@ use App\Factory\TaskFactory;
 use App\Factory\UserFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
+use App\ValueObject\Task\DueDate;
 use Symfony\Component\HttpFoundation\Response;
 
 final class TaskUpdateTest extends IntegrationTestCase
@@ -236,7 +237,7 @@ final class TaskUpdateTest extends IntegrationTestCase
         $workspace = WorkspaceFactory::createOne();
         $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
         $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership]);
-        $task = TaskFactory::createOne(['project' => $project, 'creator' => $membership->getUser(), 'dueDate' => new \DateTimeImmutable('2099-12-31')]);
+        $task = TaskFactory::createOne(['project' => $project, 'creator' => $membership->getUser(), 'dueDate' => new DueDate(new \DateTimeImmutable('2099-12-31'))]);
 
         $this->loginAs($client, self::EMAIL, self::PASSWORD);
         $client->request(
