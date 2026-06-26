@@ -60,11 +60,28 @@ export default function WorkspaceSettingsPage() {
         </div>
     )
 
+    const mobileAboutSection = (
+        <div className="flex flex-col gap-1">
+            <p className="text-muted-foreground px-1 text-xs font-medium tracking-wide uppercase">
+                About
+            </p>
+            <div className="bg-card divide-border divide-y overflow-hidden rounded-[var(--radius)] border">
+                <div className="flex items-center gap-3 px-3 py-3">
+                    <span className="text-foreground flex-1 text-sm font-medium">Version</span>
+                    <span className="text-muted-foreground text-sm">
+                        {import.meta.env.VITE_APP_VERSION ?? 'dev'}
+                    </span>
+                </div>
+            </div>
+        </div>
+    )
+
     if (!isOwner) {
         return (
             <div className="flex flex-col gap-8 p-4 md:p-6">
                 <PageHeader title="Settings" />
                 {mobileNavSection}
+                {mobileAboutSection}
             </div>
         )
     }
@@ -75,6 +92,7 @@ export default function WorkspaceSettingsPage() {
             {isMobile && mobileNavSection}
             <WorkspaceSettingsForm workspace={workspace} />
             <DeleteWorkspaceZone workspace={workspace} />
+            {isMobile && mobileAboutSection}
         </div>
     )
 }
