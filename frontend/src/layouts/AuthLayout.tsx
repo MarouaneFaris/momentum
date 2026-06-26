@@ -62,6 +62,9 @@ export default function AuthLayout() {
                 <div className="flex flex-1 flex-col justify-center">
                     <Outlet />
                 </div>
+                <p className="text-muted-foreground/60 pt-4 text-center text-[10px]">
+                    {import.meta.env.VITE_APP_VERSION ?? 'dev'}
+                </p>
             </div>
         </div>
     )
