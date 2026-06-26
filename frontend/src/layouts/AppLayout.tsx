@@ -62,7 +62,11 @@ export default function AppLayout() {
                         </span>
                     </Link>
                 )}
-                <span className="flex-1" />
+                <span className="flex-1 text-center">
+                    <span className="text-muted-foreground/60 text-[9px]">
+                        {import.meta.env.VITE_APP_VERSION ?? 'dev'}
+                    </span>
+                </span>
                 <ThemeToggleSwitch />
                 <NotificationBell />
                 <UserMenu />
