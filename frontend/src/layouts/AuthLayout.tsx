@@ -1,5 +1,6 @@
 import { MomentumLogo } from '@/components/MomentumLogo'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { ThemeToggleSwitch } from '@/components/ThemeToggleSwitch'
 import { AuthContext } from '@/contexts/auth/AuthContext'
 import { useContext } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router'
@@ -27,6 +28,10 @@ export default function AuthLayout() {
 
     return (
         <div className="bg-card flex min-h-screen flex-col md:grid md:grid-cols-[1fr_480px]">
+            <header className="bg-sidebar flex h-12 shrink-0 items-center border-b px-3 md:hidden">
+                <span className="flex-1" />
+                <ThemeToggleSwitch />
+            </header>
             <div className="bg-muted hidden flex-col items-center justify-center gap-3 border-r p-12 md:flex">
                 <MomentumLogo size="lg" />
                 <div className="flex w-full max-w-[280px] items-center gap-3">
@@ -46,7 +51,7 @@ export default function AuthLayout() {
                 </ul>
             </div>
             <div className="flex flex-1 flex-col p-8 md:p-12">
-                <div className="flex justify-end">
+                <div className="hidden justify-end md:flex">
                     <ThemeToggle />
                 </div>
                 <div className="mb-8 flex flex-col items-center gap-3 md:hidden">
