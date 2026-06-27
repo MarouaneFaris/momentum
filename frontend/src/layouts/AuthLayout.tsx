@@ -47,7 +47,7 @@ export default function AuthLayout() {
                 </ul>
             </div>
             <div className="flex flex-1 flex-col p-8 md:p-12">
-                <div className="flex justify-end">
+                <div className="mb-6 flex justify-end">
                     <span className="hidden md:block">
                         <ThemeToggle />
                     </span>
