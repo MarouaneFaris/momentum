@@ -33,7 +33,7 @@ export default function DevNotificationsPanel({ onOpenChange }: Props) {
                 <Button
                     variant="outline"
                     size="sm"
-                    className="flex items-center gap-1.5 text-xs shadow-md"
+                    className="dark:bg-background dark:hover:bg-muted flex items-center gap-1.5 text-xs shadow-md"
                 >
                     <Bell className="size-3" />
                     Notify
