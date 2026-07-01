@@ -5,6 +5,8 @@ updates:
     schedule:
       interval: "weekly"
     rebase-strategy: "auto"
+    cooldown:
+      default-days: 3
     groups:
       react-ecosystem:
         patterns:
@@ -23,12 +25,20 @@ updates:
           - "tailwind*"
           - "@tailwindcss/*"
           - "tw-*"
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "composer"
     directory: "/api"
     schedule:
       interval: "weekly"
     rebase-strategy: "auto"
+    cooldown:
+      default-days: 3
     groups:
       symfony:
         patterns:
@@ -36,9 +46,21 @@ updates:
       phpstan:
         patterns:
           - "phpstan/*"
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     rebase-strategy: "auto"
+    cooldown:
+      default-days: 3
+    groups:
+      actions:
+        patterns:
+          - "*"
