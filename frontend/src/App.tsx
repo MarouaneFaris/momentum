@@ -1,26 +1,27 @@
 import { Toaster } from '@/components/ui/sonner'
-import DevSpeedDial from '@/features/dev/components/DevSpeedDial'
 import { WorkspaceGuard } from '@/features/workspace/components/WorkspaceGuard'
 import '@/index.css'
 import AppLayout from '@/layouts/AppLayout'
 import AuthLayout from '@/layouts/AuthLayout'
 import queryClient from '@/lib/queryClient'
-import InvitationsPage from '@/pages/InvitationsPage'
-import LoginPage from '@/pages/LoginPage'
-import VerifyEmailPage from '@/pages/VerifyEmailPage'
-import WorkspaceMembersPage from '@/pages/WorkspaceMembersPage'
-import WorkspaceMyTasksPage from '@/pages/WorkspaceMyTasksPage'
-import WorkspaceProjectsPage from '@/pages/WorkspaceProjectsPage'
-import WorkspaceProjectTasksPage from '@/pages/WorkspaceProjectTasksPage'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
-import { StrictMode } from 'react'
+import { lazy, StrictMode, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from './contexts/auth/AuthProvider'
-import LandingPage from './pages/LandingPage'
-import RegisterPage from './pages/RegisterPage'
-import WorkspaceDashboardPage from './pages/WorkspaceDashboardPage'
-import WorkspaceSettingsPage from './pages/WorkspaceSettingsPage'
+
+const DevSpeedDial = lazy(() => import('@/features/dev/components/DevSpeedDial'))
+const InvitationsPage = lazy(() => import('@/pages/InvitationsPage'))
+const LoginPage = lazy(() => import('@/pages/LoginPage'))
+const VerifyEmailPage = lazy(() => import('@/pages/VerifyEmailPage'))
+const WorkspaceMembersPage = lazy(() => import('@/pages/WorkspaceMembersPage'))
+const WorkspaceMyTasksPage = lazy(() => import('@/pages/WorkspaceMyTasksPage'))
+const WorkspaceProjectsPage = lazy(() => import('@/pages/WorkspaceProjectsPage'))
+const WorkspaceProjectTasksPage = lazy(() => import('@/pages/WorkspaceProjectTasksPage'))
+const LandingPage = lazy(() => import('./pages/LandingPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const WorkspaceDashboardPage = lazy(() => import('./pages/WorkspaceDashboardPage'))
+const WorkspaceSettingsPage = lazy(() => import('./pages/WorkspaceSettingsPage'))
 
 export default function App() {
     return (
@@ -34,54 +35,60 @@ export default function App() {
                         disableTransitionOnChange
                     >
                         <BrowserRouter>
-                            <Routes>
-                                <Route element={<AuthLayout />}>
-                                    <Route path="/login" element={<LoginPage />} />
-                                    <Route path="/register" element={<RegisterPage />} />
-                                    <Route path="/verify-email" element={<VerifyEmailPage />} />
-                                </Route>
-                                <Route element={<AppLayout />}>
-                                    <Route path="/" element={<LandingPage />} />
-                                    <Route
-                                        path="/workspaces"
-                                        element={<Navigate to="/" replace />}
-                                    />
-                                    <Route
-                                        path="/workspaces/:id"
-                                        element={<Navigate to="dashboard" replace />}
-                                    />
-                                    <Route element={<WorkspaceGuard />}>
-                                        <Route
-                                            path="/workspaces/:id/dashboard"
-                                            element={<WorkspaceDashboardPage />}
-                                        />
-                                        <Route
-                                            path="/workspaces/:id/settings"
-                                            element={<WorkspaceSettingsPage />}
-                                        />
-                                        <Route
-                                            path="/workspaces/:id/members"
-                                            element={<WorkspaceMembersPage />}
-                                        />
-                                        <Route
-                                            path="/workspaces/:id/projects"
-                                            element={<WorkspaceProjectsPage />}
-                                        />
-                                        <Route
-                                            path="/workspaces/:id/my-tasks"
-                                            element={<WorkspaceMyTasksPage />}
-                                        />
-                                        <Route
-                                            path="/workspaces/:id/projects/:projectId/tasks"
-                                            element={<WorkspaceProjectTasksPage />}
-                                        />
+                            <Suspense>
+                                <Routes>
+                                    <Route element={<AuthLayout />}>
+                                        <Route path="/login" element={<LoginPage />} />
+                                        <Route path="/register" element={<RegisterPage />} />
+                                        <Route path="/verify-email" element={<VerifyEmailPage />} />
                                     </Route>
-                                    <Route path="/invitations" element={<InvitationsPage />} />
-                                </Route>
-                            </Routes>
+                                    <Route element={<AppLayout />}>
+                                        <Route path="/" element={<LandingPage />} />
+                                        <Route
+                                            path="/workspaces"
+                                            element={<Navigate to="/" replace />}
+                                        />
+                                        <Route
+                                            path="/workspaces/:id"
+                                            element={<Navigate to="dashboard" replace />}
+                                        />
+                                        <Route element={<WorkspaceGuard />}>
+                                            <Route
+                                                path="/workspaces/:id/dashboard"
+                                                element={<WorkspaceDashboardPage />}
+                                            />
+                                            <Route
+                                                path="/workspaces/:id/settings"
+                                                element={<WorkspaceSettingsPage />}
+                                            />
+                                            <Route
+                                                path="/workspaces/:id/members"
+                                                element={<WorkspaceMembersPage />}
+                                            />
+                                            <Route
+                                                path="/workspaces/:id/projects"
+                                                element={<WorkspaceProjectsPage />}
+                                            />
+                                            <Route
+                                                path="/workspaces/:id/my-tasks"
+                                                element={<WorkspaceMyTasksPage />}
+                                            />
+                                            <Route
+                                                path="/workspaces/:id/projects/:projectId/tasks"
+                                                element={<WorkspaceProjectTasksPage />}
+                                            />
+                                        </Route>
+                                        <Route path="/invitations" element={<InvitationsPage />} />
+                                    </Route>
+                                </Routes>
+                            </Suspense>
                         </BrowserRouter>
                         <Toaster position="top-center" />
-                        {import.meta.env.DEV && <DevSpeedDial />}
+                        {import.meta.env.DEV && (
+                            <Suspense>
+                                <DevSpeedDial />
+                            </Suspense>
+                        )}
                     </ThemeProvider>
                 </AuthProvider>
             </QueryClientProvider>
