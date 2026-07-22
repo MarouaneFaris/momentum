@@ -19,7 +19,7 @@
         "test:run": "vitest run"
     },
     "dependencies": {
-        "@fontsource-variable/inter": "^5.2.8",
+        "@fontsource-variable/inter": "^5.3.0",
         "@hookform/resolvers": "^5.4.0",
         "@radix-ui/react-tooltip": "^1.2.12",
         "@sentry/react": "^10.66.0",
@@ -29,7 +29,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "loglevel": "^1.9.2",
-        "lucide-react": "^1.24.0",
+        "lucide-react": "^1.25.0",
         "next-themes": "^0.4.6",
         "radix-ui": "^1.6.2",
         "react": "^19.2.7",
@@ -62,7 +62,7 @@
         "jsdom": "^29.1.1",
         "prettier": "3.9.5",
         "prettier-plugin-tailwindcss": "^0.8.1",
-        "shadcn": "^4.13.0",
+        "shadcn": "^4.13.1",
         "typescript": "~6.0.3",
         "typescript-eslint": "^8.62.1",
         "vite": "^8.1.4",
