@@ -8,24 +8,10 @@ updates:
     cooldown:
       default-days: 3
     groups:
-      react-ecosystem:
-        patterns:
-          - "react*"
-          - "@types/react*"
-          - "@vitejs/*"
-          - "vite*"
-      typescript-eslint:
-        patterns:
-          - "typescript*"
-          - "@typescript-eslint/*"
-          - "eslint*"
-          - "@eslint/*"
-      tailwind:
-        patterns:
-          - "tailwind*"
-          - "@tailwindcss/*"
-          - "tw-*"
-      minor-and-patch:
+      # Single group so only one PR touches pnpm-lock.yaml per run.
+      # Majors stay ungrouped (individual PRs) so one bad major
+      # can't block the whole frontend lockfile update.
+      frontend:
         patterns:
           - "*"
         update-types:
@@ -40,13 +26,9 @@ updates:
     cooldown:
       default-days: 3
     groups:
-      symfony:
-        patterns:
-          - "symfony/*"
-      phpstan:
-        patterns:
-          - "phpstan/*"
-      minor-and-patch:
+      # Single group so only one PR touches composer.lock per run.
+      # Majors stay ungrouped (individual PRs).
+      api:
         patterns:
           - "*"
         update-types:
