@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mercure\Jwt\Grant;
 use Symfony\Component\Mercure\Jwt\TokenFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
@@ -46,8 +47,10 @@ final class MercureTokenController extends AbstractController
     {
         $now = new \DateTimeImmutable();
         $token = $this->subscriberJwtFactory->create(
-            subscribe: ["/notifications/{$user->getId()}"],
-            publish: [],
+            grants: [new Grant(
+                actions: [Grant::ACTION_SUBSCRIBE],
+                topics: ["/notifications/{$user->getId()}"],
+            )],
             additionalClaims: [
                 'sub' => (string) $user->getId(),
                 'iat' => $now,
