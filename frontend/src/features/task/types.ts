@@ -18,7 +18,26 @@ export type Task = {
     assignee: TaskAssignee | null
     createdAt: string
     creatorId: string
+    dueDate: string | null
+    isOverdue: boolean
 }
+
+export type TaskFormValues = {
+    title: string
+    description?: string
+    assigneeId?: string
+    status?: TaskStatus
+    dueDate?: string
+}
+
+export type UseTaskFormOptions = {
+    workspaceId: string
+    projectId: string
+    onSuccess: () => void
+} & (
+    | { mode?: 'create'; taskId?: undefined; initialValues?: undefined }
+    | { mode: 'edit'; taskId: string; initialValues: TaskFormValues }
+)
 
 export type TaskDetail = {
     id: string
@@ -29,4 +48,19 @@ export type TaskDetail = {
     assignee: TaskAssignee | null
     createdAt: string
     updatedAt: string
+    dueDate: string | null
+    isOverdue: boolean
+}
+
+export type CreatePayload = {
+    title: string
+    description?: string
+    assigneeId?: string
+    dueDate?: string
+}
+
+export type UpdatePayload = CreatePayload & {
+    status?: string
+    removeAssignee?: boolean
+    removeDueDate?: boolean
 }

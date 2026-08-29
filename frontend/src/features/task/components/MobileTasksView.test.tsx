@@ -22,6 +22,8 @@ const makeTasks = (): Task[] => [
         assignee: null,
         createdAt: '2026-01-01T00:00:00Z',
         creatorId: 'user-1',
+        dueDate: null,
+        isOverdue: false,
     },
     {
         id: 'task-2',
@@ -30,6 +32,8 @@ const makeTasks = (): Task[] => [
         assignee: { id: 'user-2', name: 'Alice Smith' },
         createdAt: '2026-01-02T00:00:00Z',
         creatorId: 'user-2',
+        dueDate: null,
+        isOverdue: false,
     },
     {
         id: 'task-3',
@@ -38,6 +42,8 @@ const makeTasks = (): Task[] => [
         assignee: null,
         createdAt: '2026-01-03T00:00:00Z',
         creatorId: 'user-1',
+        dueDate: null,
+        isOverdue: false,
     },
 ]
 
@@ -50,6 +56,8 @@ const makeDetail = (overrides: Partial<TaskDetail> = {}): TaskDetail => ({
     assignee: null,
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
+    dueDate: null,
+    isOverdue: false,
     ...overrides,
 })
 

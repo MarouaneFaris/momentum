@@ -15,6 +15,7 @@ use App\Service\TaskService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +26,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class UpdateTaskController extends AbstractTaskController
 {
-    public function __construct(private readonly TaskService $taskService) {}
+    public function __construct(
+        private readonly TaskService $taskService,
+        private readonly ClockInterface $clock,
+    ) {}
 
     #[OA\Patch(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}',
@@ -70,6 +74,9 @@ final class UpdateTaskController extends AbstractTaskController
 
         $task = $this->taskService->update($task, $user, $workspace, $dto);
 
-        return $this->json(TaskDetailResponse::fromTask($task), Response::HTTP_OK);
+        return $this->json(
+            TaskDetailResponse::fromTask($task, $this->clock),
+            Response::HTTP_OK,
+        );
     }
 }
