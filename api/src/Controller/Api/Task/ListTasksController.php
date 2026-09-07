@@ -13,6 +13,7 @@ use App\Security\Voter\TaskVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,7 +21,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListTasksController extends AbstractTaskController
 {
-    public function __construct(private readonly TaskRepository $taskRepository) {}
+    public function __construct(
+        private readonly TaskRepository $taskRepository,
+        private readonly ClockInterface $clock,
+    ) {}
 
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks',
@@ -59,7 +63,7 @@ final class ListTasksController extends AbstractTaskController
 
         return $this->json(
             array_map(
-                static fn (Task $t) => TaskListItemResponse::fromTask($t),
+                fn (Task $t) => TaskListItemResponse::fromTask($t, $this->clock),
                 $tasks,
             ),
         );
