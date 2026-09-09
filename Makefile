@@ -32,7 +32,7 @@ MAKEFLAGS += --no-print-directory
 	sf cc cc-test flush-redis create-db drop-db migrate-db reset-db load-fixtures \
 	create-db-test drop-db-test migrate-db-test reset-db-test reset-dbs \
 	back-cs-fix stan back-check \
-	pnpm front-install front-lint front-lint-fix front-format front-check front-test \
+	pnpm front-install front-store-prune front-lint front-lint-fix front-format front-check front-test \
 	check \
 	install-hooks dev-certs install
 
@@ -167,6 +167,9 @@ pnpm: ## Run pnpm, pass the parameter "c=" to run a given command, example: make
 
 front-install: ## Install frontend dependencies
 	@$(PNPM) install
+
+front-store-prune: ## Remove unreferenced packages from the pnpm store (run after dependency bumps)
+	@$(PNPM) store prune
 
 front-lint: ## Lint frontend code
 	@$(PNPM) run lint
