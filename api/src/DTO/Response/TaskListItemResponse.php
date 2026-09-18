@@ -6,6 +6,7 @@ namespace App\DTO\Response;
 
 use App\Entity\Task;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Clock\ClockInterface;
 
 final readonly class TaskListItemResponse
 {
@@ -22,11 +23,16 @@ final readonly class TaskListItemResponse
         public string $createdAt,
         #[OA\Property(type: 'string', format: 'uuid')]
         public string $creatorId,
+        #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-12-31')]
+        public ?string $dueDate,
+        #[OA\Property(type: 'boolean', description: 'True when due date is set and is in the past')]
+        public bool $isOverdue,
     ) {}
 
-    public static function fromTask(Task $task): self
+    public static function fromTask(Task $task, ClockInterface $clock): self
     {
         $assignee = $task->getAssignee();
+        $dueDate = $task->getDueDate();
 
         return new self(
             id: (string) $task->getId(),
@@ -38,6 +44,8 @@ final readonly class TaskListItemResponse
             ) : null,
             createdAt: $task->getCreatedAt()->format(\DateTimeInterface::ATOM),
             creatorId: (string) $task->getCreator()->getId(),
+            dueDate: $dueDate?->toDateTimeImmutable()->format('Y-m-d'),
+            isOverdue: $dueDate?->isOverdue($clock) ?? false,
         );
     }
 }

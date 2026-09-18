@@ -1,32 +1,25 @@
-import api from '@/lib/api'
 import { useFormMutation } from '@/hooks/useFormMutation'
+import api from '@/lib/api'
 import type { ApiRoute } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import z from 'zod'
-import type { Task } from '../types'
 import { taskStatusSchema } from '../taskStatus'
+import type {
+    CreatePayload,
+    Task,
+    TaskFormValues,
+    UpdatePayload,
+    UseTaskFormOptions,
+} from '../types'
 
 const schema = z.object({
     title: z.string().min(1, 'Title is required').max(255, 'Title must be 255 characters or fewer'),
     description: z.string().optional(),
     assigneeId: z.string().optional(),
     status: taskStatusSchema.optional(),
+    dueDate: z.string().optional(),
 })
-
-export type TaskFormValues = z.infer<typeof schema>
-
-type CreatePayload = { title: string; description?: string; assigneeId?: string }
-type UpdatePayload = CreatePayload & { status?: string; removeAssignee?: boolean }
-
-export type UseTaskFormOptions = {
-    workspaceId: string
-    projectId: string
-    onSuccess: () => void
-} & (
-    | { mode?: 'create'; taskId?: undefined; initialValues?: undefined }
-    | { mode: 'edit'; taskId: string; initialValues: TaskFormValues }
-)
 
 export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseTaskFormOptions) {
     const isEdit = rest.mode === 'edit'
@@ -35,7 +28,9 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
 
     const form = useForm<TaskFormValues>({
         resolver: zodResolver(schema),
-        defaultValues: isEdit ? rest.initialValues : { title: '', description: '', assigneeId: '' },
+        defaultValues: isEdit
+            ? rest.initialValues
+            : { title: '', description: '', assigneeId: '', dueDate: '' },
     })
 
     const createMutation = useFormMutation({
@@ -62,11 +57,17 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
                 ? { removeAssignee: true }
                 : { assigneeId: values.assigneeId || undefined }
 
+        const dueDatePayload: { dueDate?: string; removeDueDate?: boolean } =
+            isEdit && !values.dueDate
+                ? { removeDueDate: true }
+                : { dueDate: values.dueDate || undefined }
+
         const payload = {
             title: values.title,
             description: values.description || undefined,
             ...(values.status ? { status: values.status } : {}),
             ...assigneePayload,
+            ...dueDatePayload,
         }
 
         if (isEdit) {
@@ -76,6 +77,7 @@ export function useTaskForm({ workspaceId, projectId, onSuccess, ...rest }: UseT
                 title: payload.title,
                 description: payload.description,
                 assigneeId: payload.assigneeId,
+                dueDate: values.dueDate || undefined,
             })
         }
     }

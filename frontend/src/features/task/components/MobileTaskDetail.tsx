@@ -9,7 +9,7 @@ import {
 import { useUpdateTaskStatus } from '../hooks/useUpdateTaskStatus'
 import type { TaskDetail } from '../types'
 import { STATUS_OPTIONS } from '../taskStatus'
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash2, AlertCircle } from 'lucide-react'
 import { DetailRow } from './DetailRow'
 import { UserAvatar } from '@/components/UserAvatar'
 import { StatusBadge } from './StatusBadge'
@@ -113,6 +113,24 @@ export function MobileTaskDetail({
                         <span className="text-muted-foreground text-[12px]">
                             {formatDate(task.createdAt)}
                         </span>
+                    </DetailRow>
+                    <DetailRow label="Due date">
+                        {task.dueDate ? (
+                            <span
+                                className={
+                                    task.isOverdue && task.status !== 'done'
+                                        ? 'text-destructive flex items-center gap-1 text-[12px] font-medium'
+                                        : 'text-muted-foreground text-[12px]'
+                                }
+                            >
+                                {task.isOverdue && task.status !== 'done' && (
+                                    <AlertCircle size={12} />
+                                )}
+                                {formatDate(task.dueDate)}
+                            </span>
+                        ) : (
+                            <span className="text-muted-foreground text-[13px]">—</span>
+                        )}
                     </DetailRow>
                 </div>
 

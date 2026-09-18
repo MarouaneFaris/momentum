@@ -10,6 +10,7 @@ use App\Factory\TaskFactory;
 use App\Factory\UserFactory;
 use App\Factory\UserWorkspaceFactory;
 use App\Factory\WorkspaceFactory;
+use App\ValueObject\Task\DueDate;
 use Symfony\Component\HttpFoundation\Response;
 
 final class TaskUpdateTest extends IntegrationTestCase
@@ -201,5 +202,78 @@ final class TaskUpdateTest extends IntegrationTestCase
         self::assertArrayHasKey('description', $data);
         self::assertArrayHasKey('creator', $data);
         self::assertArrayHasKey('updatedAt', $data);
+        self::assertArrayHasKey('dueDate', $data);
+    }
+
+    public function testOwnerCanSetDueDate(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership]);
+        $task = TaskFactory::createOne(['project' => $project, 'creator' => $membership->getUser()]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'PATCH',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId() . '/tasks/' . $task->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['dueDate' => '2099-12-31'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        /** @var array<string, mixed> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('2099-12-31', $data['dueDate']);
+    }
+
+    public function testOwnerCanClearDueDate(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership]);
+        $task = TaskFactory::createOne(['project' => $project, 'creator' => $membership->getUser(), 'dueDate' => new DueDate(new \DateTimeImmutable('2099-12-31'))]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'PATCH',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId() . '/tasks/' . $task->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['removeDueDate' => true], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        /** @var array<string, mixed> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertNull($data['dueDate']);
+    }
+
+    public function testInvalidDueDateReturns422(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership]);
+        $task = TaskFactory::createOne(['project' => $project, 'creator' => $membership->getUser()]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'PATCH',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId() . '/tasks/' . $task->getId(),
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['dueDate' => 'not-a-date'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }

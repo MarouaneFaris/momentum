@@ -12,6 +12,7 @@ use App\Security\Voter\TaskVoter;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,6 +20,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class GetTaskController extends AbstractTaskController
 {
+    public function __construct(private readonly ClockInterface $clock) {}
+
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/projects/{projectId}/tasks/{taskId}',
         summary: 'Get task detail',
@@ -52,6 +55,6 @@ final class GetTaskController extends AbstractTaskController
         $this->assertProjectBelongsToWorkspace($project, $workspace);
         $this->assertTaskBelongsToProject($task, $project);
 
-        return $this->json(TaskDetailResponse::fromTask($task));
+        return $this->json(TaskDetailResponse::fromTask($task, $this->clock));
     }
 }
