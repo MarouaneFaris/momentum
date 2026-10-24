@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import type { UseFormReturn } from 'react-hook-form'
-import type { TaskFormValues } from '../hooks/useTaskForm'
+import type { TaskFormValues } from '../types'
 import { STATUS_OPTIONS } from '../taskStatus'
 import { AssigneeChips } from './AssigneeChips'
 
@@ -104,6 +104,11 @@ export function TaskFormBottomSheet({
                     value={assigneeId}
                     onChange={(id) => setValue('assigneeId', id)}
                 />
+
+                <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="m-task-due-date">Due date</Label>
+                    <Input id="m-task-due-date" type="date" {...register('dueDate')} />
+                </div>
 
                 <div className="flex justify-end gap-2">
                     <Button

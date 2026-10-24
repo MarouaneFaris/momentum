@@ -21,5 +21,9 @@ final readonly class CreateTaskDTO
         #[Assert\Uuid]
         #[OA\Property(type: 'string', format: 'uuid', nullable: true)]
         public ?string $assigneeId = null,
+
+        #[Assert\Date]
+        #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-12-31')]
+        public ?string $dueDate = null,
     ) {}
 }

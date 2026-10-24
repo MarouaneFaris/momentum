@@ -30,5 +30,12 @@ final readonly class UpdateTaskDTO
 
         #[OA\Property(type: 'boolean', default: false, description: 'Set to true to remove the current assignee')]
         public bool $removeAssignee = false,
+
+        #[Assert\Date]
+        #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-12-31', description: 'ISO 8601 date (YYYY-MM-DD)')]
+        public ?string $dueDate = null,
+
+        #[OA\Property(type: 'boolean', default: false, description: 'Set to true to clear the due date')]
+        public bool $removeDueDate = false,
     ) {}
 }

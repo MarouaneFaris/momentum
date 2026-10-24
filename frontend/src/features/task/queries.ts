@@ -34,8 +34,12 @@ export const useTask = (workspaceId: string, projectId: string, taskId: string |
 
 export const useCreateTask = (workspaceId: string, projectId: string) =>
     useMutation({
-        mutationFn: (data: { title: string; description?: string; assigneeId?: string }) =>
-            api.post<Task>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, data),
+        mutationFn: (data: {
+            title: string
+            description?: string
+            assigneeId?: string
+            dueDate?: string
+        }) => api.post<Task>(`/workspaces/${workspaceId}/projects/${projectId}/tasks`, data),
     })
 
 export const useUpdateTask = (workspaceId: string, projectId: string, taskId: string) =>
@@ -46,6 +50,8 @@ export const useUpdateTask = (workspaceId: string, projectId: string, taskId: st
             status?: TaskStatus
             assigneeId?: string
             removeAssignee?: boolean
+            dueDate?: string
+            removeDueDate?: boolean
         }) =>
             api.patch<TaskDetail>(
                 `/workspaces/${workspaceId}/projects/${projectId}/tasks/${taskId}`,

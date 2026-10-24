@@ -14,6 +14,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,7 +23,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ListMyTasksController extends AbstractController
 {
-    public function __construct(private readonly TaskRepository $taskRepository) {}
+    public function __construct(
+        private readonly TaskRepository $taskRepository,
+        private readonly ClockInterface $clock,
+    ) {}
 
     #[OA\Get(
         path: '/api/workspaces/{workspaceId}/tasks',
@@ -63,7 +67,7 @@ final class ListMyTasksController extends AbstractController
 
         return $this->json(
             array_map(
-                static fn (Task $t) => TaskListItemResponse::fromTask($t),
+                fn (Task $t) => TaskListItemResponse::fromTask($t, $this->clock),
                 $tasks,
             ),
         );

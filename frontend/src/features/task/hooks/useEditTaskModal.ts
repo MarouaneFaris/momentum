@@ -9,6 +9,7 @@ type EditState = {
     description: string
     assigneeId: string
     status: TaskStatus
+    dueDate: string
 }
 
 function fromDetail(t: TaskDetail): EditState {
@@ -18,6 +19,7 @@ function fromDetail(t: TaskDetail): EditState {
         description: t.description ?? '',
         assigneeId: t.assignee?.id ?? '',
         status: t.status,
+        dueDate: t.dueDate ?? '',
     }
 }
 
@@ -41,6 +43,7 @@ export function useEditTaskModal(workspaceId: string, projectId: string) {
             description: '',
             assigneeId: t.assignee?.id ?? '',
             status: t.status,
+            dueDate: t.dueDate ?? '',
         })
         setFetchId(t.id)
     }
@@ -60,6 +63,7 @@ export function useEditTaskModal(workspaceId: string, projectId: string) {
             description: state?.description ?? '',
             assigneeId: state?.assigneeId ?? '',
             status: state?.status,
+            dueDate: state?.dueDate ?? '',
         },
         onSuccess: close,
     })
@@ -71,6 +75,7 @@ export function useEditTaskModal(workspaceId: string, projectId: string) {
                 description: state.description,
                 assigneeId: state.assigneeId,
                 status: state.status,
+                dueDate: state.dueDate,
             })
         }
     }, [state, form])

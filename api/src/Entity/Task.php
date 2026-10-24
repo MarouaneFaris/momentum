@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Enum\TaskStatus;
 use App\Repository\TaskRepository;
+use App\ValueObject\Task\DueDate;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -47,6 +48,9 @@ class Task
 
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
+
+    #[ORM\Column(type: 'dueDate', nullable: true)]
+    private ?DueDate $dueDate = null;
 
     public function __construct()
     {
@@ -145,5 +149,17 @@ class Task
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function getDueDate(): ?DueDate
+    {
+        return $this->dueDate;
+    }
+
+    public function setDueDate(?DueDate $dueDate): static
+    {
+        $this->dueDate = $dueDate;
+
+        return $this;
     }
 }
