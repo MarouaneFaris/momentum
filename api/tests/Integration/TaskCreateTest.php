@@ -236,4 +236,29 @@ final class TaskCreateTest extends IntegrationTestCase
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
+
+    public function testCreateWithDueDateReturnsDueDateInResponse(): void
+    {
+        $client = static::createClient();
+        $user = UserFactory::createOne(['email' => self::EMAIL, 'password' => self::PASSWORD]);
+        $workspace = WorkspaceFactory::createOne();
+        $membership = UserWorkspaceFactory::createOne(['user' => $user, 'workspace' => $workspace, 'role' => WorkspaceRole::Owner]);
+        $project = ProjectFactory::createOne(['workspace' => $workspace, 'owner' => $membership]);
+
+        $this->loginAs($client, self::EMAIL, self::PASSWORD);
+        $client->request(
+            'POST',
+            '/api/workspaces/' . $workspace->getId() . '/projects/' . $project->getId() . '/tasks',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['title' => 'Task with due date', 'dueDate' => '2099-12-31'], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
+        /** @var array<string, mixed> $data */
+        $data = json_decode((string) $client->getResponse()->getContent(), true);
+        self::assertSame('2099-12-31', $data['dueDate']);
+        self::assertFalse($data['isOverdue']);
+    }
 }

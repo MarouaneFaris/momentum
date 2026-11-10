@@ -18,6 +18,7 @@ use App\Exception\ApiException;
 use App\Repository\UserRepository;
 use App\Repository\UserWorkspaceRepository;
 use App\Utils\UuidHelper;
+use App\ValueObject\Task\DueDate;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +38,7 @@ final readonly class TaskService
         string $title,
         ?string $description,
         ?string $assigneeId,
+        ?string $dueDate = null,
     ): Task {
         $assignee = null;
         if ($assigneeId !== null) {
@@ -53,6 +55,9 @@ final readonly class TaskService
         $task->setTitle($title);
         $task->setDescription($description === '' ? null : $description);
         $task->setAssignee($assignee);
+        if ($dueDate !== null) {
+            $task->setDueDate(new DueDate(new \DateTimeImmutable($dueDate)));
+        }
 
         $this->em->persist($task);
         $this->em->flush();
@@ -84,7 +89,7 @@ final readonly class TaskService
             || UuidHelper::equals($task->getCreator()->getId(), $caller->getId());
         $hasFullAccess = $isOwner || $isCreator;
 
-        if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee)) {
+        if (!$hasFullAccess && ($dto->title !== null || $dto->description !== null || $dto->assigneeId !== null || $dto->removeAssignee || $dto->dueDate !== null || $dto->removeDueDate)) {
             throw new ApiException(ErrorCode::WORKSPACE_FORBIDDEN, 'Only status updates are allowed for this role.', [], Response::HTTP_FORBIDDEN);
         }
 
@@ -113,6 +118,12 @@ final readonly class TaskService
                 }
                 $this->validateAssignee($task->getProject(), $newAssignee);
                 $task->setAssignee($newAssignee);
+            }
+
+            if ($dto->removeDueDate) {
+                $task->setDueDate(null);
+            } elseif ($dto->dueDate !== null) {
+                $task->setDueDate(new DueDate(new \DateTimeImmutable($dto->dueDate)));
             }
         }
 

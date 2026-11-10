@@ -100,6 +100,8 @@ export default function WorkspaceProjectTasksPage() {
                                     assignee: detail.task.assignee,
                                     createdAt: detail.task.createdAt,
                                     creatorId: detail.task.creator.id,
+                                    dueDate: detail.task.dueDate,
+                                    isOverdue: detail.task.isOverdue,
                                 })
                             }
                         }}

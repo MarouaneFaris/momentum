@@ -64,6 +64,8 @@ export function MobileTasksView({
                                 assignee: t.assignee,
                                 createdAt: t.createdAt,
                                 creatorId: t.creator.id,
+                                dueDate: t.dueDate,
+                                isOverdue: t.isOverdue,
                             })
                         }}
                     />

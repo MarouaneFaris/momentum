@@ -19,7 +19,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useWorkspaceMembers } from '@/features/membership/queries'
 import type { UseFormReturn } from 'react-hook-form'
-import type { TaskFormValues } from '../hooks/useTaskForm'
+import type { TaskFormValues } from '../types'
 
 type Props = {
     open: boolean
@@ -116,6 +116,10 @@ export function TaskFormModal({
                                 </Select>
                             </div>
                         )}
+                        <div className="grid gap-2">
+                            <Label htmlFor="task-due-date">Due date</Label>
+                            <Input id="task-due-date" type="date" {...register('dueDate')} />
+                        </div>
                     </div>
                 </form>
                 <DialogFooter>
